@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import BottomNav from '@/components/ui/BottomNav'
 
@@ -11,7 +11,7 @@ const STEPS = [
   { label: 'Livrée !', icon: '✅', sub: 'Bon appétit ! Pensez à laisser un avis.' },
 ]
 
-export default function SuiviPage() {
+function SuiviContent() {
   const searchParams = useSearchParams()
   const numero = searchParams.get('numero') || '#1043'
   const [step, setStep] = useState(1)
@@ -36,7 +36,7 @@ export default function SuiviPage() {
   return (
     <div className="min-h-screen bg-creme pb-24">
       <div className="bg-brun px-5 py-4">
-        <h1 className="font-serif text-xl font-bold text-or">🛵 Suivi de commande</h1>
+        <h1 className="font-serif text-xl font-bold text-or">Suivi de commande</h1>
         <p className="text-white/60 text-xs mt-0.5">{numero} · Maison Dupont</p>
       </div>
 
@@ -51,12 +51,12 @@ export default function SuiviPage() {
         </div>
 
         {/* ETA */}
-        <div className="bg-rouge-pale border border-rouge/20 rounded-2xl p-4 text-center mb-4">
+        <div className="bg-rouge-pale border border-rouge-vif/20 rounded-2xl p-4 text-center mb-4">
           <p className="font-serif text-4xl font-black text-rouge-vif">{eta}</p>
           <p className="text-xs text-gray-400 mt-1">Temps de livraison estimé</p>
         </div>
 
-        {/* Livreur (à partir de l'étape livraison) */}
+        {/* Livreur */}
         {step >= 3 && (
           <div className="bg-white rounded-2xl p-4 flex items-center gap-3 mb-4 shadow-sm">
             <div className="w-11 h-11 rounded-full bg-brun text-white text-xl flex items-center justify-center flex-shrink-0">🛵</div>
@@ -102,11 +102,12 @@ export default function SuiviPage() {
       {showReview && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-5">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
-            <h2 className="font-serif text-xl font-black text-brun mb-1">Votre avis compte ! ⭐</h2>
+            <h2 className="font-serif text-xl font-black text-brun mb-1">Votre avis compte !</h2>
             <p className="text-xs text-gray-400 mb-4">Comment s'est passée votre commande ?</p>
             <div className="flex gap-2 mb-4">
-              {[1,2,3,4,5].map(n => (
-                <button key={n} className="text-3xl bg-none border-none cursor-pointer hover:scale-110 transition-transform"
+              {[1, 2, 3, 4, 5].map(n => (
+                <button key={n}
+                  className="text-3xl bg-transparent border-none cursor-pointer hover:scale-110 transition-transform"
                   onClick={() => setReviewNote(n)}>
                   {n <= reviewNote ? '⭐' : '☆'}
                 </button>
@@ -120,17 +121,36 @@ export default function SuiviPage() {
               onChange={e => setReviewText(e.target.value)}
             />
             <button
-              className="w-full bg-or text-brun font-bold py-3 rounded-xl text-sm disabled:bg-gray-200 disabled:text-gray-400"
+              className="w-full bg-or text-brun font-bold py-3 rounded-xl text-sm disabled:bg-gray-200 disabled:text-gray-400 font-sans"
               disabled={!reviewNote}
               onClick={() => setShowReview(false)}>
-              {reviewNote ? `Publier mon avis ${'⭐'.repeat(reviewNote)}` : 'Sélectionnez une note'}
+              {reviewNote ? `Publier mon avis` : 'Sélectionnez une note'}
             </button>
-            <button className="w-full text-gray-400 text-xs mt-2" onClick={() => setShowReview(false)}>Plus tard</button>
+            <button
+              className="w-full text-gray-400 text-xs mt-2 bg-transparent border-none cursor-pointer font-sans"
+              onClick={() => setShowReview(false)}>
+              Plus tard
+            </button>
           </div>
         </div>
       )}
 
       <BottomNav currentPage="tracking" />
     </div>
+  )
+}
+
+export default function SuiviPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-creme flex items-center justify-center">
+        <div className="text-center text-gray-400">
+          <p className="text-4xl mb-3">🛵</p>
+          <p className="text-sm">Chargement du suivi…</p>
+        </div>
+      </div>
+    }>
+      <SuiviContent />
+    </Suspense>
   )
 }
