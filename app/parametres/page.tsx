@@ -2,26 +2,31 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
+import { useAuth } from '@/store/auth'
 
 type Section = 'profil' | 'adresses' | 'notifs' | 'support' | 'contact' | 'confidentialite' | 'cgu' | null
 
 export default function ParametresPage() {
   const router = useRouter()
+  const { user, isClient, isBoucher } = useAuth()
   const [section, setSection] = useState<Section>(null)
 
-  if (section === 'profil')         return <ProfilSection onBack={() => setSection(null)} />
-  if (section === 'adresses')       return <AdressesSection onBack={() => setSection(null)} />
-  if (section === 'notifs')         return <NotifsSection onBack={() => setSection(null)} />
-  if (section === 'support')        return <SupportSection onBack={() => setSection(null)} />
-  if (section === 'contact')        return <ContactSection onBack={() => setSection(null)} />
+  if (section === 'profil')          return <ProfilSection onBack={() => setSection(null)} />
+  if (section === 'adresses')        return <AdressesSection onBack={() => setSection(null)} />
+  if (section === 'notifs')          return <NotifsSection onBack={() => setSection(null)} />
+  if (section === 'support')         return <SupportSection onBack={() => setSection(null)} />
+  if (section === 'contact')         return <ContactSection onBack={() => setSection(null)} />
   if (section === 'confidentialite') return <ConfidentialiteSection onBack={() => setSection(null)} />
-  if (section === 'cgu')            return <CguSection onBack={() => setSection(null)} />
+  if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
+
+  // Section "Espace Boucher" visible uniquement si boucher connecté
+  const showBoucherSection = isBoucher()
 
   const sections = [
     {
       titre: 'Mon compte',
       items: [
-        { ico: '👤', label: 'Mon profil', sub: 'Jean Dupont · jean@email.fr', action: () => setSection('profil') },
+        { ico: '👤', label: 'Mon profil', sub: `${user?.nom || 'Mon profil'} · ${user?.email || ''}`, action: () => setSection('profil') },
         { ico: '📍', label: 'Mes adresses', sub: '1 adresse enregistrée', action: () => setSection('adresses') },
         { ico: '🔔', label: 'Notifications', sub: '2 non lues', action: () => setSection('notifs') },
         { ico: '❤️', label: 'Boucheries favorites', sub: '2 boucheries sauvegardées', action: () => {} },
@@ -35,14 +40,15 @@ export default function ParametresPage() {
         { ico: '💳', label: 'Moyens de paiement', sub: 'Carte •••• 4242', action: () => {} },
       ],
     },
-    {
+    // Section boucher — masquée si compte client
+    ...(showBoucherSection ? [{
       titre: 'Espace Boucher',
       items: [
         { ico: '🔪', label: 'Tableau de bord', sub: 'Gérer commandes & stocks', action: () => router.push('/panel') },
         { ico: '🛍️', label: 'Gérer mes produits', sub: 'Photos, prix, découpes', action: () => router.push('/panel') },
         { ico: '💶', label: 'Mes revenus Stripe', sub: 'Voir les paiements reçus', action: () => {} },
       ],
-    },
+    }] : []),
     {
       titre: 'Application & Aide',
       items: [
@@ -63,10 +69,12 @@ export default function ParametresPage() {
 
       {/* Avatar rapide */}
       <div className="bg-white mx-5 mt-5 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
-        <div className="w-14 h-14 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">👤</div>
+        <div className="w-14 h-14 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">
+          {isBoucher() ? '🔪' : '👤'}
+        </div>
         <div className="flex-1">
-          <p className="font-bold text-brun text-base">Jean Dupont</p>
-          <p className="text-xs text-gray-400">jean@email.fr · Client</p>
+          <p className="font-bold text-brun text-base">{user?.nom || 'Mon compte'}</p>
+          <p className="text-xs text-gray-400">{user?.email || 'Non connecté'} · {isBoucher() ? 'Boucher' : 'Client'}</p>
         </div>
         <button className="bg-creme border border-gris-bd text-brun text-xs font-semibold px-3 py-1.5 rounded-xl" onClick={() => setSection('profil')}>Modifier</button>
       </div>
