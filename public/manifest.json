@@ -1,0 +1,21 @@
+{
+  "name": "BoucherieDelivery",
+  "short_name": "Boucherie",
+  "description": "La meilleure viande artisanale livrée chez vous",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#3D2012",
+  "theme_color": "#3D2012",
+  "orientation": "portrait",
+  "categories": ["food", "shopping"],
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Accueil", "url": "/", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mes commandes", "url": "/commandes", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
