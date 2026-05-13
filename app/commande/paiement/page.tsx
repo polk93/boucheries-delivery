@@ -11,7 +11,7 @@ export default function PaiementPage() {
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [adresse, setAdresse] = useState({ prenom: '', nom: '', adresse: '', cp: '', ville: '', etage: '', interphone: '' })
-  const [card, setCard] = useState({ numero: '4242 4242 4242 4242', expiry: '12/27', cvv: '123', titulaire: 'JEAN DUPONT' })
+  const [card, setCard] = useState({ numero: '', expiry: '', cvv: '', titulaire: '' })
 
   const frais = items.length > 0 ? 2.90 : 0
   const total = sousTotal() + frais

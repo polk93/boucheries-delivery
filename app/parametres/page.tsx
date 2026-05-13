@@ -37,7 +37,7 @@ export default function ParametresPage() {
       items: [
         { ico: '📦', label: 'Historique des commandes', sub: '2 commandes passées', action: () => router.push('/commandes') },
         { ico: '⭐', label: 'Mes avis', sub: '1 avis laissé', action: () => {} },
-        { ico: '💳', label: 'Moyens de paiement', sub: 'Carte •••• 4242', action: () => {} },
+        { ico: '💳', label: 'Moyens de paiement', sub: 'Aucune carte enregistrée', action: () => {} },
       ],
     },
     // Section boucher — masquée si compte client
@@ -127,7 +127,13 @@ function PageWrapper({ title, onBack, children }: { title: string; onBack: () =>
 
 // ── Profil ────────────────────────────────────────────────────────────────────
 function ProfilSection({ onBack }: { onBack: () => void }) {
-  const [form, setForm] = useState({ prenom: 'Jean', nom: 'Dupont', email: 'jean@email.fr', tel: '06 12 34 56 78' })
+  const { user } = useAuth()
+  const [form, setForm] = useState({
+    prenom: user?.nom?.split(' ')[0] || '',
+    nom: user?.nom?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    tel: ''
+  })
   const [saved, setSaved] = useState(false)
 
   return (
@@ -236,7 +242,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <p className="text-white/60 text-xs mb-3">Notre équipe répond en moins de 2h</p>
           <div className="flex gap-2 justify-center">
             <a href="mailto:support@boucheriedelivery.fr" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
-            <a href="tel:0600000000" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
+            <a href="tel:+33100000000" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
 
@@ -365,8 +371,8 @@ function ContactSection({ onBack }: { onBack: () => void }) {
           <div className="space-y-3">
             {[
               { ico: '📧', label: 'Email', val: 'support@boucheriedelivery.fr' },
-              { ico: '📞', label: 'Téléphone', val: '06 00 00 00 00' },
-              { ico: '🌐', label: 'Site web', val: 'boucheries-delivery.vercel.app' },
+              { ico: '📞', label: 'Téléphone', val: '+33 1 00 00 00 00' },
+              { ico: '🌐', label: 'Site web', val: 'www.boucheriedelivery.fr' },
             ].map(c => (
               <div key={c.label} className="flex items-center gap-3">
                 <span className="text-xl">{c.ico}</span>
@@ -427,7 +433,7 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
           },
           {
             titre: "9. Contact",
-            contenu: "Pour toute question relative à cette politique de confidentialité :\n\nEmail : privacy@boucheriedelivery.fr\nCourrier : BoucherieDelivery SAS, [Adresse], France\n\nDélégué à la Protection des Données (DPO) : dpo@boucheriedelivery.fr"
+            contenu: "Pour toute question relative à cette politique de confidentialité :\n\nEmail : privacy@boucheriedelivery.fr\nCourrier : BoucherieDelivery SAS, France\n\nDélégué à la Protection des Données (DPO) : dpo@boucheriedelivery.fr"
           },
         ].map((section, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
@@ -452,7 +458,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
         {[
           {
             titre: "1. Objet",
-            contenu: "Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et l'utilisation de la plateforme BoucherieDelivery, accessible via l'application mobile et le site web boucheries-delivery.vercel.app. En utilisant notre service, vous acceptez sans réserve ces conditions."
+            contenu: "Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et l'utilisation de la plateforme BoucherieDelivery, accessible via l'application mobile et le site web www.boucheriedelivery.fr. En utilisant notre service, vous acceptez sans réserve ces conditions."
           },
           {
             titre: "2. Description du service",

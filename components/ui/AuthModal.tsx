@@ -19,7 +19,7 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
     login({
       id: 'user_' + Date.now(),
       nom: form.nom || (role === 'boucher' ? 'Jean Dupont — Boucher' : 'Jean Dupont'),
-      email: form.email || 'demo@boucheriedelivery.fr',
+      email: form.email || '',
       role,
       ...(role === 'boucher' && b ? { boucherieId: b.id, boucherieNom: b.nom } : {}),
     })
@@ -99,7 +99,7 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
           {tab === 'login' ? 'Se connecter →' : 'Créer mon compte →'}
         </button>
 
-        <p className="text-center text-[11px] text-gray-300 mt-3">Démo : cliquez directement sans remplir 😉</p>
+      
       </div>
     </div>
   )
