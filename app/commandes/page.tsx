@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import BottomNav from '@/components/ui/BottomNav'
+import BottomNavClient from '@/components/ui/BottomNavClient'
 
 const HISTORIQUE = [
   { id: '1', numero: '#1038', boucherie: 'Maison Dupont', date: '2026-05-08', total: 46.30, frais: 2.90, creneau: 'Dès que possible',
@@ -67,7 +67,7 @@ export default function CommandesPage() {
         ))}
       </div>
 
-      <BottomNav currentPage="history" />
+      <BottomNavClient currentPage="history" />
     </div>
   )
 }

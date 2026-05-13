@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import BottomNav from '@/components/ui/BottomNav'
+import BottomNavClient from '@/components/ui/BottomNavClient'
 
 export default function ProfilPage() {
   const router = useRouter()
@@ -49,7 +49,7 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      <BottomNav currentPage="profile" />
+      <BottomNavClient currentPage="profile" />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import BottomNav from '@/components/ui/BottomNav'
+import BottomNavClient from '@/components/ui/BottomNavClient'
 
 type Section = 'profil' | 'adresses' | 'notifs' | 'support' | 'contact' | 'confidentialite' | 'cgu' | null
 
@@ -98,7 +98,7 @@ export default function ParametresPage() {
         <p className="text-center text-xs text-gray-300 pb-2">BoucherieDelivery v1.0.0</p>
       </div>
 
-      <BottomNav currentPage="settings" />
+      <BottomNavClient currentPage="settings" />
     </div>
   )
 }
@@ -112,7 +112,7 @@ function PageWrapper({ title, onBack, children }: { title: string; onBack: () =>
         <h1 className="font-serif text-xl font-bold text-or">{title}</h1>
       </div>
       <div className="max-w-lg mx-auto px-5 py-6">{children}</div>
-      <BottomNav currentPage="settings" />
+      <BottomNavClient currentPage="settings" />
     </div>
   )
 }
