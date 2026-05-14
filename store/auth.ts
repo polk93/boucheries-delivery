@@ -8,8 +8,34 @@ export interface AuthUser {
   nom: string
   email: string
   role: UserRole
-  boucherieId?: number // pour les bouchers
+  isDemo?: boolean       // compte démo — affiche les données fictives
+  boucherieId?: number
   boucherieNom?: string
+}
+
+// ── Comptes démo prédéfinis ──────────────────────────────────────────────────
+export const DEMO_CLIENT: AuthUser = {
+  id: 'demo_client',
+  nom: 'Marie Dupont (Démo)',
+  email: 'demo@boucheriedelivery.fr',
+  role: 'client',
+  isDemo: true,
+}
+
+export const DEMO_BOUCHER: AuthUser = {
+  id: 'demo_boucher',
+  nom: 'Jean Martin (Démo)',
+  email: 'demo.boucher@boucheriedelivery.fr',
+  role: 'boucher',
+  isDemo: true,
+  boucherieId: 1,
+  boucherieNom: 'Maison Dupont',
+}
+
+// ── Détection démo par email ─────────────────────────────────────────────────
+export const DEMO_EMAILS = [DEMO_CLIENT.email, DEMO_BOUCHER.email]
+export function isDemoEmail(email: string) {
+  return DEMO_EMAILS.includes(email.toLowerCase().trim())
 }
 
 interface AuthStore {
@@ -18,6 +44,7 @@ interface AuthStore {
   logout: () => void
   isClient: () => boolean
   isBoucher: () => boolean
+  isDemo: () => boolean
 }
 
 export const useAuth = create<AuthStore>()(
@@ -28,6 +55,7 @@ export const useAuth = create<AuthStore>()(
       logout: () => set({ user: null }),
       isClient: () => get().user?.role === 'client',
       isBoucher: () => get().user?.role === 'boucher',
+      isDemo: () => get().user?.isDemo === true,
     }),
     { name: 'boucherie-auth' }
   )

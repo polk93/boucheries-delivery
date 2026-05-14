@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
+import AuthModal from '@/components/ui/AuthModal'
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
@@ -30,6 +31,7 @@ export default function ParametresPage() {
   const { user, logout, isBoucher } = useAuth()
   const [section, setSection] = useState<Section>(null)
   const [logoutConfirm, setLogoutConfirm] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
 
   // Sous-pages
   if (section === 'profil')          return <ProfilSection onBack={() => setSection(null)} />
@@ -57,8 +59,8 @@ export default function ParametresPage() {
     {
       titre: 'Mes achats',
       items: [
-        { ico: '📦', label: 'Historique des commandes', sub: 'Voir et re-commander', action: () => setSection('commandes') },
-        { ico: '⭐', label: 'Mes avis', sub: 'Consulter et gérer mes avis', action: () => setSection('avis') },
+        { ico: '📦', label: 'Historique des commandes', sub: user?.isDemo ? '3 commandes passées' : 'Voir mes commandes', action: () => setSection('commandes') },
+        { ico: '⭐', label: 'Mes avis', sub: user?.isDemo ? '2 avis laissés' : 'Consulter mes avis', action: () => setSection('avis') },
         { ico: '💳', label: 'Moyens de paiement', sub: 'Gérer mes cartes', action: () => setSection('paiement') },
       ],
     },
@@ -90,14 +92,25 @@ export default function ParametresPage() {
       {/* Avatar */}
       <div className="bg-white mx-4 mt-4 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
         <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">
-          {isBoucher() ? '🔪' : '👤'}
+          {!user ? '👤' : isBoucher() ? '🔪' : '👤'}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-          <p className="text-xs text-gray-400 truncate">{user?.email || 'Non connecté'} · {isBoucher() ? 'Boucher' : 'Client'}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-bold text-brun text-sm truncate">
+              {user?.nom || 'Non connecté'}
+            </p>
+            {user?.isDemo && (
+              <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">DÉMO</span>
+            )}
+          </div>
+          <p className="text-xs text-gray-400 truncate">
+            {user ? `${user.email} · ${isBoucher() ? 'Boucher' : 'Client'}` : 'Connectez-vous pour accéder à vos données'}
+          </p>
         </div>
-        <button className="bg-creme border border-gris-bd text-brun text-xs font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
-          onClick={() => setSection('profil')}>Modifier</button>
+        {user && (
+          <button className="bg-creme border border-gris-bd text-brun text-xs font-semibold px-3 py-1.5 rounded-xl flex-shrink-0"
+            onClick={() => setSection('profil')}>Modifier</button>
+        )}
       </div>
 
       <div className="px-4 mt-4 space-y-4 max-w-lg mx-auto">
@@ -121,37 +134,42 @@ export default function ParametresPage() {
           </div>
         ))}
 
-        {/* Déconnexion */}
-        {user ? (
-          !logoutConfirm
-            ? <button
-                className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm transition-colors active:bg-red-100 font-sans"
-                onClick={() => setLogoutConfirm(true)}>
-                🚪 Se déconnecter
-              </button>
-            : <div className="bg-white rounded-2xl p-4 shadow-sm border-2 border-rouge-vif">
-                <p className="font-bold text-brun text-sm text-center mb-1">Confirmer la déconnexion ?</p>
-                <p className="text-xs text-gray-400 text-center mb-4">Vous devrez vous reconnecter pour passer commande.</p>
-                <div className="flex gap-3">
-                  <button className="flex-1 bg-gris-bd text-brun font-semibold py-2.5 rounded-xl text-sm font-sans"
-                    onClick={() => setLogoutConfirm(false)}>Annuler</button>
-                  <button className="flex-1 bg-rouge-vif text-white font-bold py-2.5 rounded-xl text-sm font-sans"
-                    onClick={() => { logout(); router.push('/') }}>
-                    Déconnecter
-                  </button>
-                </div>
-              </div>
-        ) : (
-          <button className="w-full bg-brun text-white font-bold py-3.5 rounded-2xl text-sm font-sans"
-            onClick={() => router.push('/')}>
+        {/* Connexion / Déconnexion */}
+        {!user ? (
+          /* Non connecté → bouton Se connecter */
+          <button
+            className="w-full bg-brun text-white font-bold py-3.5 rounded-2xl text-sm font-sans flex items-center justify-center gap-2"
+            onClick={() => setAuthOpen(true)}>
             🔐 Se connecter
           </button>
+        ) : !logoutConfirm ? (
+          /* Connecté → bouton Se déconnecter */
+          <button
+            className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm transition-colors active:bg-red-100 font-sans"
+            onClick={() => setLogoutConfirm(true)}>
+            🚪 Se déconnecter
+          </button>
+        ) : (
+          /* Confirmation déconnexion */
+          <div className="bg-white rounded-2xl p-4 shadow-sm border-2 border-rouge-vif">
+            <p className="font-bold text-brun text-sm text-center mb-1">Confirmer la déconnexion ?</p>
+            <p className="text-xs text-gray-400 text-center mb-4">Vous devrez vous reconnecter pour passer commande.</p>
+            <div className="flex gap-3">
+              <button className="flex-1 bg-gris-bd text-brun font-semibold py-2.5 rounded-xl text-sm font-sans"
+                onClick={() => setLogoutConfirm(false)}>Annuler</button>
+              <button className="flex-1 bg-rouge-vif text-white font-bold py-2.5 rounded-xl text-sm font-sans"
+                onClick={() => { logout(); setLogoutConfirm(false); router.push('/') }}>
+                Déconnecter
+              </button>
+            </div>
+          </div>
         )}
 
         <p className="text-center text-xs text-gray-300 pb-2">BoucherieDelivery v1.0.0</p>
       </div>
 
       <BottomNavClient currentPage="settings" />
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
     </div>
   )
 }
@@ -305,12 +323,14 @@ const COMMANDES_DATA = [
 
 function CommandesSection({ onBack }: { onBack: () => void }) {
   const router = useRouter()
+  const { isDemo } = useAuth()
+  const data = isDemo() ? COMMANDES_DATA : []
   return (
     <PageWrapper title="📦 Mes commandes" onBack={onBack}>
-      {COMMANDES_DATA.length === 0
-        ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">📦</span><p className="text-sm">Aucune commande pour l'instant.</p></div>
+      {data.length === 0
+        ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">📦</span><p className="text-sm">Aucune commande pour l'instant.</p><button className="mt-4 bg-brun text-white px-5 py-2 rounded-xl text-sm font-bold font-sans" onClick={() => router.push('/')}>Découvrir les boucheries</button></div>
         : <div className="space-y-4">
-            {COMMANDES_DATA.map(o => (
+            {data.map(o => (
               <div key={o.id} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -348,13 +368,14 @@ function CommandesSection({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // AVIS
 // ══════════════════════════════════════════════════════════════════════════════
-const AVIS_DATA = [
+const AVIS_DEMO = [
   { id: 'rv1', boucherie: 'Maison Dupont', produit: 'Entrecôte Charolais', note: 5, texte: 'Entrecôte incroyable, fondante et goûteuse. Livraison rapide et viande bien emballée !', date: '2026-05-08' },
   { id: 'rv2', boucherie: 'Bœuf & Tradition', produit: 'Wagyu A5', note: 5, texte: 'Qualité exceptionnelle. Une expérience unique.', date: '2026-04-30' },
 ]
 
 function AvisSection({ onBack }: { onBack: () => void }) {
-  const [avis, setAvis] = useState(AVIS_DATA)
+  const { user, isDemo } = useAuth()
+  const [avis, setAvis] = useState(isDemo() ? AVIS_DEMO : [])
   const [editId, setEditId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
 
