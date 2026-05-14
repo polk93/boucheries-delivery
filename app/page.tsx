@@ -43,7 +43,7 @@ function PageNonConnecte() {
       {/* Header minimal */}
       <header className="bg-brun px-4 flex items-center justify-between h-14 flex-shrink-0">
         <span className="font-serif text-lg font-black text-or">
-          Bouche<span className="text-white">rie</span>
+          <span className="text-or">Boucheries</span><span className="text-white"> Delivery</span>
         </span>
         <button
           className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-xs font-semibold"
@@ -233,7 +233,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
       <header className="bg-brun sticky top-0 z-30 shadow-xl">
         <div className="w-full max-w-2xl mx-auto px-4 flex items-center gap-2 h-14">
           <span className="font-serif text-lg font-black text-or whitespace-nowrap flex-shrink-0">
-            Bouche<span className="text-white">rie</span>
+            <span className="text-or">Boucheries</span><span className="text-white"> Delivery</span>
           </span>
 
           {/* Géoloc */}
