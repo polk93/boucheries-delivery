@@ -15,12 +15,111 @@ interface ProduitForm {
   stock: string; decoupes: string; preparation: string; photoUrl: string | null; boucherieId: number
 }
 
-const ORDERS_INIT = [
-  { id: '#1042', client: 'Sophie M.', items: 'Entrecôte ×2 [Épaisse, Marinée]', total: '46,30 €', time: 'Il y a 5 min', status: 'new' },
-  { id: '#1041', client: 'Théo B.', items: 'Filet ×1 [Médaillons, Nature]', total: '24,50 €', time: 'Il y a 18 min', status: 'prep' },
-  { id: '#1040', client: 'Marie L.', items: 'Bavette ×3 [Fine]', total: '38,40 €', time: 'Il y a 32 min', status: 'ready' },
-  { id: '#1039', client: 'Jules R.', items: 'Merguez ×2 [Épicées]', total: '17,00 €', time: 'Il y a 55 min', status: 'delivery' },
-  { id: '#1038', client: 'Anna K.', items: 'Côtes ×4 [Désossées]', total: '44,80 €', time: 'Il y a 1h20', status: 'done' },
+// ── Types commandes ──────────────────────────────────────────────────────────
+interface LigneCommande {
+  produit: string
+  icon: string
+  qty: number
+  prix: number
+  decoupe: string
+  preparation: string
+  note: string
+}
+interface Commande {
+  id: string
+  client: string
+  tel: string
+  adresse: string
+  creneau: string
+  date: string
+  heure: string
+  lignes: LigneCommande[]
+  frais: number
+  status: string
+  modePaiement: string
+  stripeId: string
+}
+
+const ORDERS_INIT: Commande[] = [
+  {
+    id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
+    adresse: '8 rue Léon Frot, 75011 Paris', creneau: 'Dès que possible',
+    date: new Date().toLocaleDateString('fr-FR'), heure: '11:42',
+    frais: 2.90, status: 'new', modePaiement: 'Carte Visa ••4242', stripeId: 'pi_3QxDemo001',
+    lignes: [
+      { produit: 'Entrecôte Charolais', icon: '🥩', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
+      { produit: 'Merguez Maison', icon: '🌶️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ du soir' },
+    ],
+  },
+  {
+    id: '#1041', client: 'Théo B.', tel: '07 89 01 23 45',
+    adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13h–14h",
+    date: new Date().toLocaleDateString('fr-FR'), heure: '11:24',
+    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard ••9876', stripeId: 'pi_3QxDemo002',
+    lignes: [
+      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée svp' },
+    ],
+  },
+  {
+    id: '#1040', client: 'Marie L.', tel: '06 55 44 33 22',
+    adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12h–13h",
+    date: new Date().toLocaleDateString('fr-FR'), heure: '11:06',
+    frais: 0, status: 'ready', modePaiement: 'Carte Visa ••1234', stripeId: 'pi_3QxDemo003',
+    lignes: [
+      { produit: "Bavette d'Aloyau", icon: '🥩', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
+    ],
+  },
+  {
+    id: '#1039', client: 'Jules R.', tel: '07 11 22 33 44',
+    adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'Dès que possible',
+    date: new Date().toLocaleDateString('fr-FR'), heure: '10:48',
+    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_3QxDemo004',
+    lignes: [
+      { produit: 'Merguez Maison', icon: '🌶️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
+    ],
+  },
+  {
+    id: '#1038', client: 'Anna K.', tel: '06 98 76 54 32',
+    adresse: '31 rue de la Folie Méricourt, 75011 Paris', creneau: "Aujourd'hui 11h–12h",
+    date: new Date().toLocaleDateString('fr-FR'), heure: '10:21',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa ••5678', stripeId: 'pi_3QxDemo005',
+    lignes: [
+      { produit: "Côtes de Porc", icon: '🍖', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
+    ],
+  },
+]
+
+// Historique comptable (commandes archivées des jours précédents)
+const HISTORIQUE_INIT: Commande[] = [
+  {
+    id: '#1037', client: 'Lucas P.', tel: '06 00 11 22 33',
+    adresse: '7 rue Keller, 75011 Paris', creneau: 'Dès que possible',
+    date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '18:30',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa ••3333', stripeId: 'pi_3QxHisto001',
+    lignes: [
+      { produit: 'Entrecôte Charolais', icon: '🥩', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
+      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'Entier', preparation: 'Poivré', note: '' },
+    ],
+  },
+  {
+    id: '#1036', client: 'Camille V.', tel: '07 55 66 77 88',
+    adresse: '18 rue Oberkampf, 75011 Paris', creneau: "Hier 19h–20h",
+    date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '16:12',
+    frais: 0, status: 'done', modePaiement: 'Google Pay', stripeId: 'pi_3QxHisto002',
+    lignes: [
+      { produit: 'Merguez Maison', icon: '🌶️', qty: 3, prix: 8.50, decoupe: 'Standard', preparation: 'Douces', note: 'Pour enfants' },
+      { produit: "Bavette d'Aloyau", icon: '🥩', qty: 2, prix: 12.80, decoupe: 'Fine', preparation: 'Nature', note: '' },
+    ],
+  },
+  {
+    id: '#1035', client: 'Marie L.', tel: '06 55 44 33 22',
+    adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Avant-hier 12h–13h",
+    date: new Date(Date.now() - 172800000).toLocaleDateString('fr-FR'), heure: '10:05',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Mastercard ••2222', stripeId: 'pi_3QxHisto003',
+    lignes: [
+      { produit: 'Côtes de Porc', icon: '🍖', qty: 2, prix: 11.20, decoupe: 'Désossées', preparation: 'Miel-moutarde', note: '' },
+    ],
+  },
 ]
 
 const SL: Record<string, string> = { new: 'Nouvelle', prep: 'En préparation', ready: 'Prête', delivery: 'En livraison', done: 'Livrée' }
@@ -42,7 +141,10 @@ export default function PanelPage() {
   const { user, logout, isBoucher } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
   const [tab, setTab] = useState('commandes')
-  const [orders, setOrders] = useState(ORDERS_INIT)
+  const [orders, setOrders] = useState<Commande[]>(ORDERS_INIT)
+  const [historique, setHistorique] = useState<Commande[]>(HISTORIQUE_INIT)
+  const [viewOrder, setViewOrder] = useState<Commande | null>(null)
+  const [showHistorique, setShowHistorique] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -83,11 +185,22 @@ export default function PanelPage() {
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
   function progress(id: string) {
-    setOrders(prev => prev.map(o => {
-      if (o.id !== id) return o
-      const i = SF.indexOf(o.status)
-      return { ...o, status: SF[Math.min(i + 1, SF.length - 1)] }
-    }))
+    setOrders(prev => {
+      const updated = prev.map(o => {
+        if (o.id !== id) return o
+        const i = SF.indexOf(o.status)
+        const nextStatus = SF[Math.min(i + 1, SF.length - 1)]
+        return { ...o, status: nextStatus }
+      })
+      // Si la commande passe à "done", la déplacer dans l'historique
+      const justDone = updated.find(o => o.id === id && o.status === 'done')
+      if (justDone) {
+        setHistorique(h => [justDone, ...h])
+        showToast(`✅ Commande ${id} archivée dans l'historique`)
+        return updated.filter(o => o.id !== id)
+      }
+      return updated
+    })
   }
 
   function openEdit(p: ProduitEtendu) {
@@ -189,8 +302,8 @@ export default function PanelPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 py-4 max-w-2xl mx-auto">
         {[
-          { ico: '📋', val: orders.filter(o => o.status !== 'done').length.toString(), label: 'Commandes en cours' },
-          { ico: '💶', val: '171 €', label: 'CA du jour' },
+          { ico: '📋', val: orders.length.toString(), label: 'Commandes en cours' },
+          { ico: '💶', val: historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0) + ' €', label: 'CA total' },
           { ico: '⭐', val: '4,9', label: 'Note moyenne' },
           { ico: '🛍️', val: myProduits.length.toString(), label: 'Produits actifs' },
         ].map(s => (
@@ -206,26 +319,158 @@ export default function PanelPage() {
 
         {/* ══════════ COMMANDES ══════════ */}
         {tab === 'commandes' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gris-bd bg-or-pale">
-              <p className="font-bold text-brun text-sm">Commandes du jour</p>
+          <div className="space-y-3">
+
+            {/* Barre d'actions */}
+            <div className="flex gap-2">
+              <button
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                onClick={() => setShowHistorique(false)}>
+                📋 En cours ({orders.length})
+              </button>
+              <button
+                className={`flex-1 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                onClick={() => setShowHistorique(true)}>
+                🗂️ Historique ({historique.length})
+              </button>
             </div>
-            {orders.map((o, i) => (
-              <div key={o.id} className={`p-4 ${i < orders.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-                <div className="flex justify-between items-start mb-1">
-                  <span className="font-bold text-brun text-sm">{o.id} — {o.client}</span>
-                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${SC[o.status]}`}>{SL[o.status]}</span>
+
+            {/* ── Commandes en cours ── */}
+            {!showHistorique && (<>
+              {orders.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+                  <span className="text-4xl block mb-2">✅</span>
+                  <p className="text-sm font-semibold">Aucune commande en cours</p>
+                  <p className="text-xs mt-1">Toutes les commandes ont été livrées !</p>
                 </div>
-                <p className="text-xs text-gray-400 mb-2">{o.items}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-300">{o.time} · {o.total}</span>
-                  {o.status !== 'done' && (
-                    <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans"
-                      onClick={() => progress(o.id)}>{BL[o.status]}</button>
-                  )}
+              ) : orders.map((o) => {
+                const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+                const total = sousTotal + o.frais
+                return (
+                  <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    {/* En-tête commande */}
+                    <div className={`px-4 py-3 flex justify-between items-center ${SC[o.status].replace('text-', 'bg-').split(' ')[0].replace('bg-', 'bg-').replace('100', '50')} bg-opacity-50`}>
+                      <div>
+                        <span className="font-black text-brun text-sm">{o.id}</span>
+                        <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
+                      </div>
+                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${SC[o.status]}`}>
+                        {SL[o.status]}
+                      </span>
+                    </div>
+
+                    {/* Infos client */}
+                    <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-bold text-brun">{o.client}</p>
+                        <p className="text-xs text-gray-400">📍 {o.adresse}</p>
+                        <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
+                        <p className="text-[10px] text-gray-400">💳 {o.modePaiement.split(' ')[0]}</p>
+                      </div>
+                    </div>
+
+                    {/* Articles */}
+                    <div className="px-4 py-2">
+                      {o.lignes.map((l, i) => (
+                        <div key={i} className={`flex items-start gap-2 py-2 ${i < o.lignes.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+                          <span className="text-base flex-shrink-0">{l.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
+                            <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
+                            {l.note && <p className="text-[11px] text-gray-400 italic">📝 {l.note}</p>}
+                          </div>
+                          <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
+                      {/* Voir récap détaillé */}
+                      <button
+                        className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                        onClick={() => setViewOrder(o)}>
+                        🧾 Récapitulatif
+                      </button>
+                      {/* Appeler client */}
+                      <a href={`tel:${o.tel}`}
+                        className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center justify-center">
+                        📞
+                      </a>
+                      {/* Avancer statut */}
+                      {o.status !== 'done' && (
+                        <button
+                          className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                          onClick={() => progress(o.id)}>
+                          {BL[o.status]} →
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </>)}
+
+            {/* ── Historique ── */}
+            {showHistorique && (<>
+              {/* Résumé comptable */}
+              <div className="bg-brun rounded-2xl p-4">
+                <p className="text-or font-bold text-sm mb-2">💶 Résumé comptable</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Commandes', val: historique.length.toString() },
+                    { label: 'CA total', val: historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2) + ' €' },
+                    { label: 'Commission (15%)', val: (historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0) * 0.15).toFixed(2) + ' €' },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white/10 rounded-xl p-2.5 text-center">
+                      <p className="text-white font-black text-sm">{s.val}</p>
+                      <p className="text-white/60 text-[10px]">{s.label}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+
+              {historique.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+                  <span className="text-4xl block mb-2">🗂️</span>
+                  <p className="text-sm">Aucune commande archivée</p>
+                </div>
+              ) : historique.map((o) => {
+                const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+                const total = sousTotal + o.frais
+                return (
+                  <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
+                      <div>
+                        <span className="font-black text-brun text-sm">{o.id}</span>
+                        <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                      </div>
+                      <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
+                    </div>
+                    <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
+                      <div>
+                        <p className="text-sm font-bold text-brun">{o.client}</p>
+                        <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''} · {o.creneau}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
+                        <p className="text-[10px] text-gray-400">{o.modePaiement.split(' ')[0]}</p>
+                      </div>
+                    </div>
+                    <div className="px-4 py-3">
+                      <button
+                        className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                        onClick={() => setViewOrder(o)}>
+                        🧾 Voir le récapitulatif complet
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </>)}
           </div>
         )}
 
@@ -549,7 +794,126 @@ export default function PanelPage() {
         </div>
       )}
 
-      {/* Toast */}
+      {/* ══════════ MODAL RÉCAPITULATIF COMMANDE ══════════ */}
+      {viewOrder && (() => {
+        const o = viewOrder
+        const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+        const commission = sousTotal * 0.15
+        const total = sousTotal + o.frais
+        const netBoucher = total - commission
+        return (
+          <div className="fixed inset-0 bg-black/65 z-[200] flex items-end justify-center" onClick={() => setViewOrder(null)}>
+            <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+
+              {/* Header */}
+              <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
+                <div>
+                  <h2 className="font-serif text-lg font-black text-brun">🧾 Récapitulatif {o.id}</h2>
+                  <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
+                </div>
+                <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center flex-shrink-0" onClick={() => setViewOrder(null)}>✕</button>
+              </div>
+
+              <div className="p-5 space-y-4">
+
+                {/* Statut */}
+                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl ${o.status === 'done' ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20'}`}>
+                  <span className="text-lg">{o.status === 'done' ? '✅' : '⏳'}</span>
+                  <div>
+                    <p className={`text-sm font-bold ${o.status === 'done' ? 'text-green-700' : 'text-brun'}`}>
+                      {o.status === 'done' ? 'Commande livrée' : `En cours — ${SL[o.status]}`}
+                    </p>
+                    <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
+                  </div>
+                </div>
+
+                {/* Client */}
+                <div className="bg-creme rounded-2xl p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
+                  <p className="text-sm font-bold text-brun">{o.client}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">📞 {o.tel}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">📍 {o.adresse}</p>
+                </div>
+
+                {/* Détail articles */}
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles commandés</p>
+                  <div className="bg-white border border-gris-bd rounded-2xl overflow-hidden">
+                    {o.lignes.map((l, i) => (
+                      <div key={i} className={`px-4 py-3 ${i < o.lignes.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-brun">{l.icon} {l.produit}</p>
+                            <p className="text-[11px] text-or font-semibold mt-0.5">✂️ {l.decoupe} · {l.preparation}</p>
+                            {l.note && <p className="text-[11px] text-gray-400 italic mt-0.5">📝 Note : {l.note}</p>}
+                          </div>
+                          <div className="text-right flex-shrink-0 ml-3">
+                            <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
+                            <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} €</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Récapitulatif financier */}
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
+                  <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Sous-total articles</span>
+                      <span>{sousTotal.toFixed(2)} €</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Frais de livraison</span>
+                      <span>{o.frais === 0 ? 'Offerts' : `${o.frais.toFixed(2)} €`}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2">
+                      <span>Total client</span>
+                      <span>{total.toFixed(2)} €</span>
+                    </div>
+                    <div className="border-t border-dashed border-gris-bd pt-2 space-y-1.5">
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>Commission BoucherieDelivery (15%)</span>
+                        <span className="text-rouge-vif">− {commission.toFixed(2)} €</span>
+                      </div>
+                      <div className="flex justify-between text-base font-black text-green-700 bg-green-50 -mx-1 px-2 py-2 rounded-xl">
+                        <span>💶 Vous recevez</span>
+                        <span>{netBoucher.toFixed(2)} €</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Paiement */}
+                <div className="bg-creme rounded-2xl p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Paiement</p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-bold text-brun">💳 {o.modePaiement}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">Stripe ID : {o.stripeId}</p>
+                    </div>
+                    <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full">✅ Payé</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pb-2">
+                  <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans"
+                    onClick={() => setViewOrder(null)}>Fermer</button>
+                  {o.status !== 'done' && (
+                    <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
+                      onClick={() => { progress(o.id); setViewOrder(null) }}>
+                      {BL[o.status]} →
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
       {toastMsg && (
         <div className="fixed bottom-28 left-1/2 -translate-x-1/2 bg-brun text-white px-5 py-2.5 rounded-xl text-sm font-semibold z-50 shadow-xl whitespace-nowrap">
           {toastMsg}
