@@ -22,6 +22,7 @@ interface PanierStore {
   addItem: (item: Omit<PanierItem, 'cart_key'>) => void
   removeItem: (cart_key: string) => void
   updateQuantite: (cart_key: string, delta: number) => void
+  updateItem: (cart_key: string, changes: Partial<Pick<PanierItem, 'decoupe' | 'preparation' | 'note_boucher' | 'quantite'>>) => void
   setCreneau: (c: string) => void
   clear: () => void
   totalItems: () => number
@@ -48,6 +49,17 @@ export const usePanier = create<PanierStore>()(
         items: s.items
           .map(i => i.cart_key === cart_key ? { ...i, quantite: Math.max(0, i.quantite + delta) } : i)
           .filter(i => i.quantite > 0),
+      })),
+
+      // Modifier découpe / préparation / note d'un article déjà dans le panier
+      updateItem: (cart_key, changes) => set(s => ({
+        items: s.items.map(i => {
+          if (i.cart_key !== cart_key) return i
+          const updated = { ...i, ...changes }
+          // Recalcule la cart_key si découpe ou préparation change
+          updated.cart_key = `${updated.produit_id}_${updated.decoupe ?? ''}_${updated.preparation ?? ''}`
+          return updated
+        })
       })),
 
       setCreneau: (c) => set({ creneau: c }),
