@@ -216,30 +216,262 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
 // ADRESSES
 // ══════════════════════════════════════════════════════════════════════════════
 function AdressesSection({ onBack }: { onBack: () => void }) {
-  const [adresses, setAdresses] = useState([
-    { id: '1', label: '🏠 Domicile', detail: '12 rue de la Roquette, 75011 Paris', defaut: true },
-    { id: '2', label: '💼 Bureau', detail: "45 avenue de l'Opéra, 75002 Paris", defaut: false },
-  ])
+  type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
+
+  const [adresses, setAdresses] = useState<Adresse[]>([])
+  const [editId, setEditId] = useState<string | null>(null)
+  const [ajoutOpen, setAjoutOpen] = useState(false)
+  const [geoLoading, setGeoLoading] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const [form, setForm] = useState({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
+
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2500) }
+
+  // Géolocalisation → remplit/ajoute l'adresse détectée
+  async function detecterPosition() {
+    if (!navigator.geolocation) { showToast('❌ Géolocalisation non disponible'); return }
+    setGeoLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords: { latitude: lat, longitude: lng } }) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+          const d = await res.json()
+          const addr = d.address || {}
+          const rue = [addr.house_number, addr.road].filter(Boolean).join(' ')
+          const cp = addr.postcode || ''
+          const ville = addr.city || addr.town || addr.village || addr.suburb || ''
+
+          // Mettre à jour l'adresse domicile si elle existe, sinon en créer une
+          const existingIdx = adresses.findIndex(a => a.label === '🏠 Domicile')
+          if (existingIdx >= 0) {
+            setAdresses(prev => prev.map((a, i) => i === existingIdx ? { ...a, rue, cp, ville } : a))
+          } else {
+            setAdresses(prev => [...prev, {
+              id: Date.now().toString(), label: '🏠 Domicile',
+              rue, cp, ville, complement: '', defaut: prev.length === 0
+            }])
+          }
+          showToast('📍 Adresse mise à jour !')
+        } catch {
+          showToast('❌ Impossible de récupérer l\'adresse')
+        }
+        setGeoLoading(false)
+      },
+      () => { showToast('❌ Géolocalisation refusée'); setGeoLoading(false) },
+      { timeout: 8000 }
+    )
+  }
+
+  function ajouterAdresse() {
+    if (!form.rue.trim() || !form.ville.trim()) { showToast('⚠️ Rue et ville sont requises'); return }
+    setAdresses(prev => [...prev, {
+      id: Date.now().toString(), label: form.label,
+      rue: form.rue, cp: form.cp, ville: form.ville, complement: form.complement,
+      defaut: prev.length === 0
+    }])
+    setForm({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
+    setAjoutOpen(false)
+    showToast('✅ Adresse ajoutée !')
+  }
+
+  function sauvegarderEdit(id: string, updated: Partial<Adresse>) {
+    setAdresses(prev => prev.map(a => a.id === id ? { ...a, ...updated } : a))
+    setEditId(null)
+    showToast('✅ Adresse mise à jour !')
+  }
+
+  function supprimerAdresse(id: string) {
+    setAdresses(prev => {
+      const next = prev.filter(a => a.id !== id)
+      if (next.length > 0 && !next.some(a => a.defaut)) next[0].defaut = true
+      return next
+    })
+  }
+
+  function setDefaut(id: string) {
+    setAdresses(prev => prev.map(a => ({ ...a, defaut: a.id === id })))
+  }
+
+  const LABELS = ['🏠 Domicile', '💼 Bureau', '❤️ Proche', '📍 Autre']
+
   return (
     <PageWrapper title="📍 Mes adresses" onBack={onBack}>
       <div className="space-y-3">
-        {adresses.map(a => (
-          <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="font-bold text-brun text-sm">{a.label}</p>
-                {a.defaut && <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Défaut</span>}
-              </div>
-              <p className="text-xs text-gray-400">{a.detail}</p>
-            </div>
-            <button className="text-gray-300 text-sm flex-shrink-0">✏️</button>
+
+        {/* Bouton détecter position */}
+        <button
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-brun text-brun text-sm font-bold font-sans transition-all active:bg-brun active:text-white ${geoLoading ? 'opacity-60' : ''}`}
+          onClick={detecterPosition}
+          disabled={geoLoading}>
+          {geoLoading ? '⏳ Localisation en cours…' : '📍 Utiliser ma position actuelle'}
+        </button>
+
+        {/* Liste adresses */}
+        {adresses.length === 0 ? (
+          <div className="bg-white rounded-2xl p-5 text-center text-gray-400 shadow-sm">
+            <span className="text-3xl block mb-2">📍</span>
+            <p className="text-sm">Aucune adresse enregistrée.<br />Utilisez votre position ou ajoutez-en une manuellement.</p>
+          </div>
+        ) : adresses.map(a => (
+          <div key={a.id}>
+            {editId === a.id
+              ? <EditAdresseForm
+                  adresse={a}
+                  labels={LABELS}
+                  onSave={updated => sauvegarderEdit(a.id, updated)}
+                  onCancel={() => setEditId(null)}
+                />
+              : <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-brun text-sm">{a.label}</p>
+                        {a.defaut && <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Défaut</span>}
+                      </div>
+                      <p className="text-xs text-gray-500">{a.rue}</p>
+                      {a.complement && <p className="text-xs text-gray-400">{a.complement}</p>}
+                      <p className="text-xs text-gray-500">{a.cp} {a.ville}</p>
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-xl font-sans"
+                        onClick={() => setEditId(a.id)}>✏️</button>
+                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-xl font-sans"
+                        onClick={() => supprimerAdresse(a.id)}>🗑️</button>
+                    </div>
+                  </div>
+                  {!a.defaut && (
+                    <button className="mt-2 text-xs text-or font-semibold" onClick={() => setDefaut(a.id)}>
+                      Définir comme adresse par défaut
+                    </button>
+                  )}
+                </div>
+            }
           </div>
         ))}
-        <button className="w-full bg-white border-2 border-dashed border-gray-200 rounded-2xl py-4 text-sm font-semibold text-gray-400 font-sans">
-          + Ajouter une adresse
-        </button>
+
+        {/* Formulaire ajout */}
+        {ajoutOpen ? (
+          <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+            <h3 className="font-serif font-bold text-brun text-base">Nouvelle adresse</h3>
+
+            <div>
+              <label className="text-xs font-bold text-brun block mb-1.5">Type</label>
+              <div className="flex flex-wrap gap-2">
+                {LABELS.map(l => (
+                  <button key={l}
+                    className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${form.label === l ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                    onClick={() => setForm(f => ({ ...f, label: l }))}>{l}</button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-brun block mb-1">Rue et numéro *</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                placeholder="12 rue de la Roquette"
+                value={form.rue} onChange={e => setForm(f => ({ ...f, rue: e.target.value }))} />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-brun block mb-1">Complément</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                placeholder="Bât. A, 3e étage, digicode…"
+                value={form.complement} onChange={e => setForm(f => ({ ...f, complement: e.target.value }))} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-brun block mb-1">Code postal</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                  placeholder="75011" value={form.cp}
+                  onChange={e => setForm(f => ({ ...f, cp: e.target.value }))} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-brun block mb-1">Ville *</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                  placeholder="Paris" value={form.ville}
+                  onChange={e => setForm(f => ({ ...f, ville: e.target.value }))} />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button className="flex-1 bg-gris-bd text-brun font-semibold py-2.5 rounded-xl text-sm font-sans"
+                onClick={() => setAjoutOpen(false)}>Annuler</button>
+              <button className="flex-[2] bg-brun text-white font-bold py-2.5 rounded-xl text-sm font-sans active:bg-rouge-vif"
+                onClick={ajouterAdresse}>Ajouter</button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="w-full bg-white border-2 border-dashed border-gray-200 rounded-2xl py-4 text-sm font-semibold text-gray-400 font-sans active:border-brun active:text-brun transition-colors"
+            onClick={() => setAjoutOpen(true)}>
+            + Ajouter une adresse manuellement
+          </button>
+        )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-brun text-white px-4 py-2.5 rounded-xl text-sm font-semibold z-50 shadow-xl whitespace-nowrap">
+          {toast}
+        </div>
+      )}
     </PageWrapper>
+  )
+}
+
+// ── Formulaire d'édition inline ───────────────────────────────────────────────
+function EditAdresseForm({ adresse, labels, onSave, onCancel }: {
+  adresse: { label: string; rue: string; cp: string; ville: string; complement: string }
+  labels: string[]
+  onSave: (u: any) => void
+  onCancel: () => void
+}) {
+  const [form, setForm] = useState({ ...adresse })
+
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm border-2 border-brun space-y-3">
+      <h3 className="font-serif font-bold text-brun text-base">Modifier l'adresse</h3>
+
+      <div className="flex flex-wrap gap-2">
+        {labels.map(l => (
+          <button key={l}
+            className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${form.label === l ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+            onClick={() => setForm(f => ({ ...f, label: l }))}>{l}</button>
+        ))}
+      </div>
+
+      <div>
+        <label className="text-xs font-bold text-brun block mb-1">Rue et numéro</label>
+        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+          value={form.rue} onChange={e => setForm(f => ({ ...f, rue: e.target.value }))} />
+      </div>
+
+      <div>
+        <label className="text-xs font-bold text-brun block mb-1">Complément</label>
+        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+          placeholder="Bât., étage, digicode…"
+          value={form.complement} onChange={e => setForm(f => ({ ...f, complement: e.target.value }))} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-bold text-brun block mb-1">Code postal</label>
+          <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            value={form.cp} onChange={e => setForm(f => ({ ...f, cp: e.target.value }))} />
+        </div>
+        <div>
+          <label className="text-xs font-bold text-brun block mb-1">Ville</label>
+          <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            value={form.ville} onChange={e => setForm(f => ({ ...f, ville: e.target.value }))} />
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button className="flex-1 bg-gris-bd text-brun font-semibold py-2.5 rounded-xl text-sm font-sans" onClick={onCancel}>Annuler</button>
+        <button className="flex-[2] bg-brun text-white font-bold py-2.5 rounded-xl text-sm font-sans" onClick={() => onSave(form)}>Enregistrer</button>
+      </div>
+    </div>
   )
 }
 
