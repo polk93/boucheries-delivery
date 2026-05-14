@@ -8,12 +8,10 @@ import AuthModal from '@/components/ui/AuthModal'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import NotifPanel from '@/components/ui/NotifPanel'
 import ChatBot from '@/components/ui/ChatBot'
-import Panier from '@/components/panier/Panier'
 import ModalBoucherie from '@/components/boucherie/ModalBoucherie'
 import ModalPersonnalisation from '@/components/boucherie/ModalPersonnalisation'
 import { BOUCHERIES, CATS_NAV, type Boucherie, type Produit } from '@/lib/data'
 
-// Distance en km
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
@@ -22,7 +20,7 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-const BOUCHERIE_COORDS: Record<number, { lat: number; lng: number }> = {
+const COORDS: Record<number, { lat: number; lng: number }> = {
   1: { lat: 48.8556, lng: 2.3752 },
   2: { lat: 48.8490, lng: 2.3514 },
   3: { lat: 48.8700, lng: 2.3320 },
@@ -33,13 +31,11 @@ const BOUCHERIE_COORDS: Record<number, { lat: number; lng: number }> = {
 
 export default function HomePage() {
   const router = useRouter()
-  const { user, logout, isBoucher } = useAuth()
+  const { user, isBoucher } = useAuth()
   const { totalItems } = usePanier()
 
-  // Si boucher connecté → rediriger vers le panel boucher
-  useEffect(() => {
-    if (isBoucher()) router.replace('/panel')
-  }, [user])
+  // Redirect boucher to panel
+  useEffect(() => { if (isBoucher()) router.replace('/panel') }, [user])
 
   const [authOpen, setAuthOpen] = useState(false)
   const [modal, setModal] = useState<Boucherie | null>(null)
@@ -56,7 +52,7 @@ export default function HomePage() {
   // Géolocalisation
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'loading' | 'ok' | 'denied'>('idle')
-  const [cityName, setCityName] = useState('Votre position')
+  const [cityName, setCityName] = useState('Ma position')
   const [rayonKm, setRayonKm] = useState(5)
 
   useEffect(() => { requestGeo() }, [])
@@ -73,19 +69,18 @@ export default function HomePage() {
     if (!navigator.geolocation) { setGeoStatus('denied'); return }
     setGeoStatus('loading')
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords
+      async ({ coords: { latitude: lat, longitude: lng } }) => {
         setUserPos({ lat, lng })
         setGeoStatus('ok')
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-          const data = await res.json()
-          const city = data.address?.city || data.address?.town || data.address?.suburb || 'Votre ville'
-          setCityName(`${city}${data.address?.postcode ? ' ' + data.address.postcode : ''}`)
+          const d = await res.json()
+          const city = d.address?.city || d.address?.town || d.address?.suburb || 'Ma ville'
+          setCityName(`${city}${d.address?.postcode ? ' ' + d.address.postcode : ''}`)
         } catch { setCityName('Position détectée') }
         toast.success('📍 Boucheries à proximité chargées !')
       },
-      () => { setGeoStatus('denied') },
+      () => setGeoStatus('denied'),
       { timeout: 8000, maximumAge: 300000 }
     )
   }
@@ -102,8 +97,8 @@ export default function HomePage() {
 
   const filtered = BOUCHERIES
     .filter(b => {
-      if (userPos && BOUCHERIE_COORDS[b.id]) {
-        if (distanceKm(userPos.lat, userPos.lng, BOUCHERIE_COORDS[b.id].lat, BOUCHERIE_COORDS[b.id].lng) > rayonKm) return false
+      if (userPos && COORDS[b.id]) {
+        if (distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) > rayonKm) return false
       }
       if (catActive && b.cat !== catActive && !b.tags.includes(catActive)) return false
       if (filterActive === 'Livraison rapide') return parseInt(b.livraison) <= 35
@@ -113,12 +108,7 @@ export default function HomePage() {
       if (filterActive === 'Premium') return b.tags.some(t => ['Wagyu', 'MOF', 'Label Rouge'].includes(t))
       return true
     })
-    .map(b => ({
-      ...b,
-      distKm: userPos && BOUCHERIE_COORDS[b.id]
-        ? distanceKm(userPos.lat, userPos.lng, BOUCHERIE_COORDS[b.id].lat, BOUCHERIE_COORDS[b.id].lng)
-        : null
-    }))
+    .map(b => ({ ...b, distKm: userPos && COORDS[b.id] ? distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) : null }))
     .sort((a, b) => {
       if (sortBy === 'distance' && a.distKm !== null && b.distKm !== null) return a.distKm - b.distKm
       if (sortBy === 'note') return b.note - a.note
@@ -127,236 +117,242 @@ export default function HomePage() {
       return 0
     })
 
-  const filters = ['Tous', 'Livraison rapide', 'Gratuit', 'Bio', 'Halal', 'Premium']
-
-  // Si boucher → ne rien afficher (redirection en cours)
   if (isBoucher()) return null
 
   return (
-    <div className="min-h-screen bg-creme pb-20">
+    <div className="min-h-screen bg-creme" style={{ paddingBottom: 72 }}>
 
-      {/* ── HEADER CLIENT ── */}
+      {/* ── HEADER ── */}
       <header className="bg-brun sticky top-0 z-30 shadow-xl">
-        <div className="max-w-5xl mx-auto px-4 flex items-center gap-3 h-16">
-          <span className="font-serif text-xl font-black text-or whitespace-nowrap">Bouche<span className="text-white">rie</span></span>
+        <div className="w-full max-w-2xl mx-auto px-4 flex items-center gap-2 h-14">
+          {/* Logo */}
+          <span className="font-serif text-lg font-black text-or whitespace-nowrap flex-shrink-0">
+            Bouche<span className="text-white">rie</span>
+          </span>
 
           {/* Géoloc */}
           <button
-            className={`flex items-center gap-1.5 border rounded-lg px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-all ${geoStatus === 'ok' ? 'bg-green-500/20 border-green-400/40 text-green-300' : geoStatus === 'loading' ? 'bg-white/10 border-white/20 text-white/60 animate-pulse' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}
+            className={`flex items-center gap-1 border rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all ${
+              geoStatus === 'ok' ? 'bg-green-500/20 border-green-400/40 text-green-300' :
+              geoStatus === 'loading' ? 'bg-white/10 border-white/20 text-white/60 animate-pulse' :
+              'bg-white/10 border-white/20 text-white'}`}
             onClick={geoStatus !== 'ok' ? requestGeo : undefined}>
-            📍 <span className="max-w-[100px] truncate">{geoStatus === 'loading' ? 'Localisation…' : cityName}</span>
+            📍 <span className="max-w-[80px] truncate hidden xs:inline">{geoStatus === 'loading' ? '…' : cityName}</span>
           </button>
 
-          {/* Search */}
-          <div ref={searchRef} className="flex-1 flex items-center bg-white/12 border border-white/20 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-or/50">
-            <input className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/45 px-3 py-2 text-sm font-sans min-w-0"
-              placeholder="Rechercher viande, boucherie…"
+          {/* Search — prend tout l'espace disponible */}
+          <div ref={searchRef} className="flex-1 flex items-center bg-white/12 border border-white/20 rounded-xl overflow-hidden min-w-0">
+            <input
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/40 px-2.5 py-1.5 text-sm font-sans min-w-0"
+              placeholder="Rechercher…"
               value={searchQuery}
               onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true) }}
-              onFocus={() => setSearchOpen(true)} />
-            <button className="bg-or text-white px-3 py-2 text-base">🔍</button>
+              onFocus={() => setSearchOpen(true)}
+            />
+            <button className="bg-or text-white px-2.5 py-1.5 text-sm flex-shrink-0">🔍</button>
           </div>
 
           {/* Notif */}
-          <button className="bg-white/15 border border-white/25 rounded-xl p-2 text-white text-base relative"
+          <button className="bg-white/15 border border-white/25 rounded-xl p-1.5 text-white text-base flex-shrink-0"
             onClick={() => setNotifOpen(true)}>🔔</button>
 
-          {/* Auth / Panier */}
-          {user ? (
-            <button className="flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-xl px-3 py-2 text-white text-xs font-semibold"
-              onClick={() => router.push('/parametres')}>
-              👤 {user.nom.split(' ')[0]}
-            </button>
-          ) : (
-            <button className="bg-white/15 border border-white/25 rounded-xl px-3 py-2 text-white text-xs font-semibold whitespace-nowrap"
-              onClick={() => setAuthOpen(true)}>
-              Connexion
-            </button>
-          )}
-
-          <button className="relative flex items-center gap-1 bg-rouge-vif rounded-xl px-3.5 py-2 text-white text-sm font-semibold cursor-pointer hover:bg-red-700 transition-colors"
+          {/* Panier */}
+          <button
+            className="relative bg-rouge-vif rounded-xl px-2.5 py-1.5 text-white text-sm font-semibold flex-shrink-0 hover:bg-red-700 transition-colors"
             onClick={() => user ? router.push('/commande/paiement') : setAuthOpen(true)}>
             🛒
-            {totalItems() > 0 && <span className="absolute -top-1.5 -right-1.5 bg-or text-brun rounded-full w-5 h-5 text-[10px] font-bold flex items-center justify-center">{totalItems()}</span>}
+            {totalItems() > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-or text-brun rounded-full w-4 h-4 text-[9px] font-bold flex items-center justify-center">
+                {totalItems()}
+              </span>
+            )}
           </button>
+
+          {/* Auth */}
+          {user
+            ? <button className="flex-shrink-0 bg-white/15 border border-white/25 rounded-xl px-2 py-1.5 text-white text-xs font-semibold hidden sm:block"
+                onClick={() => router.push('/parametres')}>
+                {user.nom.split(' ')[0]}
+              </button>
+            : <button className="flex-shrink-0 bg-white/15 border border-white/25 rounded-xl px-2 py-1.5 text-white text-xs font-semibold whitespace-nowrap hidden sm:block"
+                onClick={() => setAuthOpen(true)}>
+                Connexion
+              </button>
+          }
         </div>
       </header>
 
-      {/* Search panel */}
-      {searchOpen && searchQuery.trim() && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setSearchOpen(false)} />
-          <div className="fixed top-[64px] left-0 right-0 z-50 bg-white shadow-xl max-h-[70vh] overflow-y-auto">
-            <div className="max-w-5xl mx-auto p-4">
-              {srB.length === 0 && srP.length === 0
-                ? <p className="text-center py-8 text-gray-400">Aucun résultat pour « {searchQuery} »</p>
-                : (<>
-                    {srB.map(b => (
-                      <div key={b.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-creme cursor-pointer"
-                        onClick={() => { setModal(b); setSearchOpen(false); setSearchQuery('') }}>
-                        <img src={b.img} alt={b.nom} className="w-11 h-11 rounded-lg object-cover" />
-                        <div><p className="font-semibold text-brun text-sm">{b.nom}</p><p className="text-xs text-gray-400">⭐ {b.note} · {b.livraison}</p></div>
-                        <span className="ml-auto text-rouge-vif font-bold text-sm">{b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`}</span>
+      {/* ── SEARCH PANEL ── */}
+      {searchOpen && searchQuery.trim() && (<>
+        <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setSearchOpen(false)} />
+        <div className="fixed top-14 left-0 right-0 z-50 bg-white shadow-xl max-h-[70vh] overflow-y-auto">
+          <div className="max-w-2xl mx-auto p-4">
+            {srB.length === 0 && srP.length === 0
+              ? <p className="text-center py-8 text-gray-400 text-sm">Aucun résultat pour « {searchQuery} »</p>
+              : (<>
+                  {srB.map(b => (
+                    <div key={b.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-creme cursor-pointer"
+                      onClick={() => { setModal(b); setSearchOpen(false); setSearchQuery('') }}>
+                      <img src={b.img} alt={b.nom} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-brun text-sm truncate">{b.nom}</p>
+                        <p className="text-xs text-gray-400">⭐ {b.note} · {b.livraison}</p>
                       </div>
-                    ))}
-                    {srP.map(p => (
-                      <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-creme cursor-pointer"
-                        onClick={() => { setModal((p as any).boucherie); setSearchOpen(false); setSearchQuery('') }}>
-                        <div className="w-11 h-11 rounded-lg bg-or-pale flex items-center justify-center text-2xl">{p.icon}</div>
-                        <div><p className="font-semibold text-brun text-sm">{p.nom}</p><p className="text-xs text-gray-400">{(p as any).boucherie?.nom} · {p.desc}</p></div>
-                        <span className="ml-auto text-rouge-vif font-bold text-sm">{p.prix.toFixed(2)} €</span>
+                      <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`}</span>
+                    </div>
+                  ))}
+                  {srP.map(p => (
+                    <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-creme cursor-pointer"
+                      onClick={() => { setModal((p as any).boucherie); setSearchOpen(false); setSearchQuery('') }}>
+                      <div className="w-10 h-10 rounded-lg bg-or-pale flex items-center justify-center text-xl flex-shrink-0">{p.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-brun text-sm truncate">{p.nom}</p>
+                        <p className="text-xs text-gray-400 truncate">{(p as any).boucherie?.nom}</p>
                       </div>
-                    ))}
-                  </>)}
-            </div>
+                      <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{p.prix.toFixed(2)} €</span>
+                    </div>
+                  ))}
+                </>)}
           </div>
-        </>
-      )}
+        </div>
+      </>)}
 
-      {/* Bannière géoloc refusée */}
+      {/* Géoloc refusée */}
       {geoStatus === 'denied' && (
-        <div className="bg-orange-50 border-b border-orange-200 px-4 py-2.5 flex items-center justify-between">
-          <p className="text-xs text-orange-700">📍 Activez la géolocalisation pour voir les boucheries proches.</p>
-          <button className="text-xs font-bold text-orange-600 ml-3" onClick={requestGeo}>Activer</button>
+        <div className="bg-orange-50 border-b border-orange-200 px-4 py-2 flex items-center justify-between">
+          <p className="text-xs text-orange-700">📍 Activez la géolocalisation pour trouver les boucheries proches.</p>
+          <button className="text-xs font-bold text-orange-600 ml-3 flex-shrink-0" onClick={requestGeo}>Activer</button>
         </div>
       )}
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-brun via-brun-clair to-rouge px-5 py-10 relative overflow-hidden">
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-9xl opacity-10">🥩</div>
-        <div className="max-w-5xl mx-auto">
-          <h1 className="font-serif text-4xl font-black text-white leading-tight mb-3">
+      {/* ── HERO ── */}
+      <section className="bg-gradient-to-br from-brun via-brun-clair to-rouge px-4 py-8 relative overflow-hidden">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-8xl opacity-10 pointer-events-none">🥩</div>
+        <div className="max-w-2xl mx-auto">
+          <h1 className="font-serif font-black text-white leading-tight mb-2" style={{ fontSize: 'clamp(1.4rem, 6vw, 2.2rem)' }}>
             La meilleure viande,<br /><span className="text-or">livrée chez vous</span>
           </h1>
-          <p className="text-white/75 text-base mb-5">
-            {userPos ? `📍 ${filtered.length} boucherie${filtered.length > 1 ? 's' : ''} à moins de ${rayonKm} km` : 'Les boucheries artisanales de votre quartier, à portée de clic.'}
+          <p className="text-white/70 text-sm mb-4">
+            {userPos ? `📍 ${filtered.length} boucherie${filtered.length > 1 ? 's' : ''} à moins de ${rayonKm} km` : 'Les boucheries artisanales de votre quartier.'}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {['🏆 Artisans sélectionnés', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Découpe sur mesure'].map(t => (
-              <span key={t} className="bg-white/15 border border-or/50 text-or rounded-full px-3 py-1 text-xs font-medium">{t}</span>
+          <div className="flex flex-wrap gap-1.5">
+            {['🏆 Artisans', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Sur mesure'].map(t => (
+              <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <div className="bg-white border-b border-gris-bd px-5 py-4">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-lg font-bold text-brun mb-3">Explorer par type</h2>
+      {/* ── CATÉGORIES ── */}
+      <div className="bg-white border-b border-gris-bd px-4 py-3">
+        <div className="max-w-2xl mx-auto">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {CATS_NAV.map(c => (
               <button key={c.label}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl border-2 min-w-[68px] transition-all ${catActive === c.label ? 'bg-rouge-pale border-rouge-vif' : 'bg-creme border-transparent hover:border-rouge-vif'}`}
+                className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-xl border-2 min-w-[58px] flex-shrink-0 transition-all ${catActive === c.label ? 'bg-rouge-pale border-rouge-vif' : 'bg-creme border-transparent'}`}
                 onClick={() => setCatActive(catActive === c.label ? null : c.label)}>
-                <span className="text-2xl">{c.icon}</span>
-                <span className="text-[11px] font-semibold text-brun">{c.label}</span>
+                <span className="text-xl">{c.icon}</span>
+                <span className="text-[10px] font-semibold text-brun">{c.label}</span>
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white border-b border-gris-bd px-5 py-2">
-        <div className="max-w-5xl mx-auto flex gap-2 items-center flex-wrap">
-          {filters.map(f => (
-            <button key={f}
-              className={`border rounded-full px-3 py-1 text-xs font-medium transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200 hover:border-brun'}`}
-              onClick={() => setFilterActive(f)}>{f}</button>
-          ))}
-          <select className="ml-auto border border-gray-200 rounded-lg px-2 py-1 text-xs text-brun bg-white outline-none"
-            value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            {userPos && <option value="distance">📍 Plus proches</option>}
-            <option value="note">↓ Mieux notés</option>
-            <option value="livraison">↓ Plus rapide</option>
-            <option value="frais">↓ Frais réduits</option>
-          </select>
-          {userPos && (
-            <div className="flex items-center gap-1.5">
-              {[2, 5, 10].map(r => (
-                <button key={r}
-                  className={`text-xs px-2 py-0.5 rounded-full border transition-all ${rayonKm === r ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
-                  onClick={() => setRayonKm(r)}>{r} km</button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Main */}
-      <div className="max-w-5xl mx-auto px-5 py-6 flex gap-7">
-        <div className="flex-1 min-w-0">
-          {userPos && (
-            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2.5 mb-4 flex justify-between items-center">
-              <p className="text-xs text-green-700 font-semibold">📍 {filtered.length} boucherie{filtered.length > 1 ? 's' : ''} à moins de {rayonKm} km</p>
-              <button className="text-xs text-green-600 font-bold" onClick={() => setRayonKm(r => Math.min(r + 5, 20))}>Élargir</button>
-            </div>
-          )}
-
-          {filtered.length === 0
-            ? <div className="text-center py-16 text-gray-400">
-                <span className="text-5xl block mb-3">🔍</span>
-                <p className="font-semibold mb-2">Aucune boucherie trouvée</p>
-                {userPos && <button className="text-sm text-or font-bold" onClick={() => setRayonKm(r => r + 5)}>Élargir le rayon</button>}
-              </div>
-            : <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {filtered.map(b => (
-                  <div key={b.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer"
-                    onClick={() => setModal(b)}>
-                    <div className="relative overflow-hidden">
-                      <img src={b.img} alt={b.nom} className="w-full h-40 object-cover hover:scale-105 transition-transform duration-300" />
-                      {b.badge === 'Promo' && <span className="absolute top-2 left-2 bg-rouge-vif text-white text-[11px] font-bold px-2 py-1 rounded-lg">🏷️ Promo</span>}
-                      {b.badge === 'Nouveau' && <span className="absolute top-2 left-2 bg-or text-brun text-[11px] font-bold px-2 py-1 rounded-lg">✨ Nouveau</span>}
-                      {!b.ouvert && <span className="absolute top-2 right-2 bg-black/65 text-red-400 text-[11px] font-bold px-2 py-1 rounded-lg">⛔ Fermé</span>}
-                      {b.frais === 0 && b.ouvert && <span className="absolute bottom-2 right-2 bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg">Livraison offerte</span>}
-                      {b.distKm !== null && <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[11px] font-semibold px-2 py-1 rounded-lg">📍 {b.distKm.toFixed(1)} km</span>}
-                    </div>
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-serif text-base font-bold text-brun">{b.nom}</span>
-                        <span className="text-xs font-semibold text-or">⭐ {b.note} <span className="text-gray-300 font-normal">({b.avis})</span></span>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-2">{b.desc.slice(0, 72)}…</p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {b.tags.map(t => <span key={t} className="bg-gris-bd text-brun-clair text-[11px] font-medium px-2 py-0.5 rounded-md">{t}</span>)}
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                        <span className="text-[11px] text-gray-400">🕐 {b.livraison} · 🚚 {b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`}</span>
-                        <button className="bg-brun text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-rouge-vif transition-colors"
-                          onClick={e => { e.stopPropagation(); setModal(b) }}>Voir</button>
-                      </div>
-                    </div>
-                  </div>
+      {/* ── FILTRES ── */}
+      <div className="bg-white border-b border-gris-bd px-4 py-2">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1 items-center">
+            {['Tous', 'Livraison rapide', 'Gratuit', 'Bio', 'Halal', 'Premium'].map(f => (
+              <button key={f}
+                className={`border rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                onClick={() => setFilterActive(f)}>{f}</button>
+            ))}
+            <select className="ml-1 border border-gray-200 rounded-lg px-2 py-1 text-xs text-brun bg-white outline-none flex-shrink-0"
+              value={sortBy} onChange={e => setSortBy(e.target.value)}>
+              {userPos && <option value="distance">📍 Proches</option>}
+              <option value="note">⭐ Notés</option>
+              <option value="livraison">🕐 Rapides</option>
+              <option value="frais">💶 Frais</option>
+            </select>
+            {userPos && (
+              <div className="flex items-center gap-1 ml-1 flex-shrink-0">
+                {[2, 5, 10].map(r => (
+                  <button key={r}
+                    className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap transition-all ${rayonKm === r ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                    onClick={() => setRayonKm(r)}>{r}km</button>
                 ))}
               </div>
-          }
+            )}
+          </div>
         </div>
-
-        {/* Panier desktop */}
-        <aside className="w-72 hidden lg:block">
-          <Panier onCommander={() => user ? router.push('/commande/paiement') : setAuthOpen(true)} />
-        </aside>
       </div>
 
-      {/* Modals */}
+      {/* ── CATALOGUE ── */}
+      <div className="max-w-2xl mx-auto w-full px-4 py-4">
+        {userPos && (
+          <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mb-3 flex justify-between items-center">
+            <p className="text-xs text-green-700 font-semibold">📍 {filtered.length} boucherie{filtered.length > 1 ? 's' : ''} à moins de {rayonKm} km</p>
+            <button className="text-xs text-green-600 font-bold flex-shrink-0 ml-2" onClick={() => setRayonKm(r => Math.min(r + 5, 20))}>Élargir</button>
+          </div>
+        )}
+
+        {filtered.length === 0
+          ? <div className="text-center py-14 text-gray-400">
+              <span className="text-5xl block mb-3">🔍</span>
+              <p className="font-semibold mb-2 text-sm">Aucune boucherie trouvée</p>
+              {userPos && <button className="text-sm text-or font-bold" onClick={() => setRayonKm(r => r + 5)}>Élargir le rayon</button>}
+            </div>
+          : <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
+              {filtered.map(b => (
+                <div key={b.id}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm active:scale-[.98] transition-transform cursor-pointer"
+                  onClick={() => setModal(b)}>
+                  <div className="relative overflow-hidden">
+                    <img src={b.img} alt={b.nom} className="w-full object-cover" style={{ height: 'clamp(130px, 35vw, 180px)' }} />
+                    {b.badge === 'Promo' && <span className="absolute top-2 left-2 bg-rouge-vif text-white text-[11px] font-bold px-2 py-0.5 rounded-lg">🏷️ Promo</span>}
+                    {b.badge === 'Nouveau' && <span className="absolute top-2 left-2 bg-or text-brun text-[11px] font-bold px-2 py-0.5 rounded-lg">✨ Nouveau</span>}
+                    {!b.ouvert && <span className="absolute top-2 right-2 bg-black/65 text-red-400 text-[11px] font-bold px-2 py-0.5 rounded-lg">⛔ Fermé</span>}
+                    {b.frais === 0 && b.ouvert && <span className="absolute bottom-2 right-2 bg-green-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg">Offerte</span>}
+                    {b.distKm !== null && <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded-lg">📍 {b.distKm.toFixed(1)} km</span>}
+                  </div>
+                  <div className="p-3">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-serif text-sm font-bold text-brun flex-1 mr-2">{b.nom}</span>
+                      <span className="text-xs font-semibold text-or flex-shrink-0">⭐ {b.note}</span>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">{b.desc}</p>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {b.tags.slice(0, 3).map(t => <span key={t} className="bg-gris-bd text-brun-clair text-[10px] font-medium px-1.5 py-0.5 rounded">{t}</span>)}
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
+                      <span className="text-[11px] text-gray-400">🕐 {b.livraison} · 🚚 {b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`}</span>
+                      <button className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg"
+                        onClick={e => { e.stopPropagation(); setModal(b) }}>Voir</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+        }
+      </div>
+
+      {/* ── MODALS ── */}
       {modal && (
         <ModalBoucherie boucherie={modal} onClose={() => setModal(null)}
-          onAddProduit={prod => {
-            if (!user) { setAuthOpen(true); return }
-            setCustomProd({ prod, boucherie: modal })
-          }} />
+          onAddProduit={prod => { if (!user) { setAuthOpen(true); return } setCustomProd({ prod, boucherie: modal }) }} />
       )}
       {customProd && (
-        <ModalPersonnalisation produit={customProd.prod} boucherie={customProd.boucherie}
-          onClose={() => setCustomProd(null)} />
+        <ModalPersonnalisation produit={customProd.prod} boucherie={customProd.boucherie} onClose={() => setCustomProd(null)} />
       )}
       {notifOpen && <NotifPanel onClose={() => setNotifOpen(false)} />}
       {chatOpen && <ChatBot boucheries={BOUCHERIES} onClose={() => setChatOpen(false)} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
 
       {/* Chatbot FAB */}
-      <button className="fixed bottom-20 right-5 z-30 rounded-full bg-brun text-white text-2xl shadow-xl flex items-center justify-center hover:bg-rouge-vif transition-all hover:scale-105"
-        style={{ width: 52, height: 52 }}
+      <button
+        className="fixed z-30 rounded-full bg-brun text-white text-xl shadow-xl flex items-center justify-center hover:bg-rouge-vif transition-all active:scale-95"
+        style={{ bottom: 84, right: 16, width: 48, height: 48 }}
         onClick={() => setChatOpen(o => !o)}>
         {chatOpen ? '✕' : '🤖'}
       </button>
