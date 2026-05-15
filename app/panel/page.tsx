@@ -12,7 +12,8 @@ interface ProduitEtendu extends Produit {
 }
 interface ProduitForm {
   id: string; nom: string; desc: string; prix: string; icon: string
-  stock: string; decoupes: string; preparation: string; photoUrl: string | null; boucherieId: number
+  stock: string; decoupes: string; preparation: string; photoUrl: string | null
+  boucherieId: number; cat: string; venteType: string
 }
 
 // ── Types commandes ──────────────────────────────────────────────────────────
@@ -132,7 +133,7 @@ const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'L
 const ICONS = ['🥩', '🍖', '🌶️', '🥓', '🌭', '🫙', '🦴', '🐓', '🐇', '🦆', '🔥', '⭐']
 
 function emptyForm(boucherieId: number): ProduitForm {
-  return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId }
+  return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce' }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -168,6 +169,7 @@ export default function PanelPage() {
     rayon: '5',
     promo: false,
     promoTexte: 'Livraison offerte dès 30 €',
+    promotions: [] as any[],
     horaires: {
       lun: { ouvert: true, debut: '08:00', fin: '19:30' },
       mar: { ouvert: true, debut: '08:00', fin: '19:30' },
@@ -204,7 +206,7 @@ export default function PanelPage() {
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: p.cat || 'Bœuf', venteType: p.venteType || 'pièce' })
     setIsNew(false)
   }
 
@@ -225,6 +227,8 @@ export default function PanelPage() {
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         boucherieId: modalProd.boucherieId,
         boucherieNom: BOUCHERIES.find(b => b.id === modalProd.boucherieId)?.nom || '',
+        cat: (modalProd.cat || 'Bœuf') as any,
+        venteType: (modalProd.venteType || 'pièce') as any,
       }])
       showToast('✅ Produit créé !')
     } else {
@@ -368,7 +372,6 @@ export default function PanelPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
-                        <p className="text-[10px] text-gray-400">💳 {o.modePaiement.split(' ')[0]}</p>
                       </div>
                     </div>
 
@@ -416,23 +419,6 @@ export default function PanelPage() {
 
             {/* ── Historique ── */}
             {showHistorique && (<>
-              {/* Résumé comptable */}
-              <div className="bg-brun rounded-2xl p-4">
-                <p className="text-or font-bold text-sm mb-2">💶 Résumé comptable</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: 'Commandes', val: historique.length.toString() },
-                    { label: 'CA total', val: historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2) + ' €' },
-                    { label: 'Commission (15%)', val: (historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0) * 0.15).toFixed(2) + ' €' },
-                  ].map(s => (
-                    <div key={s.label} className="bg-white/10 rounded-xl p-2.5 text-center">
-                      <p className="text-white font-black text-sm">{s.val}</p>
-                      <p className="text-white/60 text-[10px]">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {historique.length === 0 ? (
                 <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
                   <span className="text-4xl block mb-2">🗂️</span>
@@ -457,7 +443,6 @@ export default function PanelPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
-                        <p className="text-[10px] text-gray-400">{o.modePaiement.split(' ')[0]}</p>
                       </div>
                     </div>
                     <div className="px-4 py-3">
@@ -581,48 +566,214 @@ export default function PanelPage() {
               </div>
             </div>
 
-            {/* Livraison */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🚚 Paramètres de livraison</p>
-              </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                {[
-                  ['frais', 'Frais (€)', '2.90'],
-                  ['minCommande', 'Minimum (€)', '15'],
-                  ['rayon', 'Rayon (km)', '5'],
-                ].map(([k, l, ph]) => (
-                  <div key={k}>
-                    <label className="text-xs font-bold text-brun block mb-1">{l}</label>
-                    <input type="number" min="0" step="0.5"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                      placeholder={ph} value={(boutique as any)[k]}
-                      onChange={e => { setBoutique(b => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Livraison — SUPPRIMÉ */}
 
-            {/* Promotion */}
+            {/* Promotions — gestion complète */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
-                <p className="font-bold text-brun text-sm">🏷️ Promotion en cours</p>
+                <p className="font-bold text-brun text-sm">🏷️ Mes promotions</p>
                 <button
-                  className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${boutique.promo ? 'bg-green-400' : 'bg-gray-200'}`}
-                  onClick={() => { setBoutique(b => ({ ...b, promo: !b.promo })); setBoutiqueEdited(true) }}>
-                  <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${boutique.promo ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans"
+                  onClick={() => {
+                    setBoutique(b => ({
+                      ...b,
+                      promotions: [...(b.promotions || []), {
+                        id: Date.now().toString(),
+                        titre: '',
+                        description: '',
+                        type: 'message',
+                        valeur: '',
+                        dateDebut: '',
+                        dateFin: '',
+                        active: true,
+                      }]
+                    }))
+                    setBoutiqueEdited(true)
+                  }}>
+                  + Ajouter
                 </button>
               </div>
-              {boutique.promo && (
-                <div className="p-4">
-                  <label className="text-xs font-bold text-brun block mb-1">Message de la promotion</label>
-                  <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder="Ex: Livraison offerte dès 30 €"
-                    value={boutique.promoTexte}
-                    onChange={e => { setBoutique(b => ({ ...b, promoTexte: e.target.value })); setBoutiqueEdited(true) }} />
-                  <div className="mt-2 bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
-                    <p className="text-xs text-rouge-vif font-semibold">🏷️ Aperçu : {boutique.promoTexte || '…'}</p>
-                  </div>
+
+              {(!boutique.promotions || boutique.promotions.length === 0) ? (
+                <div className="p-6 text-center text-gray-400">
+                  <span className="text-3xl block mb-2">🏷️</span>
+                  <p className="text-sm">Aucune promotion configurée.</p>
+                  <p className="text-xs mt-1">Cliquez sur "+ Ajouter" pour créer votre première promo.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gris-bd">
+                  {(boutique.promotions || []).map((promo: any, idx: number) => (
+                    <div key={promo.id} className="p-4 space-y-3">
+                      {/* Toggle actif + supprimer */}
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <button
+                            className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${promo.active ? 'bg-green-400' : 'bg-gray-200'}`}
+                            onClick={() => {
+                              const promos = [...(boutique.promotions || [])]
+                              promos[idx] = { ...promos[idx], active: !promos[idx].active }
+                              setBoutique(b => ({ ...b, promotions: promos }))
+                              setBoutiqueEdited(true)
+                            }}>
+                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${promo.active ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          </button>
+                          <span className={`text-xs font-bold ${promo.active ? 'text-green-600' : 'text-gray-400'}`}>
+                            {promo.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <button
+                          className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
+                          onClick={() => {
+                            const promos = (boutique.promotions || []).filter((_: any, i: number) => i !== idx)
+                            setBoutique(b => ({ ...b, promotions: promos }))
+                            setBoutiqueEdited(true)
+                          }}>
+                          🗑️ Supprimer
+                        </button>
+                      </div>
+
+                      {/* Type de promo */}
+                      <div>
+                        <label className="text-xs font-bold text-brun block mb-1.5">Type de promotion</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            ['message', '💬 Message'],
+                            ['reduction', '% Réduction'],
+                            ['livraison', '🚚 Livraison offerte'],
+                            ['offre', '🎁 Offre spéciale'],
+                          ].map(([val, label]) => (
+                            <button key={val}
+                              className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                              onClick={() => {
+                                const promos = [...(boutique.promotions || [])]
+                                promos[idx] = { ...promos[idx], type: val }
+                                setBoutique(b => ({ ...b, promotions: promos }))
+                                setBoutiqueEdited(true)
+                              }}>
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Titre */}
+                      <div>
+                        <label className="text-xs font-bold text-brun block mb-1">Titre affiché</label>
+                        <input
+                          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder="Ex: Offre de lancement, Weekend spécial…"
+                          value={promo.titre}
+                          onChange={e => {
+                            const promos = [...(boutique.promotions || [])]
+                            promos[idx] = { ...promos[idx], titre: e.target.value }
+                            setBoutique(b => ({ ...b, promotions: promos }))
+                            setBoutiqueEdited(true)
+                          }} />
+                      </div>
+
+                      {/* Description / valeur selon type */}
+                      {promo.type === 'reduction' && (
+                        <div>
+                          <label className="text-xs font-bold text-brun block mb-1">Pourcentage de réduction</label>
+                          <div className="flex items-center gap-2">
+                            <input type="number" min="1" max="100"
+                              className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                              placeholder="15"
+                              value={promo.valeur}
+                              onChange={e => {
+                                const promos = [...(boutique.promotions || [])]
+                                promos[idx] = { ...promos[idx], valeur: e.target.value }
+                                setBoutique(b => ({ ...b, promotions: promos }))
+                                setBoutiqueEdited(true)
+                              }} />
+                            <span className="text-sm font-bold text-brun">%</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {promo.type === 'livraison' && (
+                        <div>
+                          <label className="text-xs font-bold text-brun block mb-1">Dès quel montant</label>
+                          <div className="flex items-center gap-2">
+                            <input type="number" min="0"
+                              className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                              placeholder="30"
+                              value={promo.valeur}
+                              onChange={e => {
+                                const promos = [...(boutique.promotions || [])]
+                                promos[idx] = { ...promos[idx], valeur: e.target.value }
+                                setBoutique(b => ({ ...b, promotions: promos }))
+                                setBoutiqueEdited(true)
+                              }} />
+                            <span className="text-sm font-bold text-brun">€</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="text-xs font-bold text-brun block mb-1">Description</label>
+                        <input
+                          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder={
+                            promo.type === 'reduction' ? 'Ex: -15% sur toute la gamme ce weekend' :
+                            promo.type === 'livraison' ? 'Ex: Livraison offerte dès 30 €' :
+                            promo.type === 'offre' ? 'Ex: 1 merguez offerte pour 500g achetés' :
+                            'Ex: Nouvelle gamme de printemps disponible !'
+                          }
+                          value={promo.description}
+                          onChange={e => {
+                            const promos = [...(boutique.promotions || [])]
+                            promos[idx] = { ...promos[idx], description: e.target.value }
+                            setBoutique(b => ({ ...b, promotions: promos }))
+                            setBoutiqueEdited(true)
+                          }} />
+                      </div>
+
+                      {/* Dates */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold text-brun block mb-1">Date début</label>
+                          <input type="date"
+                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-sans outline-none focus:border-brun"
+                            value={promo.dateDebut}
+                            onChange={e => {
+                              const promos = [...(boutique.promotions || [])]
+                              promos[idx] = { ...promos[idx], dateDebut: e.target.value }
+                              setBoutique(b => ({ ...b, promotions: promos }))
+                              setBoutiqueEdited(true)
+                            }} />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-brun block mb-1">Date fin</label>
+                          <input type="date"
+                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-sans outline-none focus:border-brun"
+                            value={promo.dateFin}
+                            onChange={e => {
+                              const promos = [...(boutique.promotions || [])]
+                              promos[idx] = { ...promos[idx], dateFin: e.target.value }
+                              setBoutique(b => ({ ...b, promotions: promos }))
+                              setBoutiqueEdited(true)
+                            }} />
+                        </div>
+                      </div>
+
+                      {/* Aperçu */}
+                      {promo.titre && (
+                        <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-3">
+                          <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Aperçu client</p>
+                          <p className="text-xs text-rouge-vif font-bold">
+                            {promo.type === 'reduction' ? '🏷️' : promo.type === 'livraison' ? '🚚' : promo.type === 'offre' ? '🎁' : '💬'} {promo.titre}
+                          </p>
+                          {promo.description && <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p>}
+                          {promo.dateDebut && promo.dateFin && (
+                            <p className="text-[10px] text-gray-400 mt-1">
+                              Du {new Date(promo.dateDebut).toLocaleDateString('fr-FR')} au {new Date(promo.dateFin).toLocaleDateString('fr-FR')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -798,9 +949,7 @@ export default function PanelPage() {
       {viewOrder && (() => {
         const o = viewOrder
         const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
-        const commission = sousTotal * 0.15
         const total = sousTotal + o.frais
-        const netBoucher = total - commission
         return (
           <div className="fixed inset-0 bg-black/65 z-[200] flex items-end justify-center" onClick={() => setViewOrder(null)}>
             <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
@@ -870,31 +1019,9 @@ export default function PanelPage() {
                       <span>{o.frais === 0 ? 'Offerts' : `${o.frais.toFixed(2)} €`}</span>
                     </div>
                     <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2">
-                      <span>Total client</span>
+                      <span>Total</span>
                       <span>{total.toFixed(2)} €</span>
                     </div>
-                    <div className="border-t border-dashed border-gris-bd pt-2 space-y-1.5">
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>Commission BoucherieDelivery (15%)</span>
-                        <span className="text-rouge-vif">− {commission.toFixed(2)} €</span>
-                      </div>
-                      <div className="flex justify-between text-base font-black text-green-700 bg-green-50 -mx-1 px-2 py-2 rounded-xl">
-                        <span>💶 Vous recevez</span>
-                        <span>{netBoucher.toFixed(2)} €</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Paiement */}
-                <div className="bg-creme rounded-2xl p-4">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Paiement</p>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm font-bold text-brun">💳 {o.modePaiement}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">Stripe ID : {o.stripeId}</p>
-                    </div>
-                    <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full">✅ Payé</span>
                   </div>
                 </div>
 
