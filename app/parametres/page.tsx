@@ -9,6 +9,7 @@ type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
   | 'commandes' | 'avis' | 'paiement'
   | 'support' | 'contact' | 'confidentialite' | 'cgu'
+  | 'livreur' | 'partenaire'
   | 'deconnexion' | null
 
 // ── Wrapper commun ────────────────────────────────────────────────────────────
@@ -45,6 +46,8 @@ export default function ParametresPage() {
   if (section === 'contact')         return <ContactSection onBack={() => setSection(null)} />
   if (section === 'confidentialite') return <ConfidentialiteSection onBack={() => setSection(null)} />
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
+  if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
+  if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
 
   const sections = [
     {
@@ -73,7 +76,13 @@ export default function ParametresPage() {
       ],
     }] : []),
     {
-      titre: 'Application & Aide',
+      titre: 'Rejoindre BoucheriesDelivery',
+      items: [
+        { ico: '🛵', label: 'Devenir livreur', sub: 'Livrez à votre rythme, revenus flexibles', action: () => setSection('livreur') },
+        { ico: '🔪', label: 'Devenir partenaire boucher', sub: 'Rejoignez le réseau artisan', action: () => setSection('partenaire') },
+      ],
+    },
+    {
       items: [
         { ico: '🆘', label: 'Support & FAQ', sub: 'Questions fréquentes', action: () => setSection('support') },
         { ico: '✉️', label: 'Nous contacter', sub: 'Envoyer un message', action: () => setSection('contact') },
@@ -1015,7 +1024,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
           { t: "1. Objet", c: "Les CGU régissent l'utilisation de BoucherieDelivery, accessible via l'app mobile et le site www.boucheriedelivery.fr." },
           { t: "2. Description du service", c: "BoucherieDelivery est une marketplace mettant en relation consommateurs et boucheries artisanales. Nous agissons en intermédiaire et ne sommes pas vendeurs des produits." },
           { t: "3. Inscription", c: "Gratuite, ouverte aux personnes majeures. Vous êtes responsable de vos identifiants. Tout usage frauduleux doit être signalé immédiatement." },
-          { t: "4. Commandes & paiement", c: "Prix en euros TTC. Paiement dû à la validation de la commande via Stripe. Commission BoucherieDelivery : 15% par transaction." },
+          { t: "4. Commandes & paiement", c: "Prix en euros TTC. Paiement dû à la validation de la commande via Stripe." },
           { t: "5. Livraison", c: "Délais indicatifs (25–55 min). Chaîne du froid garantie. En cas de retard > 30 min, annulation sans frais possible." },
           { t: "6. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contactez-nous sous 2h après livraison." },
           { t: "7. Responsabilités", c: "BoucherieDelivery garantit l'accessibilité de la plateforme. Les boucheries sont seules responsables de la qualité et conformité sanitaire de leurs produits." },
@@ -1027,6 +1036,254 @@ function CguSection({ onBack }: { onBack: () => void }) {
             <p className="text-xs text-gray-500 leading-relaxed">{s.c}</p>
           </div>
         ))}
+      </div>
+    </PageWrapper>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DEVENIR LIVREUR
+// ══════════════════════════════════════════════════════════════════════════════
+function LivreurSection({ onBack }: { onBack: () => void }) {
+  const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', ville:'', vehicule:'velo', disponibilite:'', message:'' })
+  const [sent, setSent] = useState(false)
+
+  if (sent) return (
+    <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
+      <div className="text-center py-16">
+        <span className="text-6xl block mb-4">✅</span>
+        <h2 className="font-serif text-xl font-bold text-brun mb-2">Candidature envoyée !</h2>
+        <p className="text-sm text-gray-400 mb-2">Nous étudions votre profil et vous recontactons sous 48h.</p>
+        <p className="text-xs text-gray-300">contact@boucheriedelivery.fr</p>
+      </div>
+    </PageWrapper>
+  )
+
+  return (
+    <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
+      <div className="space-y-4">
+        <div className="bg-brun rounded-2xl p-5 text-center">
+          <span className="text-4xl block mb-2">🛵</span>
+          <h2 className="font-serif text-lg font-black text-or mb-1">Livrez à votre rythme</h2>
+          <p className="text-white/70 text-xs leading-relaxed">Rejoignez le réseau de livreurs BoucheriesDelivery et gagnez un revenu complémentaire en livrant des produits artisanaux de qualité.</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { ico:'⏰', titre:'Horaires libres', desc:'Vous choisissez vos créneaux chaque semaine' },
+            { ico:'💶', titre:'Rémunération', desc:'4 à 7 € net par livraison + pourboires clients' },
+            { ico:'📦', titre:'Trajets courts', desc:'Moins de 5 km en zone urbaine' },
+            { ico:'❄️', titre:'Matériel fourni', desc:'Sac isotherme fourni pour la chaîne du froid' },
+          ].map(a => (
+            <div key={a.titre} className="bg-white rounded-2xl p-3 shadow-sm">
+              <span className="text-2xl block mb-1">{a.ico}</span>
+              <p className="text-xs font-bold text-brun">{a.titre}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{a.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-or-pale border border-or/20 rounded-2xl p-4 space-y-1.5">
+          <p className="text-xs font-bold text-brun mb-2">Conditions requises</p>
+          {['✅ Être majeur (18 ans minimum)','✅ Avoir un vélo, scooter ou voiture','✅ Disponible au moins 3 créneaux/semaine','✅ Avoir un smartphone avec accès internet','✅ Être ponctuel et soigneux avec les produits frais'].map(c => (
+            <p key={c} className="text-xs text-brun-clair">{c}</p>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">Votre candidature</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+              <div key={k}>
+                <label className="text-xs font-bold text-brun block mb-1">{l} *</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                  value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+          </div>
+          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00'],['ville','Ville *','Paris 11e']].map(([k,l,ph]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                placeholder={ph as string} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+          <div>
+            <label className="text-xs font-bold text-brun block mb-2">Véhicule *</label>
+            <div className="grid grid-cols-2 gap-2">
+              {[['velo','🚲 Vélo'],['velo_elec','⚡ Vélo électrique'],['scooter','🛵 Scooter'],['voiture','🚗 Voiture']].map(([v,l]) => (
+                <button key={v} className={`py-2.5 rounded-xl border-2 text-xs font-semibold font-sans transition-all ${form.vehicule === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                  onClick={() => setForm(f => ({ ...f, vehicule: v }))}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-brun block mb-1">Disponibilités *</label>
+            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+              placeholder="Ex: Lun-Ven midi, week-end matin"
+              value={form.disponibilite} onChange={e => setForm(f => ({ ...f, disponibilite: e.target.value }))} />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-brun block mb-1">Message (optionnel)</label>
+            <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
+              placeholder="Parlez-nous de votre motivation…"
+              value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
+          </div>
+          <button
+            className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-rouge-vif transition-colors"
+            disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.disponibilite}
+            onClick={() => setSent(true)}>
+            🛵 Envoyer ma candidature
+          </button>
+          <p className="text-center text-[10px] text-gray-300">Réponse sous 48h · contact@boucheriedelivery.fr</p>
+        </div>
+      </div>
+    </PageWrapper>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DEVENIR PARTENAIRE BOUCHER
+// ══════════════════════════════════════════════════════════════════════════════
+function PartenaireSection({ onBack }: { onBack: () => void }) {
+  const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', nom_boutique:'', adresse:'', ville:'', specialites:'', message:'' })
+  const [sent, setSent] = useState(false)
+  const [step, setStep] = useState<'info'|'form'>('info')
+
+  if (sent) return (
+    <PageWrapper title="🔪 Devenir partenaire" onBack={onBack}>
+      <div className="text-center py-16">
+        <span className="text-6xl block mb-4">🤝</span>
+        <h2 className="font-serif text-xl font-bold text-brun mb-2">Demande envoyée !</h2>
+        <p className="text-sm text-gray-400 mb-2">Notre équipe vous recontacte sous 24h pour une démonstration gratuite.</p>
+        <p className="text-xs text-gray-300">contact@boucheriedelivery.fr</p>
+      </div>
+    </PageWrapper>
+  )
+
+  if (step === 'info') return (
+    <PageWrapper title="🔪 Devenir partenaire" onBack={onBack}>
+      <div className="space-y-4">
+        <div className="bg-brun rounded-2xl p-5 text-center">
+          <span className="text-4xl block mb-2">🔪</span>
+          <h2 className="font-serif text-lg font-black text-or mb-1">Rejoignez le réseau</h2>
+          <p className="text-white/70 text-xs leading-relaxed">BoucheriesDelivery connecte vos clients passionnés à votre savoir-faire artisan. Développez votre chiffre d'affaires sans changer votre façon de travailler.</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <p className="font-bold text-brun text-sm">Ce que vous gagnez</p>
+          {[
+            { ico:'📈', titre:'Nouveaux clients', desc:"Touchez les actifs qui ne peuvent pas venir en journée et les familles qui commandent le soir." },
+            { ico:'💶', titre:'CA supplémentaire', desc:"Nos partenaires génèrent en moyenne 800 à 2 000 € de revenus additionnels par mois dès le 2e mois." },
+            { ico:'🏷️', titre:'Écoulez vos invendus', desc:"Proposez vos restes du vendredi en promotion. Zéro gaspillage, revenus supplémentaires." },
+            { ico:'⚙️', titre:'Zéro contrainte', desc:"Vous recevez les commandes, vous préparez comme d'habitude. On s'occupe du reste." },
+            { ico:'📸', titre:'Vitrine digitale', desc:"Votre boucherie présentée avec photos, avis clients et horaires sur la plateforme." },
+          ].map(a => (
+            <div key={a.titre} className="flex gap-3 items-start">
+              <span className="text-xl flex-shrink-0 mt-0.5">{a.ico}</span>
+              <div>
+                <p className="text-sm font-bold text-brun">{a.titre}</p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{a.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-rouge-pale border border-rouge-vif/20 rounded-2xl p-4 space-y-2">
+          <p className="font-bold text-rouge-vif text-sm">🎁 Offre de lancement — 50 premières boucheries</p>
+          <p className="text-xs text-brun-clair flex items-start gap-1.5"><span className="text-green-500 flex-shrink-0">✓</span>3 premiers mois offerts — sans engagement</p>
+          <div className="border-t border-rouge-vif/10 pt-2 mt-2">
+            <p className="text-xs text-gray-400">Puis <span className="font-black text-brun">89,99 € / mois</span> — résiliable à tout moment</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-full bg-brun text-white text-lg flex items-center justify-center flex-shrink-0">👨‍🍳</div>
+            <div>
+              <p className="text-sm font-bold text-brun">Jean-Pierre M.</p>
+              <p className="text-xs text-gray-400">Boucherie Morel · Paris 11e</p>
+              <span className="text-or text-xs">⭐⭐⭐⭐⭐</span>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 italic leading-relaxed">"En deux mois, j'ai fidélisé 40 nouveaux clients. Les commandes du vendredi soir remplissent ce qui était autrefois des invendus."</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <p className="font-bold text-brun text-sm">Questions fréquentes</p>
+          {[
+            ['Combien ça coûte ?',"Rien pour les 3 premiers mois. Ensuite, uniquement une commission sur les commandes réalisées — pas d'abonnement fixe."],
+            ['Combien de temps pour démarrer ?',"Votre boutique est en ligne en 48h. Notre équipe s'occupe de tout."],
+            ["Et si je n'ai pas de livreur ?",'Nous proposons le Click & Collect pour démarrer sans logistique. Livraison intégrée quand vous êtes prêt.'],
+            ['Qui gère le paiement ?','Stripe gère tous les paiements. Vous recevez votre virement chaque semaine sur votre compte.'],
+          ].map(([q,a]) => (
+            <div key={q as string} className="border-b border-gris-bd pb-3 last:border-0 last:pb-0">
+              <p className="text-xs font-bold text-brun mb-1">{q}</p>
+              <p className="text-xs text-gray-400 leading-relaxed">{a}</p>
+            </div>
+          ))}
+        </div>
+
+        <button className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans active:bg-brun transition-colors"
+          onClick={() => setStep('form')}>
+          🤝 Je veux rejoindre le réseau →
+        </button>
+        <p className="text-center text-[10px] text-gray-300">Démonstration gratuite · Sans engagement · Réponse sous 24h</p>
+      </div>
+    </PageWrapper>
+  )
+
+  return (
+    <PageWrapper title="🔪 Votre candidature" onBack={() => setStep('info')}>
+      <div className="space-y-4">
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+          <p className="text-xs text-brun font-semibold">Notre équipe vous recontacte sous 24h pour une démonstration gratuite de 30 minutes à votre boucherie.</p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">Votre boucherie</h3>
+          {[['nom_boutique','Nom de la boucherie *','Boucherie Dupont'],['adresse','Adresse *','12 rue du Marché'],['ville','Ville *','Paris'],['specialites','Vos spécialités','Charolais, Wagyu, Halal…']].map(([k,l,ph]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                placeholder={ph as string} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">Vos coordonnées</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+              <div key={k}>
+                <label className="text-xs font-bold text-brun block mb-1">{l} *</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                  value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+          </div>
+          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00']].map(([k,l,ph]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                placeholder={ph as string} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+          <div>
+            <label className="text-xs font-bold text-brun block mb-1">Message (optionnel)</label>
+            <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
+              placeholder="Vos questions, votre situation…"
+              value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
+          </div>
+        </div>
+
+        <button
+          className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-brun transition-colors"
+          disabled={!form.nom_boutique || !form.prenom || !form.email || !form.tel || !form.ville}
+          onClick={() => setSent(true)}>
+          🤝 Envoyer ma candidature
+        </button>
+        <p className="text-center text-[10px] text-gray-300">Sans engagement · Démonstration gratuite · Réponse sous 24h</p>
       </div>
     </PageWrapper>
   )
