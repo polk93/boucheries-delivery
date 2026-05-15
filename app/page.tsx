@@ -7,7 +7,6 @@ import { usePanier } from '@/store/panier'
 import AuthModal from '@/components/ui/AuthModal'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import NotifPanel from '@/components/ui/NotifPanel'
-import ChatBot from '@/components/ui/ChatBot'
 import PanierMobile from '@/components/panier/PanierMobile'
 import ModalBoucherie from '@/components/boucherie/ModalBoucherie'
 import ModalPersonnalisation from '@/components/boucherie/ModalPersonnalisation'
@@ -154,7 +153,6 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
-  const [chatOpen, setChatOpen] = useState(false)
   const [panierOpen, setPanierOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -457,7 +455,6 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
           onClose={() => setCustomProd(null)} />
       )}
       {notifOpen && <NotifPanel onClose={() => setNotifOpen(false)} />}
-      {chatOpen && <ChatBot boucheries={BOUCHERIES} onClose={() => setChatOpen(false)} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
 
       {/* Panier mobile */}
@@ -467,14 +464,6 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
           onCommander={() => { setPanierOpen(false); router.push('/commande/paiement') }}
         />
       )}
-
-      {/* FAB Chatbot */}
-      <button
-        className="fixed z-30 rounded-full bg-brun text-white text-xl shadow-xl flex items-center justify-center active:bg-rouge-vif transition-all active:scale-95"
-        style={{ bottom: 84, right: 16, width: 48, height: 48 }}
-        onClick={() => setChatOpen(o => !o)}>
-        {chatOpen ? '✕' : '🤖'}
-      </button>
 
       <BottomNavClient currentPage="home" />
     </div>
