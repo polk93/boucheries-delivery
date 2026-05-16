@@ -182,7 +182,7 @@ export default function PanelPage() {
     rayon: '5',
     promo: false,
     promoTexte: 'Livraison offerte dès 30 €',
-    promotions: [] as any[],
+    promotions: ([] as any[]),
     horaires: horaireInit,
   })
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
