@@ -1060,7 +1060,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
     try {
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
-        'service666',
+        'service_uq712ai',
         'template_0rdvwq8',
         {
           subject: `🛵 Nouveau livreur : ${form.prenom} ${form.nom}`,
@@ -1334,7 +1334,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
     try {
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
-        'service666',
+        'service_uq712ai',
         'template_0rdvwq8',
         {
           subject: `🔪 Nouveau partenaire : ${form.nom_boutique} (${form.ville})`,
