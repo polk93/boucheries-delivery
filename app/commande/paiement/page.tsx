@@ -24,15 +24,37 @@ function remunerationLivreur(frais: number, pourboire: number): number {
   return frais * 0.70 + pourboire
 }
 
-// ── Créneaux click & collect ──────────────────────────────────────────────────
-const CRENEAUX_CC = [
-  { label: 'Dès que possible (~20 min)', value: 'cc-now'      },
-  { label: "Aujourd'hui 12h–13h",        value: 'cc-today-12' },
-  { label: "Aujourd'hui 18h–19h",        value: 'cc-today-18' },
-  { label: "Aujourd'hui 19h–20h",        value: 'cc-today-19' },
-  { label: 'Demain 9h–10h',              value: 'cc-tom-9'    },
-  { label: 'Demain 12h–13h',             value: 'cc-tom-12'   },
-]
+// ── Générateur de créneaux dynamiques (roue) ─────────────────────────────────
+// Génère des créneaux toutes les 15 min à partir de maintenant + 20 min minimum
+function genererCreneaux(): { label: string; heure: string; minutes: number }[] {
+  const now = new Date()
+  const debut = new Date(now.getTime() + 20 * 60 * 1000) // +20 min minimum
+  // Arrondir au prochain quart d'heure
+  const min = debut.getMinutes()
+  const arrondi = Math.ceil(min / 15) * 15
+  debut.setMinutes(arrondi, 0, 0)
+
+  const creneaux = []
+  const fin = new Date(now)
+  fin.setHours(20, 0, 0, 0) // fermeture 20h
+
+  let current = new Date(debut)
+  let idx = 0
+  while (current <= fin && idx < 20) {
+    const h = current.getHours().toString().padStart(2, '0')
+    const m = current.getMinutes().toString().padStart(2, '0')
+    const totalMin = current.getHours() * 60 + current.getMinutes()
+    const nowMin = now.getHours() * 60 + now.getMinutes()
+    const diff = totalMin - nowMin
+    const label = diff <= 25
+      ? `Dans ~${diff} min  (${h}:${m})`
+      : `${h}:${m}`
+    creneaux.push({ label, heure: `${h}:${m}`, minutes: diff })
+    current = new Date(current.getTime() + 15 * 60 * 1000)
+    idx++
+  }
+  return creneaux
+}
 
 // ── Distances simulées par boucherie (en production : calcul GPS réel) ────────
 const DISTANCES_DEMO: Record<number, number> = {
@@ -139,7 +161,8 @@ export default function PaiementPage() {
   const [editItem,   setEditItem]   = useState<PanierItem | null>(null)
   const [adresse,    setAdresse]    = useState({ prenom:'', nom:'', adresse:'', cp:'', ville:'' })
   const [card,       setCard]       = useState({ numero:'', expiry:'', cvv:'', titulaire:'' })
-  const [creneauCC,  setCreneauCC]  = useState(CRENEAUX_CC[0].value)
+  const [creneauCC,  setCreneauCC]  = useState(0) // index dans le tableau
+  const [creneaux]                  = useState(() => genererCreneaux())
   const [pourboire,  setPourboire]  = useState(0)
   const [pourboireCustom, setPourboireCustom] = useState('')
 
@@ -168,9 +191,11 @@ export default function PaiementPage() {
     setLoading(true)
     await new Promise(r => setTimeout(r, 1800))
     const numero = '#' + Math.floor(1000 + Math.random() * 9000)
+    const heure = creneaux[creneauCC]?.heure || ''
+    const bid = boucherie?.id || ''
     clear()
     toast.success('🎉 Commande confirmée !')
-    router.push(`/suivi?numero=${numero}`)
+    router.push(`/confirmation?numero=${numero}&heure=${heure}&bid=${bid}`)
     setLoading(false)
   }
 
@@ -282,33 +307,101 @@ export default function PaiementPage() {
           </div>
         )}
 
-        {/* ── Step 1 CLICK & COLLECT : Créneau retrait ── */}
+        {/* ── Step 1 CLICK & COLLECT : Roue de sélection d'heure ── */}
         {mode === 'click_collect' && step === 1 && (
-          <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
             <h2 className="font-serif text-base font-bold text-brun">📅 Heure de retrait</h2>
+
             {boucherie && (
               <div className="bg-or-pale border border-or/20 rounded-xl p-3 flex gap-3">
                 <span className="text-xl">🏪</span>
                 <div>
                   <p className="text-sm font-bold text-brun">{boucherie.nom}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Votre commande sera prête à l'heure choisie.</p>
-                  <p className="text-xs text-green-600 font-semibold mt-0.5">✅ Aucun frais de livraison</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Commande prête à l'heure choisie · Minimum 20 min</p>
+                  <p className="text-xs text-green-600 font-semibold mt-0.5">✅ Retrait gratuit</p>
                 </div>
               </div>
             )}
-            <div className="space-y-2">
-              {CRENEAUX_CC.map(c => (
-                <div key={c.value}
-                  className={`px-4 py-3 rounded-xl border-2 cursor-pointer text-sm font-semibold transition-all ${creneauCC === c.value ? 'border-brun bg-brun text-white' : 'border-gray-200 text-gray-500'}`}
-                  onClick={() => setCreneauCC(c.value)}>
-                  🏪 {c.label}
+
+            {/* Roue de sélection */}
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 text-center">Choisissez votre heure</p>
+
+              {creneaux.length === 0 ? (
+                <div className="text-center py-6 text-gray-400">
+                  <span className="text-3xl block mb-2">😴</span>
+                  <p className="text-sm">La boucherie est fermée pour aujourd'hui.</p>
+                  <p className="text-xs mt-1">Revenez demain dès l'ouverture.</p>
                 </div>
-              ))}
+              ) : (
+                <div className="relative" style={{ height: 220 }}>
+                  {/* Zone de sélection centrale */}
+                  <div className="absolute left-0 right-0 pointer-events-none z-10"
+                    style={{ top: '50%', transform: 'translateY(-50%)', height: 52 }}>
+                    <div className="mx-4 h-full rounded-xl border-2 border-brun bg-brun/5" />
+                  </div>
+
+                  {/* Liste scrollable */}
+                  <div className="overflow-y-scroll h-full scrollbar-none px-4"
+                    style={{ scrollSnapType: 'y mandatory' }}
+                    onScroll={e => {
+                      const el = e.currentTarget
+                      const idx = Math.round(el.scrollTop / 52)
+                      setCreneauCC(Math.min(Math.max(idx, 0), creneaux.length - 1))
+                    }}>
+                    {/* Padding top pour centrer le premier item */}
+                    <div style={{ height: 84 }} />
+                    {creneaux.map((c, i) => (
+                      <div key={i}
+                        style={{ height: 52, scrollSnapAlign: 'center' }}
+                        className={`flex items-center justify-center cursor-pointer transition-all ${i === creneauCC ? 'opacity-100' : 'opacity-30'}`}
+                        onClick={() => {
+                          setCreneauCC(i)
+                          // Scroll programmatique
+                          const el = document.querySelector('.creneaux-scroll') as HTMLElement
+                          if (el) el.scrollTop = i * 52
+                        }}>
+                        <div className="text-center">
+                          <p className={`font-serif font-black transition-all ${i === creneauCC ? 'text-brun text-xl' : 'text-gray-400 text-base'}`}>
+                            {c.heure}
+                          </p>
+                          {i === creneauCC && c.minutes <= 30 && (
+                            <p className="text-xs text-or font-semibold">Dans ~{c.minutes} min</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {/* Padding bottom */}
+                    <div style={{ height: 84 }} />
+                  </div>
+
+                  {/* Dégradés haut/bas */}
+                  <div className="absolute top-0 left-0 right-0 h-20 pointer-events-none"
+                    style={{ background: 'linear-gradient(to bottom, white 0%, transparent 100%)' }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+                    style={{ background: 'linear-gradient(to top, white 0%, transparent 100%)' }} />
+                </div>
+              )}
             </div>
+
+            {/* Récap sélection */}
+            {creneaux.length > 0 && (
+              <div className="bg-creme rounded-xl p-3 text-center">
+                <p className="text-xs text-gray-400 mb-0.5">Heure sélectionnée</p>
+                <p className="font-serif text-2xl font-black text-brun">{creneaux[creneauCC]?.heure}</p>
+                <p className="text-xs text-green-600 font-semibold mt-0.5">
+                  Commande prête dans ~{creneaux[creneauCC]?.minutes} min
+                </p>
+              </div>
+            )}
+
             <div className="bg-creme rounded-xl p-3 text-xs text-gray-500 leading-relaxed">
-              💡 Vous recevrez une notification dès que votre commande est prête. Présentez-vous en caisse.
+              💡 Vous recevrez une notification dès que votre commande est prête. Présentez-vous directement en caisse avec votre numéro de commande.
             </div>
-            <button onClick={() => setStep(2)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans">Continuer →</button>
+            <button onClick={() => setStep(2)} disabled={creneaux.length === 0}
+              className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300">
+              Confirmer {creneaux[creneauCC] ? `— ${creneaux[creneauCC].heure}` : ''} →
+            </button>
           </div>
         )}
 
@@ -389,7 +482,7 @@ export default function PaiementPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-brun">
                     {mode === 'click_collect'
-                      ? `Click & Collect — ${CRENEAUX_CC.find(c => c.value === creneauCC)?.label}`
+                      ? `Click & Collect — ${creneaux[creneauCC]?.heure || ''}`
                       : `Livraison ${distanceKm.toFixed(1)} km — ${CRENEAUX.find(c => c.value === creneau)?.label}`}
                   </p>
                 </div>

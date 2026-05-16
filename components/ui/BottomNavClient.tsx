@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { usePanier } from '@/store/panier'
 
 // Navigation bas de page CÔTÉ CLIENT uniquement
-// Affiche : Accueil · Commandes · Paramètres
+// Affiche : Accueil · Commandes · Suivi · Paramètres
 export default function BottomNavClient({ currentPage }: { currentPage: string }) {
   const router = useRouter()
   const { totalItems } = usePanier()
@@ -11,6 +11,7 @@ export default function BottomNavClient({ currentPage }: { currentPage: string }
   const tabs = [
     { id: 'home',      ico: '🏠', label: 'Accueil',    href: '/' },
     { id: 'commandes', ico: '📦', label: 'Commandes',  href: '/commandes' },
+    { id: 'tracking',  ico: '🛵', label: 'Suivi',      href: '/suivi' },
     { id: 'settings',  ico: '⚙️', label: 'Paramètres', href: '/parametres' },
   ]
 
