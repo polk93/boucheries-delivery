@@ -130,7 +130,17 @@ const SC: Record<string, string> = {
 }
 const SF = ['new', 'prep', 'ready', 'delivery', 'done']
 const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'Livrer', delivery: 'Confirmer' }
-const ICONS = ['🥩', '🍖', '🌶️', '🥓', '🌭', '🫙', '🦴', '🐓', '🐇', '🦆', '🔥', '⭐']
+type HoraireJour = { ouvert: boolean; matin: boolean; matinDebut: string; matinFin: string; am: boolean; amDebut: string; amFin: string }
+
+const horaireInit: Record<string, HoraireJour> = {
+  lun: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+  mar: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+  mer: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+  jeu: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+  ven: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '20:00' },
+  sam: { ouvert: true,  matin: true,  matinDebut: '07:30', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:00' },
+  dim: { ouvert: false, matin: false, matinDebut: '09:00', matinFin: '13:00', am: false, amDebut: '15:00', amFin: '18:00' },
+}
 
 function emptyForm(boucherieId: number): ProduitForm {
   return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce' }
@@ -173,15 +183,7 @@ export default function PanelPage() {
     promo: false,
     promoTexte: 'Livraison offerte dès 30 €',
     promotions: [] as any[],
-    horaires: {
-      lun: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-      mar: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-      mer: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-      jeu: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-      ven: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '20:00' },
-      sam: { ouvert: true,  matin: true,  matinDebut: '07:30', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:00' },
-      dim: { ouvert: false, matin: false, matinDebut: '09:00', matinFin: '13:00', am: false, amDebut: '15:00', amFin: '18:00' },
-    } as Record<string, { ouvert: boolean; matin: boolean; matinDebut: string; matinFin: string; am: boolean; amDebut: string; amFin: string }>,
+    horaires: horaireInit,
   })
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
