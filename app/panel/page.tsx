@@ -146,13 +146,15 @@ function emptyForm(boucherieId: number): ProduitForm {
   return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce' }
 }
 
+
+const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
+
 // ══════════════════════════════════════════════════════════════════════════════
 export default function PanelPage() {
   const router = useRouter()
   const { user, logout, isBoucher } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
   const [tab, setTab] = useState('commandes')
-  // Commandes et historique : vides pour les vrais comptes, démo pour le compte démo
   const [orders, setOrders] = useState<Commande[]>(user?.isDemo ? ORDERS_INIT : [])
   const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
@@ -160,7 +162,6 @@ export default function PanelPage() {
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Produits : vides pour les vrais comptes, démo pour le compte démo
   const [produits, setProduits] = useState<ProduitEtendu[]>(() =>
     user?.isDemo
       ? BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
@@ -169,7 +170,6 @@ export default function PanelPage() {
   const [modalProd, setModalProd] = useState<ProduitForm | null>(null)
   const [isNew, setIsNew] = useState(false)
 
-  // Paramètres boutique : pré-remplis pour le démo, vierges pour un vrai compte
   const bRef = user?.isDemo ? BOUCHERIES.find(b => b.id === (user?.boucherieId || 1)) : null
   const [boutique, setBoutique] = useState({
     nom:  bRef?.nom  || '',
@@ -186,8 +186,6 @@ export default function PanelPage() {
     horaires: horaireInit,
   })
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
-
-  const JOURS: [string, string][] = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
