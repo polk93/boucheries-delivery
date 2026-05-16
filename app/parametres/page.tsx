@@ -1050,8 +1050,43 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
     vehicule:'velo_elec', siret:'', iban:'',
     permis: false, disponibilite:'', message:''
   })
-  const [sent, setSent] = useState(false)
-  const [step, setStep] = useState<'info'|'form'>('info')
+  const [sent, setSent]       = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
+  const [step, setStep]       = useState<'info'|'form'>('info')
+
+  async function soumettre() {
+    setLoading(true); setError('')
+    try {
+      const { default: emailjs } = await import('@emailjs/browser')
+      await emailjs.send(
+        'service666',
+        'template_0rdvwq8',
+        {
+          subject: `🛵 Nouveau livreur : ${form.prenom} ${form.nom}`,
+          message: `
+CANDIDATURE LIVREUR
+-------------------
+Prénom & Nom : ${form.prenom} ${form.nom}
+Email        : ${form.email}
+Téléphone    : ${form.tel}
+Ville        : ${form.ville}
+Véhicule     : ${form.vehicule}
+SIRET        : ${form.siret || '—'}
+IBAN         : ${form.iban ? form.iban.slice(0,8) + '••••••••••••••' : '—'}
+Disponibilités : ${form.disponibilite}
+Message      : ${form.message || '—'}
+          `.trim(),
+        },
+        'user_iuliSrqE6TWPcIpbQ'
+      )
+      setSent(true)
+    } catch (e) {
+      setError("Erreur d'envoi. Contactez boucheriesdelivery@gmail.com directement.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Simulateur de revenus
   const [hParJour, setHParJour]       = useState(3)
@@ -1272,10 +1307,11 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
 
         <button
           className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-rouge-vif transition-colors"
-          disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.siret || !form.iban || !form.disponibilite}
-          onClick={() => setSent(true)}>
-          🛵 Envoyer mon dossier
+          disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.siret || !form.iban || !form.disponibilite || loading}
+          onClick={soumettre}>
+          {loading ? '⏳ Envoi en cours…' : '🛵 Envoyer mon dossier'}
         </button>
+        {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
         <p className="text-center text-[10px] text-gray-300">Vos données sont chiffrées et sécurisées · Réponse sous 48h</p>
       </div>
     </PageWrapper>
@@ -1288,8 +1324,41 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function PartenaireSection({ onBack }: { onBack: () => void }) {
   const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', nom_boutique:'', adresse:'', ville:'', specialites:'', message:'' })
-  const [sent, setSent] = useState(false)
-  const [step, setStep] = useState<'info'|'form'>('info')
+  const [sent, setSent]       = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
+  const [step, setStep]       = useState<'info'|'form'>('info')
+
+  async function soumettre() {
+    setLoading(true); setError('')
+    try {
+      const { default: emailjs } = await import('@emailjs/browser')
+      await emailjs.send(
+        'service666',
+        'template_0rdvwq8',
+        {
+          subject: `🔪 Nouveau partenaire : ${form.nom_boutique} (${form.ville})`,
+          message: `
+CANDIDATURE PARTENAIRE BOUCHER
+-------------------------------
+Boucherie    : ${form.nom_boutique}
+Adresse      : ${form.adresse}, ${form.ville}
+Spécialités  : ${form.specialites || '—'}
+Contact      : ${form.prenom} ${form.nom}
+Email        : ${form.email}
+Téléphone    : ${form.tel}
+Message      : ${form.message || '—'}
+          `.trim(),
+        },
+        'user_iuliSrqE6TWPcIpbQ'
+      )
+      setSent(true)
+    } catch (e) {
+      setError("Erreur d'envoi. Contactez boucheriesdelivery@gmail.com directement.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (sent) return (
     <PageWrapper title="🔪 Devenir partenaire" onBack={onBack}>
@@ -1419,10 +1488,11 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
 
         <button
           className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-brun transition-colors"
-          disabled={!form.nom_boutique || !form.prenom || !form.email || !form.tel || !form.ville}
-          onClick={() => setSent(true)}>
-          🤝 Envoyer ma candidature
+          disabled={!form.nom_boutique || !form.prenom || !form.email || !form.tel || !form.ville || loading}
+          onClick={soumettre}>
+          {loading ? '⏳ Envoi en cours…' : '🤝 Envoyer ma candidature'}
         </button>
+        {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
         <p className="text-center text-[10px] text-gray-300">Sans engagement · Démonstration gratuite · Réponse sous 24h</p>
       </div>
     </PageWrapper>

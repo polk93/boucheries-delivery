@@ -142,27 +142,30 @@ export default function PanelPage() {
   const { user, logout, isBoucher } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
   const [tab, setTab] = useState('commandes')
-  const [orders, setOrders] = useState<Commande[]>(ORDERS_INIT)
-  const [historique, setHistorique] = useState<Commande[]>(HISTORIQUE_INIT)
+  // Commandes et historique : vides pour les vrais comptes, démo pour le compte démo
+  const [orders, setOrders] = useState<Commande[]>(user?.isDemo ? ORDERS_INIT : [])
+  const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
   const [showHistorique, setShowHistorique] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Produits
+  // Produits : vides pour les vrais comptes, démo pour le compte démo
   const [produits, setProduits] = useState<ProduitEtendu[]>(() =>
-    BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
+    user?.isDemo
+      ? BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
+      : []
   )
   const [modalProd, setModalProd] = useState<ProduitForm | null>(null)
   const [isNew, setIsNew] = useState(false)
 
-  // Paramètres boutique
-  const bRef = BOUCHERIES.find(b => b.id === (user?.boucherieId || 1))
+  // Paramètres boutique : pré-remplis pour le démo, vierges pour un vrai compte
+  const bRef = user?.isDemo ? BOUCHERIES.find(b => b.id === (user?.boucherieId || 1)) : null
   const [boutique, setBoutique] = useState({
-    nom: bRef?.nom || 'Ma boucherie',
+    nom:  bRef?.nom  || '',
     desc: bRef?.desc || '',
-    tel: '01 23 45 67 89',
-    email: 'contact@maboucherie.fr',
+    tel:  bRef ? '01 23 45 67 89' : '',
+    email: bRef ? 'contact@maboucherie.fr' : '',
     adresse: '12 rue du Marché, 75011 Paris',
     frais: String(bRef?.frais ?? 2.9),
     minCommande: '15',

@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "nodemailer": "^6.9.14",
+    "@emailjs/browser": "^4.4.1",
     "next": "14.2.0",
     "react": "^18",
     "react-dom": "^18",
