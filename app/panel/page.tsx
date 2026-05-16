@@ -147,6 +147,21 @@ function emptyForm(boucherieId: number): ProduitForm {
 }
 
 
+const BOUTIQUE_DEFAULT = {
+  nom:  '',
+  desc: '',
+  tel:  '',
+  email: '',
+  adresse: '12 rue du Marché, 75011 Paris',
+  frais: '2.9',
+  minCommande: '15',
+  rayon: '5',
+  promo: false,
+  promoTexte: 'Livraison offerte dès 30 €',
+  promotions: [] as unknown as any[],
+  horaires: horaireInit,
+}
+
 const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -171,20 +186,10 @@ export default function PanelPage() {
   const [isNew, setIsNew] = useState(false)
 
   const bRef = user?.isDemo ? BOUCHERIES.find(b => b.id === (user?.boucherieId || 1)) : null
-  const [boutique, setBoutique] = useState({
-    nom:  bRef?.nom  || '',
-    desc: bRef?.desc || '',
-    tel:  bRef ? '01 23 45 67 89' : '',
-    email: bRef ? 'contact@maboucherie.fr' : '',
-    adresse: '12 rue du Marché, 75011 Paris',
-    frais: String(bRef?.frais ?? 2.9),
-    minCommande: '15',
-    rayon: '5',
-    promo: false,
-    promoTexte: 'Livraison offerte dès 30 €',
-    promotions: ([] as any[]),
-    horaires: horaireInit,
-  })
+  const boutiqueInit = bRef
+    ? { ...BOUTIQUE_DEFAULT, nom: bRef.nom, desc: bRef.desc, tel: '01 23 45 67 89', email: 'contact@maboucherie.fr', frais: String(bRef.frais) }
+    : BOUTIQUE_DEFAULT
+  const [boutique, setBoutique] = useState(boutiqueInit)
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
