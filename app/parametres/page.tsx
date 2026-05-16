@@ -1042,105 +1042,246 @@ function CguSection({ onBack }: { onBack: () => void }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// DEVENIR LIVREUR
+// DEVENIR LIVREUR — Formulaire style Uber Eats
 // ══════════════════════════════════════════════════════════════════════════════
 function LivreurSection({ onBack }: { onBack: () => void }) {
-  const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', ville:'', vehicule:'velo', disponibilite:'', message:'' })
+  const [form, setForm] = useState({
+    prenom:'', nom:'', email:'', tel:'', ville:'',
+    vehicule:'velo_elec', siret:'', iban:'',
+    permis: false, disponibilite:'', message:''
+  })
   const [sent, setSent] = useState(false)
+  const [step, setStep] = useState<'info'|'form'>('info')
+
+  // Simulateur de revenus
+  const [hParJour, setHParJour]       = useState(3)
+  const [joursParSemaine, setJours]   = useState(5)
+  const COURSES_H = 2.5
+  const BASE_COURSE = 2.85
+  const KM_MOY = 2.5
+  const TARIF_KM = 0.80
+  const revenus_brut = hParJour * joursParSemaine * 4 * COURSES_H * (BASE_COURSE + KM_MOY * TARIF_KM)
+  const cotisations = revenus_brut * 0.22
+  const revenus_net = revenus_brut - cotisations
 
   if (sent) return (
     <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
       <div className="text-center py-16">
         <span className="text-6xl block mb-4">✅</span>
         <h2 className="font-serif text-xl font-bold text-brun mb-2">Candidature envoyée !</h2>
-        <p className="text-sm text-gray-400 mb-2">Nous étudions votre profil et vous recontactons sous 48h.</p>
-        <p className="text-xs text-gray-300">contact@boucheriedelivery.fr</p>
+        <p className="text-sm text-gray-400 mb-1">Nous vérifions votre dossier et vous recontactons sous 48h.</p>
+        <p className="text-xs text-gray-300 mt-3">contact@boucheriedelivery.fr</p>
+      </div>
+    </PageWrapper>
+  )
+
+  if (step === 'info') return (
+    <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
+      <div className="space-y-4">
+
+        {/* Hero */}
+        <div className="bg-brun rounded-2xl p-5 text-center">
+          <span className="text-4xl block mb-2">🛵</span>
+          <h2 className="font-serif text-lg font-black text-or mb-1">Livrez à votre rythme</h2>
+          <p className="text-white/70 text-xs leading-relaxed">Gagnez un revenu flexible en livrant des produits de boucheries artisanales. Vous êtes indépendant, vous choisissez vos horaires.</p>
+        </div>
+
+        {/* Tarification */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="font-bold text-brun text-sm mb-3">💶 Votre rémunération</p>
+          <div className="bg-or-pale rounded-xl p-3 mb-3">
+            <p className="text-xs text-gray-400 mb-1">Par livraison</p>
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-brun font-semibold">Base fixe</span>
+                <span className="font-black text-brun">2,85 €</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-brun font-semibold">Par kilomètre</span>
+                <span className="font-black text-brun">+ 0,80 €/km</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-brun font-semibold">Exemple (2,5 km)</span>
+                <span className="font-black text-rouge-vif">≈ 4,85 €</span>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 text-xs text-gray-500">
+            {[
+              ['🙏','Pourboires','100% vous appartiennent, versés directement'],
+              ['🌧️','Prime pluie','+ 15 € net par créneau de 3h (conditions météo)'],
+              ['⚡','Heures de pointe','Coefficient ×1,1 à ×1,5 (midi 12h–14h, soir 19h–21h)'],
+              ['📅','Paiement','Virement hebdomadaire sur votre IBAN'],
+            ].map(([ico,t,d]) => (
+              <div key={t as string} className="flex gap-2">
+                <span className="flex-shrink-0">{ico}</span>
+                <div><span className="font-semibold text-brun">{t} — </span>{d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Simulateur de revenus */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="font-bold text-brun text-sm mb-3">🧮 Simulateur de revenus</p>
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between mb-1">
+                <label className="text-xs text-brun font-semibold">Heures / jour</label>
+                <span className="text-xs font-black text-brun">{hParJour}h</span>
+              </div>
+              <input type="range" min="1" max="10" step="0.5" value={hParJour}
+                className="w-full accent-brun"
+                onChange={e => setHParJour(parseFloat(e.target.value))} />
+            </div>
+            <div>
+              <div className="flex justify-between mb-1">
+                <label className="text-xs text-brun font-semibold">Jours / semaine</label>
+                <span className="text-xs font-black text-brun">{joursParSemaine}j</span>
+              </div>
+              <input type="range" min="1" max="7" step="1" value={joursParSemaine}
+                className="w-full accent-brun"
+                onChange={e => setJours(parseInt(e.target.value))} />
+            </div>
+            <div className="bg-creme rounded-xl p-3 space-y-1">
+              <div className="flex justify-between text-xs text-gray-400"><span>CA brut / mois</span><span>{revenus_brut.toFixed(0)} €</span></div>
+              <div className="flex justify-between text-xs text-gray-400"><span>Cotisations (22%)</span><span>- {cotisations.toFixed(0)} €</span></div>
+              <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-1.5">
+                <span>Revenu net estimé</span>
+                <span className="text-green-600">{revenus_net.toFixed(0)} €/mois</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-gray-400 text-center">Sur la base de {COURSES_H} courses/h à {KM_MOY} km en moyenne · Hors pourboires et primes</p>
+          </div>
+        </div>
+
+        {/* Conditions */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="font-bold text-brun text-sm mb-3">📋 Conditions requises</p>
+          <div className="space-y-2">
+            {[
+              ['✅','Être majeur (18 ans minimum)'],
+              ['✅','Avoir un vélo, vélo électrique, scooter ou voiture'],
+              ['✅','Être auto-entrepreneur (SIRET requis — création gratuite en ligne)'],
+              ['✅','Avoir un smartphone avec data mobile'],
+              ['✅','Être disponible au moins 2 créneaux par semaine'],
+              ['✅','Permis B obligatoire pour scooter/voiture'],
+              ['✅','Être soigneux avec les produits alimentaires'],
+            ].map(([ico,t]) => (
+              <p key={t as string} className="text-xs text-brun-clair flex items-start gap-2">
+                <span className="flex-shrink-0">{ico}</span>{t}
+              </p>
+            ))}
+          </div>
+          <div className="mt-3 bg-or-pale border border-or/20 rounded-xl p-3">
+            <p className="text-xs text-brun font-semibold mb-1">💡 Pas encore auto-entrepreneur ?</p>
+            <p className="text-xs text-gray-500">Créez votre micro-entreprise gratuitement en 15 min sur <span className="font-semibold text-brun">autoentrepreneur.urssaf.fr</span>. Vous recevrez votre SIRET sous quelques jours.</p>
+          </div>
+        </div>
+
+        <button className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans active:bg-rouge-vif transition-colors"
+          onClick={() => setStep('form')}>
+          🛵 Postuler maintenant →
+        </button>
+        <p className="text-center text-[10px] text-gray-300">Réponse sous 48h · Dossier 100% en ligne</p>
       </div>
     </PageWrapper>
   )
 
   return (
-    <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
+    <PageWrapper title="🛵 Votre dossier" onBack={() => setStep('info')}>
       <div className="space-y-4">
-        <div className="bg-brun rounded-2xl p-5 text-center">
-          <span className="text-4xl block mb-2">🛵</span>
-          <h2 className="font-serif text-lg font-black text-or mb-1">Livrez à votre rythme</h2>
-          <p className="text-white/70 text-xs leading-relaxed">Rejoignez le réseau de livreurs BoucheriesDelivery et gagnez un revenu complémentaire en livrant des produits artisanaux de qualité.</p>
+
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+          <p className="text-xs text-brun font-semibold">Complétez votre dossier. Vous pouvez démarrer dès validation de votre profil (48h).</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { ico:'⏰', titre:'Horaires libres', desc:'Vous choisissez vos créneaux chaque semaine' },
-            { ico:'💶', titre:'Rémunération', desc:'4 à 7 € net par livraison + pourboires clients' },
-            { ico:'📦', titre:'Trajets courts', desc:'Moins de 5 km en zone urbaine' },
-            { ico:'❄️', titre:'Matériel fourni', desc:'Sac isotherme fourni pour la chaîne du froid' },
-          ].map(a => (
-            <div key={a.titre} className="bg-white rounded-2xl p-3 shadow-sm">
-              <span className="text-2xl block mb-1">{a.ico}</span>
-              <p className="text-xs font-bold text-brun">{a.titre}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{a.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-or-pale border border-or/20 rounded-2xl p-4 space-y-1.5">
-          <p className="text-xs font-bold text-brun mb-2">Conditions requises</p>
-          {['✅ Être majeur (18 ans minimum)','✅ Avoir un vélo, scooter ou voiture','✅ Disponible au moins 3 créneaux/semaine','✅ Avoir un smartphone avec accès internet','✅ Être ponctuel et soigneux avec les produits frais'].map(c => (
-            <p key={c} className="text-xs text-brun-clair">{c}</p>
-          ))}
-        </div>
-
+        {/* Identité */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <h3 className="font-serif text-base font-bold text-brun">Votre candidature</h3>
+          <h3 className="font-serif text-base font-bold text-brun">👤 Identité</h3>
           <div className="grid grid-cols-2 gap-3">
-            {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+            {[['prenom','Prénom *'],['nom','Nom *']].map(([k,l]) => (
               <div key={k}>
-                <label className="text-xs font-bold text-brun block mb-1">{l} *</label>
+                <label className="text-xs font-bold text-brun block mb-1">{l}</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                   value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
               </div>
             ))}
           </div>
-          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00'],['ville','Ville *','Paris 11e']].map(([k,l,ph]) => (
+          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00'],['ville','Ville de livraison *','Paris']].map(([k,l,ph]) => (
             <div key={k}>
               <label className="text-xs font-bold text-brun block mb-1">{l}</label>
               <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                placeholder={ph as string} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+                placeholder={ph as string} value={(form as any)[k]}
+                onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
             </div>
           ))}
+        </div>
+
+        {/* Statut & docs */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">📄 Statut & documents</h3>
           <div>
-            <label className="text-xs font-bold text-brun block mb-2">Véhicule *</label>
-            <div className="grid grid-cols-2 gap-2">
-              {[['velo','🚲 Vélo'],['velo_elec','⚡ Vélo électrique'],['scooter','🛵 Scooter'],['voiture','🚗 Voiture']].map(([v,l]) => (
-                <button key={v} className={`py-2.5 rounded-xl border-2 text-xs font-semibold font-sans transition-all ${form.vehicule === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
-                  onClick={() => setForm(f => ({ ...f, vehicule: v }))}>{l}</button>
-              ))}
-            </div>
+            <label className="text-xs font-bold text-brun block mb-1">Numéro SIRET *</label>
+            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun font-mono"
+              placeholder="123 456 789 00012"
+              value={form.siret} onChange={e => setForm(f => ({ ...f, siret: e.target.value }))} />
+            <p className="text-[10px] text-gray-400 mt-1">Votre numéro de micro-entrepreneur (14 chiffres)</p>
           </div>
           <div>
-            <label className="text-xs font-bold text-brun block mb-1">Disponibilités *</label>
-            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-              placeholder="Ex: Lun-Ven midi, week-end matin"
-              value={form.disponibilite} onChange={e => setForm(f => ({ ...f, disponibilite: e.target.value }))} />
+            <label className="text-xs font-bold text-brun block mb-1">IBAN *</label>
+            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun font-mono"
+              placeholder="FR76 3000 6000 0112 3456 7890 189"
+              value={form.iban} onChange={e => setForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} />
+            <p className="text-[10px] text-gray-400 mt-1">Pour recevoir vos virements chaque semaine</p>
           </div>
+        </div>
+
+        {/* Véhicule */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">🚲 Votre véhicule</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {[['velo','🚲','Vélo'],['velo_elec','⚡','Vélo électrique'],['scooter','🛵','Scooter'],['voiture','🚗','Voiture']].map(([v,ico,l]) => (
+              <button key={v}
+                className={`flex items-center gap-2 py-3 px-3 rounded-xl border-2 text-xs font-bold font-sans transition-all ${form.vehicule === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                onClick={() => setForm(f => ({ ...f, vehicule: v }))}>
+                <span className="text-lg">{ico}</span>{l}
+              </button>
+            ))}
+          </div>
+          <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${form.permis ? 'border-brun bg-or-pale' : 'border-gray-200'}`}>
+            <input type="checkbox" className="w-4 h-4 accent-brun"
+              checked={form.permis} onChange={e => setForm(f => ({ ...f, permis: e.target.checked }))} />
+            <span className="text-xs font-semibold text-brun">Je possède un permis B (obligatoire scooter/voiture)</span>
+          </label>
+        </div>
+
+        {/* Disponibilités */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 className="font-serif text-base font-bold text-brun">📅 Disponibilités</h3>
+          <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            placeholder="Ex: Lundi–Vendredi 11h–14h, weekend matin"
+            value={form.disponibilite} onChange={e => setForm(f => ({ ...f, disponibilite: e.target.value }))} />
           <div>
             <label className="text-xs font-bold text-brun block mb-1">Message (optionnel)</label>
             <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
-              placeholder="Parlez-nous de votre motivation…"
+              placeholder="Parlez-nous de votre expérience de livraison, vos motivations…"
               value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
           </div>
-          <button
-            className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-rouge-vif transition-colors"
-            disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.disponibilite}
-            onClick={() => setSent(true)}>
-            🛵 Envoyer ma candidature
-          </button>
-          <p className="text-center text-[10px] text-gray-300">Réponse sous 48h · contact@boucheriedelivery.fr</p>
         </div>
+
+        <button
+          className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-rouge-vif transition-colors"
+          disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.siret || !form.iban || !form.disponibilite}
+          onClick={() => setSent(true)}>
+          🛵 Envoyer mon dossier
+        </button>
+        <p className="text-center text-[10px] text-gray-300">Vos données sont chiffrées et sécurisées · Réponse sous 48h</p>
       </div>
     </PageWrapper>
   )
 }
+
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DEVENIR PARTENAIRE BOUCHER

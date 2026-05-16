@@ -5,6 +5,25 @@ import { usePanier, type PanierItem } from '@/store/panier'
 import { CRENEAUX, BOUCHERIES } from '@/lib/data'
 import toast from 'react-hot-toast'
 
+// ── Tarification livraison par km (calée sur le marché 2026) ─────────────────
+// Base : 2,50 € fixe + 0,80 €/km (légèrement au-dessus d'Uber Eats pour compenser
+// la spécificité boucherie artisanale et la chaîne du froid)
+const TARIF_BASE   = 2.50   // € fixe par commande
+const TARIF_KM     = 0.80   // €/km
+const TARIF_MIN    = 2.90   // minimum perçu
+const TARIF_MAX    = 8.90   // plafond (>8km → dégressif)
+
+function calculerFrais(km: number): number {
+  if (km === 0) return TARIF_MIN
+  const calcule = TARIF_BASE + km * TARIF_KM
+  return Math.min(Math.max(calcule, TARIF_MIN), TARIF_MAX)
+}
+
+// Rémunération livreur (70% des frais de livraison + 100% du pourboire)
+function remunerationLivreur(frais: number, pourboire: number): number {
+  return frais * 0.70 + pourboire
+}
+
 // ── Créneaux click & collect ──────────────────────────────────────────────────
 const CRENEAUX_CC = [
   { label: 'Dès que possible (~20 min)', value: 'cc-now'      },
@@ -13,6 +32,20 @@ const CRENEAUX_CC = [
   { label: "Aujourd'hui 19h–20h",        value: 'cc-today-19' },
   { label: 'Demain 9h–10h',              value: 'cc-tom-9'    },
   { label: 'Demain 12h–13h',             value: 'cc-tom-12'   },
+]
+
+// ── Distances simulées par boucherie (en production : calcul GPS réel) ────────
+const DISTANCES_DEMO: Record<number, number> = {
+  1: 1.2, 2: 3.5, 3: 0.8, 4: 5.2, 5: 7.1, 6: 2.3
+}
+
+// ── Pourboires suggérés ───────────────────────────────────────────────────────
+const POURBOIRES = [
+  { label: 'Aucun', val: 0 },
+  { label: '1 €',   val: 1 },
+  { label: '2 €',   val: 2 },
+  { label: '3 €',   val: 3 },
+  { label: '5 €',   val: 5 },
 ]
 
 // ── Modal modification article ────────────────────────────────────────────────
@@ -58,7 +91,7 @@ function EditRecapModal({ item, onClose }: { item: PanierItem; onClose: () => vo
               <p className="text-xs font-bold text-brun mb-2">✂️ Découpe</p>
               <div className="flex flex-wrap gap-2">
                 {produit.decoupes.map(d => (
-                  <button key={d} className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${decoupe === d ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                  <button key={d} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${decoupe === d ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
                     onClick={() => setDecoupe(d)}>{d}</button>
                 ))}
               </div>
@@ -69,7 +102,7 @@ function EditRecapModal({ item, onClose }: { item: PanierItem; onClose: () => vo
               <p className="text-xs font-bold text-brun mb-2">🌿 Préparation</p>
               <div className="flex flex-wrap gap-2">
                 {produit.preparation.map(pr => (
-                  <button key={pr} className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${preparation === pr ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                  <button key={pr} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${preparation === pr ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
                     onClick={() => setPreparation(pr)}>{pr}</button>
                 ))}
               </div>
@@ -78,8 +111,7 @@ function EditRecapModal({ item, onClose }: { item: PanierItem; onClose: () => vo
           <div>
             <p className="text-xs font-bold text-brun mb-2">📝 Note boucher</p>
             <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun resize-none"
-              rows={2} placeholder="Sans gras, bien cuit…"
-              value={note} onChange={e => setNote(e.target.value)} />
+              rows={2} value={note} onChange={e => setNote(e.target.value)} />
           </div>
           <div className="bg-creme rounded-xl p-3 flex justify-between">
             <span className="text-sm text-gray-500">{quantite} × {item.prix.toFixed(2)} €</span>
@@ -101,36 +133,36 @@ export default function PaiementPage() {
   const router = useRouter()
   const { items, sousTotal, creneau, setCreneau, clear } = usePanier()
 
-  // Mode : livraison ou click & collect
-  const [mode, setMode]       = useState<'livraison' | 'click_collect' | null>(null)
-  const [step, setStep]       = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [editItem, setEditItem] = useState<PanierItem | null>(null)
-  const [adresse, setAdresse] = useState({ prenom: '', nom: '', adresse: '', cp: '', ville: '' })
-  const [card,    setCard]    = useState({ numero: '', expiry: '', cvv: '', titulaire: '' })
-  const [creneauCC, setCreneauCC] = useState(CRENEAUX_CC[0].value)
+  const [mode,       setMode]       = useState<'livraison' | 'click_collect' | null>(null)
+  const [step,       setStep]       = useState(0)
+  const [loading,    setLoading]    = useState(false)
+  const [editItem,   setEditItem]   = useState<PanierItem | null>(null)
+  const [adresse,    setAdresse]    = useState({ prenom:'', nom:'', adresse:'', cp:'', ville:'' })
+  const [card,       setCard]       = useState({ numero:'', expiry:'', cvv:'', titulaire:'' })
+  const [creneauCC,  setCreneauCC]  = useState(CRENEAUX_CC[0].value)
+  const [pourboire,  setPourboire]  = useState(0)
+  const [pourboireCustom, setPourboireCustom] = useState('')
 
-  const frais  = mode === 'click_collect' ? 0 : items.length > 0 ? 2.90 : 0
-  const total  = sousTotal() + frais
   const boucherie = BOUCHERIES.find(b => b.id === items[0]?.boucherie_id)
+  const distanceKm = boucherie ? (DISTANCES_DEMO[boucherie.id] || 2.5) : 2.5
+  const frais  = mode === 'click_collect' ? 0 : calculerFrais(distanceKm)
+  const pourboireVal = pourboireCustom ? parseFloat(pourboireCustom) || 0 : pourboire
+  const total  = sousTotal() + frais + pourboireVal
 
-  // Étapes selon le mode
-  const stepsLivraison    = ['📋 Récap', '📍 Adresse', '📅 Créneau', '💳 Paiement']
-  const stepsClickCollect = ['📋 Récap', '📅 Retrait', '💳 Paiement']
-  const stepLabels = mode === 'click_collect' ? stepsClickCollect : stepsLivraison
-  const stepIcons  = mode === 'click_collect' ? ['📋','📅','💳'] : ['📋','📍','📅','💳']
+  const stepLabels = mode === 'click_collect'
+    ? ['📋 Récap', '📅 Retrait', '💳 Paiement']
+    : ['📋 Récap', '📍 Adresse', '📅 Créneau', '💳 Paiement']
+  const stepIcons = mode === 'click_collect' ? ['📋','📅','💳'] : ['📋','📍','📅','💳']
 
-  if (items.length === 0) {
-    return (
-      <div className="min-h-screen bg-creme flex items-center justify-center">
-        <div className="text-center px-6">
-          <span className="text-6xl block mb-4">🛒</span>
-          <p className="text-brun font-semibold mb-4">Votre panier est vide</p>
-          <button onClick={() => router.push('/')} className="bg-brun text-white px-6 py-3 rounded-xl font-bold font-sans">← Retour</button>
-        </div>
+  if (items.length === 0) return (
+    <div className="min-h-screen bg-creme flex items-center justify-center">
+      <div className="text-center px-6">
+        <span className="text-6xl block mb-4">🛒</span>
+        <p className="text-brun font-semibold mb-4">Votre panier est vide</p>
+        <button onClick={() => router.push('/')} className="bg-brun text-white px-6 py-3 rounded-xl font-bold font-sans">← Retour</button>
       </div>
-    )
-  }
+    </div>
+  )
 
   async function simulatePay() {
     setLoading(true)
@@ -148,103 +180,105 @@ export default function PaiementPage() {
     router.push('/')
   }
 
-  // ── Écran choix du mode ────────────────────────────────────────────────────
-  if (mode === null) {
-    return (
-      <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
-        <div className="bg-brun px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.push('/')} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
-          <h1 className="font-serif text-lg font-bold text-or">Finaliser ma commande</h1>
+  // ── Écran choix mode ───────────────────────────────────────────────────────
+  if (mode === null) return (
+    <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
+      <div className="bg-brun px-4 py-4 flex items-center gap-3">
+        <button onClick={() => router.push('/')} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
+        <h1 className="font-serif text-lg font-bold text-or">Finaliser ma commande</h1>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
+
+        {/* Résumé panier */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Votre commande</p>
+          {items.map(item => (
+            <div key={item.cart_key} className="flex justify-between items-center py-2 border-b border-gris-bd last:border-0">
+              <div className="flex items-center gap-2">
+                <span>{item.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-brun">{item.nom} ×{item.quantite}</p>
+                  {item.decoupe && <p className="text-[11px] text-or">✂️ {item.decoupe}</p>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-brun">{(item.prix * item.quantite).toFixed(2)} €</span>
+                <button className="text-gray-400 text-xs" onClick={() => setEditItem(item)}>✏️</button>
+              </div>
+            </div>
+          ))}
+          <div className="flex justify-between text-sm font-black text-brun mt-3 pt-2 border-t-2 border-brun">
+            <span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span>
+          </div>
         </div>
 
-        <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Comment récupérer votre commande ?</p>
 
-          {/* Résumé panier */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Votre commande</p>
-            {items.map(item => (
-              <div key={item.cart_key} className="flex justify-between items-center py-2 border-b border-gris-bd last:border-0">
-                <div className="flex items-center gap-2">
-                  <span>{item.icon}</span>
-                  <div>
-                    <p className="text-sm font-semibold text-brun">{item.nom} ×{item.quantite}</p>
-                    {item.decoupe && <p className="text-[11px] text-or">✂️ {item.decoupe}</p>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-brun">{(item.prix * item.quantite).toFixed(2)} €</span>
-                  <button className="text-gray-400 text-xs" onClick={() => setEditItem(item)}>✏️</button>
-                </div>
+        {/* Livraison */}
+        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left"
+          onClick={() => setMode('livraison')}>
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-brun flex items-center justify-center text-2xl flex-shrink-0">🛵</div>
+            <div className="flex-1">
+              <p className="font-serif text-base font-black text-brun">Livraison à domicile</p>
+              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Livré chez vous en moins de 45 min, chaîne du froid garantie.</p>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className="text-xs font-bold text-rouge-vif bg-rouge-pale px-2 py-0.5 rounded-full">
+                  {calculerFrais(distanceKm).toFixed(2)} €
+                </span>
+                <span className="text-xs text-gray-400">📍 {distanceKm.toFixed(1)} km · {TARIF_KM} €/km</span>
+                <span className="text-xs text-gray-400">🕐 25–45 min</span>
+              </div>
+            </div>
+            <span className="text-gray-300 text-lg">›</span>
+          </div>
+        </button>
+
+        {/* Click & Collect */}
+        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left"
+          onClick={() => setMode('click_collect')}>
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-or flex items-center justify-center text-2xl flex-shrink-0">🏪</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <p className="font-serif text-base font-black text-brun">Click & Collect</p>
+                <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">GRATUIT</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Commandez, récupérez en boutique. Prêt en 20 min.</p>
+              {boucherie && <p className="text-xs text-or font-semibold mt-1">📍 {boucherie.nom}</p>}
+            </div>
+            <span className="text-gray-300 text-lg">›</span>
+          </div>
+        </button>
+
+        {/* Info tarification km */}
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+          <p className="text-xs font-bold text-brun mb-1.5">💡 Tarification livraison</p>
+          <div className="space-y-1">
+            {[
+              ['< 1 km', calculerFrais(0.8).toFixed(2) + ' €'],
+              ['1–2 km', calculerFrais(1.5).toFixed(2) + ' €'],
+              ['2–4 km', calculerFrais(3).toFixed(2) + ' €'],
+              ['4–6 km', calculerFrais(5).toFixed(2) + ' €'],
+              ['> 6 km', calculerFrais(8).toFixed(2) + ' € max'],
+            ].map(([d, p]) => (
+              <div key={d} className="flex justify-between text-xs text-brun-clair">
+                <span>{d}</span><span className="font-bold">{p}</span>
               </div>
             ))}
-            <div className="flex justify-between text-sm font-black text-brun mt-3 pt-2 border-t-2 border-brun">
-              <span>Sous-total</span>
-              <span>{sousTotal().toFixed(2)} €</span>
-            </div>
           </div>
-
-          {/* Choix du mode */}
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Comment récupérer votre commande ?</p>
-
-          {/* Livraison */}
-          <button
-            className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left active:scale-[.98]"
-            onClick={() => setMode('livraison')}>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-brun flex items-center justify-center text-2xl flex-shrink-0">🛵</div>
-              <div className="flex-1">
-                <p className="font-serif text-base font-black text-brun">Livraison à domicile</p>
-                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Livré chez vous en moins de 45 minutes, chaîne du froid garantie.</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-xs font-bold text-rouge-vif">+ 2,90 €</span>
-                  <span className="text-xs text-gray-400">·</span>
-                  <span className="text-xs text-gray-400">🕐 25–45 min</span>
-                </div>
-              </div>
-              <span className="text-gray-300 text-lg flex-shrink-0">›</span>
-            </div>
-          </button>
-
-          {/* Click & Collect */}
-          <button
-            className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left active:scale-[.98]"
-            onClick={() => setMode('click_collect')}>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-or flex items-center justify-center text-2xl flex-shrink-0">🏪</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-serif text-base font-black text-brun">Click & Collect</p>
-                  <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">GRATUIT</span>
-                </div>
-                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">
-                  Commandez maintenant, récupérez en boutique à l'heure de votre choix. La boucherie prépare tout avant votre arrivée.
-                </p>
-                {boucherie && (
-                  <p className="text-xs text-or font-semibold mt-2">📍 {boucherie.nom}</p>
-                )}
-                <div className="flex items-center gap-3 mt-1">
-                  <span className="text-xs font-bold text-green-600">0,00 €</span>
-                  <span className="text-xs text-gray-400">·</span>
-                  <span className="text-xs text-gray-400">🕐 Dès 20 min</span>
-                </div>
-              </div>
-              <span className="text-gray-300 text-lg flex-shrink-0">›</span>
-            </div>
-          </button>
-
-          <p className="text-center text-xs text-gray-300">Paiement sécurisé · Annulation possible</p>
+          <p className="text-[10px] text-gray-400 mt-2">Base {TARIF_BASE} € + {TARIF_KM} €/km · Plafonné à {TARIF_MAX} €</p>
         </div>
-
-        {editItem && <EditRecapModal item={editItem} onClose={() => setEditItem(null)} />}
       </div>
-    )
-  }
 
-  // ── Tunnel de commande ─────────────────────────────────────────────────────
+      {editItem && <EditRecapModal item={editItem} onClose={() => setEditItem(null)} />}
+    </div>
+  )
+
+  // ── Tunnel ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
-
-      {/* Header */}
       <div className="bg-brun px-4 py-4 flex items-center gap-3">
         <button onClick={goBack} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
         <h1 className="font-serif text-lg font-bold text-or">
@@ -252,11 +286,11 @@ export default function PaiementPage() {
         </h1>
       </div>
 
-      {/* Badge mode */}
+      {/* Badge info */}
       <div className={`px-4 py-2 text-center text-xs font-bold ${mode === 'click_collect' ? 'bg-green-50 text-green-700' : 'bg-or-pale text-brun-clair'}`}>
         {mode === 'click_collect'
           ? '🏪 Retrait en boutique — Livraison offerte'
-          : '🛵 Livraison à domicile — Frais : 2,90 €'}
+          : `🛵 Livraison ${distanceKm.toFixed(1)} km — ${frais.toFixed(2)} €`}
       </div>
 
       {/* Steps */}
@@ -290,20 +324,20 @@ export default function PaiementPage() {
                 </div>
               </div>
             ))}
-            <div className="mt-3 pt-2 space-y-1">
+            <div className="mt-3 space-y-1.5">
               <div className="flex justify-between text-xs text-gray-400"><span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span></div>
               <div className="flex justify-between text-xs text-gray-400">
-                <span>Livraison</span>
+                <span>Livraison{mode === 'livraison' ? ` (${distanceKm.toFixed(1)} km)` : ''}</span>
                 <span className={frais === 0 ? 'text-green-600 font-bold' : ''}>{frais === 0 ? 'Offerte ✓' : `${frais.toFixed(2)} €`}</span>
               </div>
+              {pourboireVal > 0 && (
+                <div className="flex justify-between text-xs text-gray-400"><span>Pourboire livreur 🙏</span><span>{pourboireVal.toFixed(2)} €</span></div>
+              )}
               <div className="flex justify-between text-base font-black text-brun border-t border-gris-bd pt-2">
-                <span>Total</span>
-                <span className="text-rouge-vif">{total.toFixed(2)} €</span>
+                <span>Total</span><span className="text-rouge-vif">{total.toFixed(2)} €</span>
               </div>
             </div>
-            <button onClick={() => setStep(1)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm mt-4 font-sans">
-              Continuer →
-            </button>
+            <button onClick={() => setStep(1)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm mt-4 font-sans">Continuer →</button>
           </div>
         )}
 
@@ -343,45 +377,40 @@ export default function PaiementPage() {
         {mode === 'click_collect' && step === 1 && (
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
             <h2 className="font-serif text-base font-bold text-brun">📅 Heure de retrait</h2>
-
-            {/* Infos boucherie */}
             {boucherie && (
-              <div className="bg-or-pale border border-or/20 rounded-xl p-3 flex gap-3 items-start">
+              <div className="bg-or-pale border border-or/20 rounded-xl p-3 flex gap-3">
                 <span className="text-xl">🏪</span>
                 <div>
                   <p className="text-sm font-bold text-brun">{boucherie.nom}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Votre commande sera prête à l'heure choisie.</p>
-                  <p className="text-xs text-green-600 font-semibold mt-0.5">✅ Pas de frais de livraison</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Votre commande sera prête à l'heure choisie.</p>
+                  <p className="text-xs text-green-600 font-semibold mt-0.5">✅ Aucun frais de livraison</p>
                 </div>
               </div>
             )}
-
             <div className="space-y-2">
               {CRENEAUX_CC.map(c => (
                 <div key={c.value}
-                  className={`px-4 py-3 rounded-xl border-2 cursor-pointer text-sm font-semibold transition-all ${creneauCC === c.value ? 'border-brun bg-brun text-white' : 'border-gray-200 text-gray-500 hover:border-brun'}`}
+                  className={`px-4 py-3 rounded-xl border-2 cursor-pointer text-sm font-semibold transition-all ${creneauCC === c.value ? 'border-brun bg-brun text-white' : 'border-gray-200 text-gray-500'}`}
                   onClick={() => setCreneauCC(c.value)}>
                   🏪 {c.label}
                 </div>
               ))}
             </div>
-
             <div className="bg-creme rounded-xl p-3 text-xs text-gray-500 leading-relaxed">
-              💡 Vous recevrez une notification dès que votre commande est prête. Présentez-vous directement en caisse.
+              💡 Vous recevrez une notification dès que votre commande est prête. Présentez-vous en caisse.
             </div>
-
             <button onClick={() => setStep(2)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans">Continuer →</button>
           </div>
         )}
 
-        {/* ── Step 2 LIVRAISON : Créneau livraison ── */}
+        {/* ── Step 2 LIVRAISON : Créneau ── */}
         {mode === 'livraison' && step === 2 && (
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
             <h2 className="font-serif text-base font-bold text-brun">📅 Créneau de livraison</h2>
             <div className="space-y-2">
               {CRENEAUX.map(c => (
                 <div key={c.value}
-                  className={`px-4 py-3 rounded-xl border-2 cursor-pointer text-sm font-semibold transition-all ${creneau === c.value ? 'border-brun bg-brun text-white' : 'border-gray-200 text-gray-500 hover:border-brun'}`}
+                  className={`px-4 py-3 rounded-xl border-2 cursor-pointer text-sm font-semibold transition-all ${creneau === c.value ? 'border-brun bg-brun text-white' : 'border-gray-200 text-gray-500'}`}
                   onClick={() => setCreneau(c.value)}>
                   {c.value === 'now' ? '⚡ ' : '🕐 '}{c.label}
                 </div>
@@ -391,26 +420,81 @@ export default function PaiementPage() {
           </div>
         )}
 
-        {/* ── Step paiement (dernier step selon mode) ── */}
+        {/* ── Step paiement ── */}
         {((mode === 'livraison' && step === 3) || (mode === 'click_collect' && step === 2)) && (
           <div className="space-y-3">
+
+            {/* Pourboire livreur — uniquement pour livraison */}
+            {mode === 'livraison' && (
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="font-serif text-base font-bold text-brun">🙏 Pourboire livreur</h3>
+                  <span className="text-[10px] text-gray-400 bg-gris-bd px-2 py-0.5 rounded-full">100% au livreur</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-3 leading-relaxed">
+                  Votre livreur effectue {distanceKm.toFixed(1)} km pour vous apporter votre commande fraîche. Un pourboire est toujours bienvenu !
+                </p>
+
+                {/* Boutons pourboire */}
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {POURBOIRES.map(p => (
+                    <button key={p.val}
+                      className={`flex-1 min-w-[52px] py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ${pourboire === p.val && !pourboireCustom ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500 hover:border-brun'}`}
+                      onClick={() => { setPourboire(p.val); setPourboireCustom('') }}>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Montant libre */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number" min="0" step="0.5"
+                    className={`flex-1 border-2 rounded-xl px-3 py-2 text-sm font-sans outline-none transition-all ${pourboireCustom ? 'border-brun' : 'border-gray-200'}`}
+                    placeholder="Montant libre (€)"
+                    value={pourboireCustom}
+                    onChange={e => { setPourboireCustom(e.target.value); setPourboire(0) }}
+                  />
+                  {pourboireCustom && (
+                    <button className="text-gray-400 text-sm font-sans" onClick={() => setPourboireCustom('')}>✕</button>
+                  )}
+                </div>
+
+                {/* Info rémunération livreur */}
+                <div className="mt-3 bg-or-pale border border-or/20 rounded-xl p-3">
+                  <p className="text-[11px] text-brun-clair leading-relaxed">
+                    💶 Votre livreur percevra <span className="font-bold text-brun">{remunerationLivreur(frais, pourboireVal).toFixed(2)} €</span> pour cette course
+                    <span className="text-gray-400"> ({(frais * 0.70).toFixed(2)} € de livraison + {pourboireVal.toFixed(2)} € de pourboire)</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Récap final */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
               <h2 className="font-serif text-base font-bold text-brun mb-3">💳 Paiement</h2>
 
               {/* Rappel mode */}
               <div className={`flex items-center gap-3 p-3 rounded-xl mb-4 ${mode === 'click_collect' ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20'}`}>
                 <span className="text-xl">{mode === 'click_collect' ? '🏪' : '🛵'}</span>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-brun">
                     {mode === 'click_collect'
                       ? `Click & Collect — ${CRENEAUX_CC.find(c => c.value === creneauCC)?.label}`
-                      : `Livraison — ${CRENEAUX.find(c => c.value === creneau)?.label}`}
+                      : `Livraison ${distanceKm.toFixed(1)} km — ${CRENEAUX.find(c => c.value === creneau)?.label}`}
                   </p>
-                  {mode === 'click_collect' && boucherie && (
-                    <p className="text-xs text-gray-400 mt-0.5">{boucherie.nom}</p>
-                  )}
                 </div>
-                <span className="font-black text-rouge-vif text-sm">{total.toFixed(2)} €</span>
+                <span className="font-black text-rouge-vif text-sm flex-shrink-0">{total.toFixed(2)} €</span>
+              </div>
+
+              {/* Détail total */}
+              <div className="space-y-1 mb-4 text-xs text-gray-400">
+                <div className="flex justify-between"><span>Articles</span><span>{sousTotal().toFixed(2)} €</span></div>
+                {frais > 0 && <div className="flex justify-between"><span>Livraison</span><span>{frais.toFixed(2)} €</span></div>}
+                {pourboireVal > 0 && <div className="flex justify-between"><span>Pourboire livreur</span><span>{pourboireVal.toFixed(2)} €</span></div>}
+                <div className="flex justify-between font-black text-brun text-sm border-t border-gris-bd pt-1.5">
+                  <span>Total</span><span className="text-rouge-vif">{total.toFixed(2)} €</span>
+                </div>
               </div>
 
               {/* Carte visuelle */}
