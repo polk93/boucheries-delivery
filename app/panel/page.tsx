@@ -8,15 +8,26 @@ import { BOUCHERIES, type Produit } from '@/lib/data'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ProduitEtendu extends Produit {
-  boucherieId: number; boucherieNom: string; photoUrl: string | null
-}
-interface ProduitForm {
-  id: string; nom: string; desc: string; prix: string; icon: string
-  stock: string; decoupes: string; preparation: string; photoUrl: string | null
-  boucherieId: number; cat: string; venteType: string
+  boucherieId: number
+  boucherieNom: string
+  photoUrl: string | null
 }
 
-// ── Types commandes ──────────────────────────────────────────────────────────
+interface ProduitForm {
+  id: string
+  nom: string
+  desc: string
+  prix: string
+  icon: string
+  stock: string
+  decoupes: string
+  preparation: string
+  photoUrl: string | null
+  boucherieId: number
+  cat: string
+  venteType: string
+}
+
 interface LigneCommande {
   produit: string
   icon: string
@@ -26,6 +37,7 @@ interface LigneCommande {
   preparation: string
   note: string
 }
+
 interface Commande {
   id: string
   client: string
@@ -41,31 +53,42 @@ interface Commande {
   stripeId: string
 }
 
+interface HoraireJour {
+  ouvert: boolean
+  matin: boolean
+  matinDebut: string
+  matinFin: string
+  am: boolean
+  amDebut: string
+  amFin: string
+}
+
+// ── Données démo ──────────────────────────────────────────────────────────────
 const ORDERS_INIT: Commande[] = [
   {
     id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
     adresse: '8 rue Léon Frot, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:42',
-    frais: 2.90, status: 'new', modePaiement: 'Carte Visa ••4242', stripeId: 'pi_3QxDemo001',
+    frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001',
     lignes: [
       { produit: 'Entrecôte Charolais', icon: '🥩', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
-      { produit: 'Merguez Maison', icon: '🌶️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ du soir' },
+      { produit: 'Merguez Maison', icon: '🌶️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ' },
     ],
   },
   {
     id: '#1041', client: 'Théo B.', tel: '07 89 01 23 45',
     adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13h–14h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:24',
-    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard ••9876', stripeId: 'pi_3QxDemo002',
+    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002',
     lignes: [
-      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée svp' },
+      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée' },
     ],
   },
   {
     id: '#1040', client: 'Marie L.', tel: '06 55 44 33 22',
     adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12h–13h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:06',
-    frais: 0, status: 'ready', modePaiement: 'Carte Visa ••1234', stripeId: 'pi_3QxDemo003',
+    frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003',
     lignes: [
       { produit: "Bavette d'Aloyau", icon: '🥩', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
     ],
@@ -74,51 +97,30 @@ const ORDERS_INIT: Commande[] = [
     id: '#1039', client: 'Jules R.', tel: '07 11 22 33 44',
     adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:48',
-    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_3QxDemo004',
+    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004',
     lignes: [
       { produit: 'Merguez Maison', icon: '🌶️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
     ],
   },
+]
+
+const HISTORIQUE_INIT: Commande[] = [
   {
     id: '#1038', client: 'Anna K.', tel: '06 98 76 54 32',
     adresse: '31 rue de la Folie Méricourt, 75011 Paris', creneau: "Aujourd'hui 11h–12h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:21',
-    frais: 2.90, status: 'done', modePaiement: 'Carte Visa ••5678', stripeId: 'pi_3QxDemo005',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005',
     lignes: [
-      { produit: "Côtes de Porc", icon: '🍖', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
+      { produit: 'Côtes de Porc', icon: '🍖', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
     ],
   },
-]
-
-// Historique comptable (commandes archivées des jours précédents)
-const HISTORIQUE_INIT: Commande[] = [
   {
     id: '#1037', client: 'Lucas P.', tel: '06 00 11 22 33',
     adresse: '7 rue Keller, 75011 Paris', creneau: 'Dès que possible',
     date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '18:30',
-    frais: 2.90, status: 'done', modePaiement: 'Carte Visa ••3333', stripeId: 'pi_3QxHisto001',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_histo001',
     lignes: [
       { produit: 'Entrecôte Charolais', icon: '🥩', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
-      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'Entier', preparation: 'Poivré', note: '' },
-    ],
-  },
-  {
-    id: '#1036', client: 'Camille V.', tel: '07 55 66 77 88',
-    adresse: '18 rue Oberkampf, 75011 Paris', creneau: "Hier 19h–20h",
-    date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '16:12',
-    frais: 0, status: 'done', modePaiement: 'Google Pay', stripeId: 'pi_3QxHisto002',
-    lignes: [
-      { produit: 'Merguez Maison', icon: '🌶️', qty: 3, prix: 8.50, decoupe: 'Standard', preparation: 'Douces', note: 'Pour enfants' },
-      { produit: "Bavette d'Aloyau", icon: '🥩', qty: 2, prix: 12.80, decoupe: 'Fine', preparation: 'Nature', note: '' },
-    ],
-  },
-  {
-    id: '#1035', client: 'Marie L.', tel: '06 55 44 33 22',
-    adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Avant-hier 12h–13h",
-    date: new Date(Date.now() - 172800000).toLocaleDateString('fr-FR'), heure: '10:05',
-    frais: 2.90, status: 'done', modePaiement: 'Carte Mastercard ••2222', stripeId: 'pi_3QxHisto003',
-    lignes: [
-      { produit: 'Côtes de Porc', icon: '🍖', qty: 2, prix: 11.20, decoupe: 'Désossées', preparation: 'Miel-moutarde', note: '' },
     ],
   },
 ]
@@ -126,19 +128,21 @@ const HISTORIQUE_INIT: Commande[] = [
 const SL: Record<string, string> = { new: 'Nouvelle', prep: 'En préparation', ready: 'Prête', delivery: 'En livraison', done: 'Livrée' }
 const SC: Record<string, string> = {
   new: 'bg-yellow-100 text-yellow-700', prep: 'bg-blue-100 text-blue-600',
-  ready: 'bg-green-100 text-green-600', delivery: 'bg-orange-100 text-orange-600', done: 'bg-gray-100 text-gray-500'
+  ready: 'bg-green-100 text-green-600', delivery: 'bg-orange-100 text-orange-600', done: 'bg-gray-100 text-gray-500',
 }
 const SF = ['new', 'prep', 'ready', 'delivery', 'done']
 const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'Livrer', delivery: 'Confirmer' }
-type HoraireJour = { ouvert: boolean; matin: boolean; matinDebut: string; matinFin: string; am: boolean; amDebut: string; amFin: string }
+const ICONS = ['🥩', '🍖', '🌶️', '🥓', '🌭', '🫙', '🦴', '🐓', '🐇', '🦆', '🔥', '⭐']
+const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
 
-const horaireInit: Record<string, HoraireJour> = {
-  lun: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-  mar: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-  mer: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-  jeu: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
-  ven: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '20:00' },
-  sam: { ouvert: true,  matin: true,  matinDebut: '07:30', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:00' },
+const HORAIRE_DEFAULT: HoraireJour = { ouvert: true, matin: true, matinDebut: '08:00', matinFin: '13:00', am: true, amDebut: '15:00', amFin: '19:30' }
+const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
+  lun: { ...HORAIRE_DEFAULT },
+  mar: { ...HORAIRE_DEFAULT },
+  mer: { ...HORAIRE_DEFAULT },
+  jeu: { ...HORAIRE_DEFAULT },
+  ven: { ...HORAIRE_DEFAULT, amFin: '20:00' },
+  sam: { ...HORAIRE_DEFAULT, matinDebut: '07:30', amFin: '19:00' },
   dim: { ouvert: false, matin: false, matinDebut: '09:00', matinFin: '13:00', am: false, amDebut: '15:00', amFin: '18:00' },
 }
 
@@ -146,23 +150,33 @@ function emptyForm(boucherieId: number): ProduitForm {
   return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce' }
 }
 
-
-const BOUTIQUE_DEFAULT = {
-  nom:  '',
-  desc: '',
-  tel:  '',
-  email: '',
-  adresse: '12 rue du Marché, 75011 Paris',
-  frais: '2.9',
-  minCommande: '15',
-  rayon: '5',
-  promo: false,
-  promoTexte: 'Livraison offerte dès 30 €',
-  promotions: [] as unknown as any[],
-  horaires: horaireInit,
+function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
+  return {
+    nom: bRef ? bRef.nom : '',
+    desc: bRef ? bRef.desc : '',
+    tel: bRef ? '01 23 45 67 89' : '',
+    email: bRef ? 'contact@maboucherie.fr' : '',
+    adresse: '12 rue du Marché, 75011 Paris',
+    frais: bRef ? String(bRef.frais) : '2.9',
+    minCommande: '15',
+    rayon: '5',
+    promo: false,
+    promoTexte: 'Livraison offerte dès 30 €',
+    promotions: [] as Promo[],
+    horaires: { ...HORAIRES_DEFAULT },
+  }
 }
 
-const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
+interface Promo {
+  id: string
+  titre: string
+  description: string
+  type: string
+  valeur: string
+  dateDebut: string
+  dateFin: string
+  active: boolean
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 export default function PanelPage() {
@@ -177,7 +191,7 @@ export default function PanelPage() {
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [produits, setProduits] = useState<ProduitEtendu[]>(() =>
+  const [produits, setProduits] = useState<ProduitEtendu[]>(
     user?.isDemo
       ? BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
       : []
@@ -185,12 +199,14 @@ export default function PanelPage() {
   const [modalProd, setModalProd] = useState<ProduitForm | null>(null)
   const [isNew, setIsNew] = useState(false)
 
-  const bRef = user?.isDemo ? BOUCHERIES.find(b => b.id === (user?.boucherieId || 1)) : null
-  const boutiqueInit = bRef
-    ? { ...BOUTIQUE_DEFAULT, nom: bRef.nom, desc: bRef.desc, tel: '01 23 45 67 89', email: 'contact@maboucherie.fr', frais: String(bRef.frais) }
-    : BOUTIQUE_DEFAULT
-  const [boutique, setBoutique] = useState(boutiqueInit)
+  const myBoucherieId = user?.boucherieId || 1
+  const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
+  const bRef = user?.isDemo ? myBoucherie : undefined
+
+  const [boutique, setBoutique] = useState(() => makeInitBoutique(bRef))
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
+
+  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
@@ -199,14 +215,12 @@ export default function PanelPage() {
       const updated = prev.map(o => {
         if (o.id !== id) return o
         const i = SF.indexOf(o.status)
-        const nextStatus = SF[Math.min(i + 1, SF.length - 1)]
-        return { ...o, status: nextStatus }
+        return { ...o, status: SF[Math.min(i + 1, SF.length - 1)] }
       })
-      // Si la commande passe à "done", la déplacer dans l'historique
       const justDone = updated.find(o => o.id === id && o.status === 'done')
       if (justDone) {
         setHistorique(h => [justDone, ...h])
-        showToast(`✅ Commande ${id} archivée dans l'historique`)
+        showToast('✅ Commande archivée')
         return updated.filter(o => o.id !== id)
       }
       return updated
@@ -214,12 +228,12 @@ export default function PanelPage() {
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: p.cat || 'Bœuf', venteType: p.venteType || 'pièce' })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce') })
     setIsNew(false)
   }
 
   function openNew() {
-    setModalProd(emptyForm(user?.boucherieId || 1))
+    setModalProd(emptyForm(myBoucherieId))
     setIsNew(true)
   }
 
@@ -227,24 +241,39 @@ export default function PanelPage() {
     if (!modalProd) return
     if (!modalProd.nom.trim() || !modalProd.prix.trim()) { showToast('⚠️ Nom et prix obligatoires'); return }
     if (isNew) {
-      setProduits(prev => [...prev, {
-        id: 'new_' + Date.now(), nom: modalProd.nom, desc: modalProd.desc,
-        prix: parseFloat(modalProd.prix) || 0, icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0,
-        photo: modalProd.photoUrl, photoUrl: modalProd.photoUrl,
+      const newProd: ProduitEtendu = {
+        id: 'new_' + Date.now(),
+        nom: modalProd.nom,
+        desc: modalProd.desc,
+        prix: parseFloat(modalProd.prix) || 0,
+        icon: modalProd.icon,
+        stock: parseInt(modalProd.stock) || 0,
+        photo: modalProd.photoUrl,
+        photoUrl: modalProd.photoUrl,
         decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         boucherieId: modalProd.boucherieId,
         boucherieNom: BOUCHERIES.find(b => b.id === modalProd.boucherieId)?.nom || '',
-        cat: (modalProd.cat || 'Bœuf') as any,
-        venteType: (modalProd.venteType || 'pièce') as any,
-      }])
+        cat: modalProd.cat as any,
+        venteType: modalProd.venteType as any,
+      }
+      setProduits(prev => [...prev, newProd])
       showToast('✅ Produit créé !')
     } else {
-      setProduits(prev => prev.map(p => p.id !== modalProd.id ? p : {
-        ...p, nom: modalProd.nom, desc: modalProd.desc, prix: parseFloat(modalProd.prix) || p.prix,
-        icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0, photoUrl: modalProd.photoUrl, photo: modalProd.photoUrl,
-        decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
-        preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
+      setProduits(prev => prev.map(p => {
+        if (p.id !== modalProd.id) return p
+        return {
+          ...p,
+          nom: modalProd.nom,
+          desc: modalProd.desc,
+          prix: parseFloat(modalProd.prix) || p.prix,
+          icon: modalProd.icon,
+          stock: parseInt(modalProd.stock) || 0,
+          photoUrl: modalProd.photoUrl,
+          photo: modalProd.photoUrl,
+          decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
+          preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
+        }
       }))
       showToast('✅ Produit mis à jour !')
     }
@@ -257,10 +286,6 @@ export default function PanelPage() {
     showToast('🗑️ Produit supprimé')
   }
 
-  function adjustStock(id: string, d: number) {
-    setProduits(prev => prev.map(p => p.id !== id ? p : { ...p, stock: Math.max(0, p.stock + d) }))
-  }
-
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !modalProd) return
@@ -269,9 +294,36 @@ export default function PanelPage() {
     e.target.value = ''
   }
 
-  const myBoucherieId = user?.boucherieId || 1
-  const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
-  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
+  function updateHoraire(key: string, field: keyof HoraireJour, value: string | boolean) {
+    setBoutique(b => ({
+      ...b,
+      horaires: {
+        ...b.horaires,
+        [key]: { ...b.horaires[key], [field]: value },
+      },
+    }))
+    setBoutiqueEdited(true)
+  }
+
+  function addPromo() {
+    const newPromo: Promo = { id: Date.now().toString(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
+    setBoutique(b => ({ ...b, promotions: [...b.promotions, newPromo] }))
+    setBoutiqueEdited(true)
+  }
+
+  function updatePromo(idx: number, field: keyof Promo, value: string | boolean) {
+    setBoutique(b => {
+      const p = [...b.promotions]
+      p[idx] = { ...p[idx], [field]: value }
+      return { ...b, promotions: p }
+    })
+    setBoutiqueEdited(true)
+  }
+
+  function removePromo(idx: number) {
+    setBoutique(b => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
+    setBoutiqueEdited(true)
+  }
 
   // ── Écran non-boucher ──────────────────────────────────────────────────────
   if (!user || !isBoucher()) {
@@ -298,9 +350,7 @@ export default function PanelPage() {
       {/* Header */}
       <div className="bg-brun px-4 py-3.5 flex justify-between items-center sticky top-0 z-10">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-base font-black text-or">🔪 {myBoucherie?.nom || 'Votre boucherie'}</span>
-          </div>
+          <span className="font-serif text-base font-black text-or">🔪 {myBoucherie?.nom || 'Votre boucherie'}</span>
           <p className="text-white/55 text-xs mt-0.5">
             {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · {user.nom}
           </p>
@@ -314,10 +364,10 @@ export default function PanelPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 py-4 max-w-2xl mx-auto">
         {[
-          { ico: '📋', val: orders.length.toString(), label: 'Commandes en cours' },
-          { ico: '💶', val: historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0) + ' €', label: 'CA total' },
+          { ico: '📋', val: String(orders.length), label: 'En cours' },
+          { ico: '💶', val: String(historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0)) + ' €', label: 'CA total' },
           { ico: '⭐', val: '4,9', label: 'Note moyenne' },
-          { ico: '🛍️', val: myProduits.length.toString(), label: 'Produits actifs' },
+          { ico: '🛍️', val: String(myProduits.length), label: 'Produits actifs' },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm">
             <div className="text-xl mb-1">{s.ico}</div>
@@ -329,145 +379,117 @@ export default function PanelPage() {
 
       <div className="px-4 max-w-2xl mx-auto">
 
-        {/* ══════════ COMMANDES ══════════ */}
+        {/* ══ COMMANDES ══ */}
         {tab === 'commandes' && (
           <div className="space-y-3">
-
-            {/* Barre d'actions */}
             <div className="flex gap-2">
               <button
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(false)}>
                 📋 En cours ({orders.length})
               </button>
               <button
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold font-sans transition-all border ${showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(true)}>
                 🗂️ Historique ({historique.length})
               </button>
             </div>
 
-            {/* ── Commandes en cours ── */}
-            {!showHistorique && (<>
-              {orders.length === 0 ? (
-                <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
-                  <span className="text-4xl block mb-2">✅</span>
-                  <p className="text-sm font-semibold">Aucune commande en cours</p>
-                  <p className="text-xs mt-1">Toutes les commandes ont été livrées !</p>
-                </div>
-              ) : orders.map((o) => {
-                const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
-                const total = sousTotal + o.frais
-                return (
-                  <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    {/* En-tête commande */}
-                    <div className={`px-4 py-3 flex justify-between items-center ${SC[o.status].replace('text-', 'bg-').split(' ')[0].replace('bg-', 'bg-').replace('100', '50')} bg-opacity-50`}>
-                      <div>
-                        <span className="font-black text-brun text-sm">{o.id}</span>
-                        <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
-                      </div>
-                      <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${SC[o.status]}`}>
-                        {SL[o.status]}
-                      </span>
-                    </div>
-
-                    {/* Infos client */}
-                    <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
-                      <div>
-                        <p className="text-sm font-bold text-brun">{o.client}</p>
-                        <p className="text-xs text-gray-400">📍 {o.adresse}</p>
-                        <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
-                      </div>
-                    </div>
-
-                    {/* Articles */}
-                    <div className="px-4 py-2">
-                      {o.lignes.map((l, i) => (
-                        <div key={i} className={`flex items-start gap-2 py-2 ${i < o.lignes.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-                          <span className="text-base flex-shrink-0">{l.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
-                            <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
-                            {l.note && <p className="text-[11px] text-gray-400 italic">📝 {l.note}</p>}
-                          </div>
-                          <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
-                      {/* Voir récap détaillé */}
-                      <button
-                        className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                        onClick={() => setViewOrder(o)}>
-                        🧾 Récapitulatif
-                      </button>
-                      {/* Appeler client */}
-                      <a href={`tel:${o.tel}`}
-                        className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center justify-center">
-                        📞
-                      </a>
-                      {/* Avancer statut */}
-                      {o.status !== 'done' && (
-                        <button
-                          className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => progress(o.id)}>
-                          {BL[o.status]} →
-                        </button>
-                      )}
-                    </div>
+            {!showHistorique && (
+              orders.length === 0
+                ? (
+                  <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+                    <span className="text-4xl block mb-2">✅</span>
+                    <p className="text-sm font-semibold">Aucune commande en cours</p>
                   </div>
                 )
-              })}
-            </>)}
-
-            {/* ── Historique ── */}
-            {showHistorique && (<>
-              {historique.length === 0 ? (
-                <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
-                  <span className="text-4xl block mb-2">🗂️</span>
-                  <p className="text-sm">Aucune commande archivée</p>
-                </div>
-              ) : historique.map((o) => {
-                const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
-                const total = sousTotal + o.frais
-                return (
-                  <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
-                      <div>
-                        <span className="font-black text-brun text-sm">{o.id}</span>
-                        <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                : orders.map(o => {
+                  const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+                  const total = sousTotal + o.frais
+                  return (
+                    <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                      <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-center">
+                        <div>
+                          <span className="font-black text-brun text-sm">{o.id}</span>
+                          <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
+                        </div>
+                        <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + SC[o.status]}>{SL[o.status]}</span>
                       </div>
-                      <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
+                      <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-bold text-brun">{o.client}</p>
+                          <p className="text-xs text-gray-400">📍 {o.adresse}</p>
+                          <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
+                        </div>
+                      </div>
+                      <div className="px-4 py-2">
+                        {o.lignes.map((l, i) => (
+                          <div key={i} className={'flex items-start gap-2 py-2 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
+                            <span className="text-base flex-shrink-0">{l.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
+                              <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
+                              {l.note ? <p className="text-[11px] text-gray-400 italic">📝 {l.note}</p> : null}
+                            </div>
+                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
+                        <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                          onClick={() => setViewOrder(o)}>🧾 Récap</button>
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans">📞</a>
+                        {o.status !== 'done' && (
+                          <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                            onClick={() => progress(o.id)}>{BL[o.status]} →</button>
+                        )}
+                      </div>
                     </div>
-                    <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
-                      <div>
-                        <p className="text-sm font-bold text-brun">{o.client}</p>
-                        <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''} · {o.creneau}</p>
+                  )
+                })
+            )}
+
+            {showHistorique && (
+              historique.length === 0
+                ? (
+                  <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+                    <span className="text-4xl block mb-2">🗂️</span>
+                    <p className="text-sm">Aucune commande archivée</p>
+                  </div>
+                )
+                : historique.map(o => {
+                  const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
+                  return (
+                    <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                      <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
+                        <div>
+                          <span className="font-black text-brun text-sm">{o.id}</span>
+                          <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                        </div>
+                        <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
                       </div>
-                      <div className="text-right">
+                      <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
+                        <div>
+                          <p className="text-sm font-bold text-brun">{o.client}</p>
+                          <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
+                        </div>
                         <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
                       </div>
+                      <div className="px-4 py-3">
+                        <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                          onClick={() => setViewOrder(o)}>🧾 Voir le récapitulatif</button>
+                      </div>
                     </div>
-                    <div className="px-4 py-3">
-                      <button
-                        className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                        onClick={() => setViewOrder(o)}>
-                        🧾 Voir le récapitulatif complet
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </>)}
+                  )
+                })
+            )}
           </div>
         )}
 
-        {/* ══════════ PRODUITS ══════════ */}
+        {/* ══ PRODUITS ══ */}
         {tab === 'produits' && (
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
@@ -480,18 +502,18 @@ export default function PanelPage() {
             {myProduits.length === 0
               ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
               : myProduits.map((p, i) => (
-                <div key={p.id} className={`flex items-center gap-3 p-3 ${i < myProduits.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+                <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '')}>
                   {p.photoUrl
-                    ? <img src={p.photoUrl} alt={p.nom} className="w-13 h-13 rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
-                    : <div className="w-13 h-13 rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
+                    ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
+                    : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
                   }
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
                     <p className="text-xs text-gray-400 truncate">{p.desc}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600'}`}>
-                        {p.stock === 0 ? 'Rupture' : `${p.stock}`}
+                      <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
+                        {p.stock === 0 ? 'Rupture' : String(p.stock)}
                       </span>
                     </div>
                   </div>
@@ -505,11 +527,11 @@ export default function PanelPage() {
           </div>
         )}
 
-        {/* ══════════ BOUTIQUE ══════════ */}
+        {/* ══ BOUTIQUE ══ */}
         {tab === 'boutique' && (
           <div className="space-y-4">
 
-            {/* Aperçu carte */}
+            {/* Aperçu */}
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
@@ -526,7 +548,7 @@ export default function PanelPage() {
                   </div>
                   <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
                   <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🏪 Click & Collect</span>
+                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🏪 Click &amp; Collect</span>
                     <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
                   </div>
                 </div>
@@ -539,16 +561,12 @@ export default function PanelPage() {
                 <p className="font-bold text-brun text-sm">🏪 Informations</p>
               </div>
               <div className="p-4 space-y-3">
-                {[
-                  ['nom',     'Nom de la boutique',  'Boucherie Dupont'],
-                  ['tel',     'Téléphone',            '01 23 45 67 89'],
-                  ['email',   'Email de contact',     'contact@maboucherie.fr'],
-                  ['adresse', 'Adresse',              '12 rue du Marché, Paris'],
-                ].map(([k, l, ph]) => (
+                {([['nom', 'Nom de la boutique', 'Boucherie Dupont'], ['tel', 'Téléphone', '01 23 45 67 89'], ['email', 'Email', 'contact@maboucherie.fr'], ['adresse', 'Adresse', '12 rue du Marché']] as const).map(([k, l, ph]) => (
                   <div key={k}>
                     <label className="text-xs font-bold text-brun block mb-1">{l}</label>
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                      placeholder={ph} value={(boutique as any)[k]}
+                      placeholder={ph}
+                      value={boutique[k] as string}
                       onChange={e => { setBoutique(b => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
                   </div>
                 ))}
@@ -562,7 +580,7 @@ export default function PanelPage() {
               </div>
             </div>
 
-            {/* Horaires plages matin/après-midi */}
+            {/* Horaires */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
                 <p className="font-bold text-brun text-sm">🕐 Horaires d'ouverture</p>
@@ -574,52 +592,44 @@ export default function PanelPage() {
                     <div key={key}>
                       <div className="flex items-center gap-3 mb-2">
                         <button
-                          className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${h.ouvert ? 'bg-green-400' : 'bg-gray-200'}`}
-                          onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], ouvert: !b.horaires[key].ouvert } } })); setBoutiqueEdited(true) }}>
-                          <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${h.ouvert ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                          className={'w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ' + (h.ouvert ? 'bg-green-400' : 'bg-gray-200')}
+                          onClick={() => updateHoraire(key, 'ouvert', !h.ouvert)}>
+                          <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (h.ouvert ? 'translate-x-5' : 'translate-x-0.5')} />
                         </button>
-                        <span className={`text-sm font-bold flex-1 ${h.ouvert ? 'text-brun' : 'text-gray-300'}`}>{label}</span>
+                        <span className={'text-sm font-bold flex-1 ' + (h.ouvert ? 'text-brun' : 'text-gray-300')}>{label}</span>
                         {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
                       </div>
                       {h.ouvert && (
                         <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
-                          {/* Matin */}
                           <div className="flex items-center gap-2">
-                            <button
-                              className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${h.matin ? 'bg-or' : 'bg-gray-200'}`}
-                              onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matin: !b.horaires[key].matin } } })); setBoutiqueEdited(true) }}>
-                              <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${h.matin ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.matin ? 'bg-or' : 'bg-gray-200')}
+                              onClick={() => updateHoraire(key, 'matin', !h.matin)}>
+                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.matin ? 'translate-x-4' : 'translate-x-0.5')} />
                             </button>
-                            <span className={`text-xs font-semibold w-14 flex-shrink-0 ${h.matin ? 'text-brun' : 'text-gray-300'}`}>Matin</span>
+                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.matin ? 'text-brun' : 'text-gray-300')}>Matin</span>
                             {h.matin ? (
                               <div className="flex items-center gap-1.5 flex-1">
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.matinDebut}
-                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matinDebut: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                  value={h.matinDebut} onChange={e => updateHoraire(key, 'matinDebut', e.target.value)} />
                                 <span className="text-xs text-gray-300">→</span>
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.matinFin}
-                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matinFin: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                  value={h.matinFin} onChange={e => updateHoraire(key, 'matinFin', e.target.value)} />
                               </div>
                             ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
                           </div>
-                          {/* Après-midi */}
                           <div className="flex items-center gap-2">
-                            <button
-                              className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${h.am ? 'bg-or' : 'bg-gray-200'}`}
-                              onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], am: !b.horaires[key].am } } })); setBoutiqueEdited(true) }}>
-                              <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${h.am ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.am ? 'bg-or' : 'bg-gray-200')}
+                              onClick={() => updateHoraire(key, 'am', !h.am)}>
+                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.am ? 'translate-x-4' : 'translate-x-0.5')} />
                             </button>
-                            <span className={`text-xs font-semibold w-14 flex-shrink-0 ${h.am ? 'text-brun' : 'text-gray-300'}`}>Après-m.</span>
+                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
                             {h.am ? (
                               <div className="flex items-center gap-1.5 flex-1">
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.amDebut}
-                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], amDebut: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                  value={h.amDebut} onChange={e => updateHoraire(key, 'amDebut', e.target.value)} />
                                 <span className="text-xs text-gray-300">→</span>
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.amFin}
-                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], amFin: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                  value={h.amFin} onChange={e => updateHoraire(key, 'amFin', e.target.value)} />
                               </div>
                             ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
                           </div>
@@ -635,48 +645,43 @@ export default function PanelPage() {
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
                 <p className="font-bold text-brun text-sm">🏷️ Promotions</p>
-                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans"
-                  onClick={() => { setBoutique(b => ({ ...b, promotions: [...(b.promotions||[]), { id: Date.now().toString(), titre:'', description:'', type:'message', valeur:'', dateDebut:'', dateFin:'', active:true }] })); setBoutiqueEdited(true) }}>
-                  + Ajouter
-                </button>
+                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={addPromo}>+ Ajouter</button>
               </div>
-              {(!boutique.promotions || boutique.promotions.length === 0)
+              {boutique.promotions.length === 0
                 ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">🏷️</span><p className="text-sm">Aucune promotion active.</p></div>
                 : <div className="divide-y divide-gris-bd">
-                    {(boutique.promotions||[]).map((promo: any, idx: number) => (
+                    {boutique.promotions.map((promo, idx) => (
                       <div key={promo.id} className="p-4 space-y-3">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
-                            <button className={`w-10 h-5 rounded-full relative transition-colors ${promo.active?'bg-green-400':'bg-gray-200'}`}
-                              onClick={() => { const p=[...(boutique.promotions||[])]; p[idx]={...p[idx],active:!p[idx].active}; setBoutique(b=>({...b,promotions:p})); setBoutiqueEdited(true) }}>
-                              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${promo.active?'translate-x-5':'translate-x-0.5'}`}/>
+                            <button className={'w-10 h-5 rounded-full relative transition-colors ' + (promo.active ? 'bg-green-400' : 'bg-gray-200')}
+                              onClick={() => updatePromo(idx, 'active', !promo.active)}>
+                              <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
                             </button>
-                            <span className={`text-xs font-bold ${promo.active?'text-green-600':'text-gray-400'}`}>{promo.active?'Active':'Inactive'}</span>
+                            <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
                           </div>
                           <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
-                            onClick={() => { const p=(boutique.promotions||[]).filter((_:any,i:number)=>i!==idx); setBoutique(b=>({...b,promotions:p})); setBoutiqueEdited(true) }}>
-                            🗑️</button>
+                            onClick={() => removePromo(idx)}>🗑️</button>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
-                          {[['message','💬 Message'],['reduction','% Réduction'],['livraison','🚚 Livraison'],['offre','🎁 Offre']].map(([val,lbl])=>(
-                            <button key={val} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${promo.type===val?'bg-brun text-white border-brun':'border-gray-200 text-gray-500'}`}
-                              onClick={()=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],type:val};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}}>
-                              {lbl}</button>
+                          {['message', 'reduction', 'livraison', 'offre'].map(val => (
+                            <button key={val} className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                              onClick={() => updatePromo(idx, 'type', val)}>{val}</button>
                           ))}
                         </div>
                         <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                           placeholder="Titre affiché…" value={promo.titre}
-                          onChange={e=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],titre:e.target.value};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}} />
+                          onChange={e => updatePromo(idx, 'titre', e.target.value)} />
                         <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                           placeholder="Description…" value={promo.description}
-                          onChange={e=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],description:e.target.value};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}} />
-                        {promo.titre && (
+                          onChange={e => updatePromo(idx, 'description', e.target.value)} />
+                        {promo.titre ? (
                           <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
                             <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
-                            <p className="text-xs text-rouge-vif font-bold">{promo.type==='reduction'?'🏷️':promo.type==='livraison'?'🚚':promo.type==='offre'?'🎁':'💬'} {promo.titre}</p>
-                            {promo.description && <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p>}
+                            <p className="text-xs text-rouge-vif font-bold">{promo.titre}</p>
+                            {promo.description ? <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p> : null}
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     ))}
                   </div>
@@ -692,10 +697,12 @@ export default function PanelPage() {
                 <div>
                   <label className="text-xs font-bold text-brun block mb-2">Badge sur la carte</label>
                   <div className="flex flex-wrap gap-2">
-                    {[['Aucun','—'],['Nouveau','✨'],['Promo','🏷️'],['Populaire','🔥'],['Premium','⭐']].map(([b,ico])=>(
-                      <button key={b} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${(b==='Aucun'&&!boutique.promo)||(b==='Promo'&&boutique.promo)?'bg-brun text-white border-brun':'border-gray-200 text-gray-500'}`}
-                        onClick={()=>{setBoutique(bq=>({...bq,promo:b==='Promo'}));setBoutiqueEdited(true)}}>
-                        {ico} {b}</button>
+                    {[['Aucun', '—'], ['Promo', '🏷️'], ['Nouveau', '✨'], ['Populaire', '🔥'], ['Premium', '⭐']].map(([b, ico]) => (
+                      <button key={b}
+                        className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + ((b === 'Aucun' && !boutique.promo) || (b === 'Promo' && boutique.promo) ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                        onClick={() => { setBoutique(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
+                        {ico} {b}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -715,11 +722,9 @@ export default function PanelPage() {
           </div>
         )}
 
-        {/* ══════════ PARAMÈTRES GÉNÉRAUX ══════════ */}
+        {/* ══ PARAMÈTRES GÉNÉRAUX ══ */}
         {tab === 'parametres' && (
           <div className="space-y-4">
-
-            {/* Compte */}
             <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
               <div className="flex-1 min-w-0">
@@ -730,22 +735,14 @@ export default function PanelPage() {
             </div>
 
             {[
-              { titre: 'Mon compte', items: [
-                { ico:'👤', label:'Mon profil',     sub:'Nom, email, téléphone' },
-                { ico:'🔒', label:'Mot de passe',   sub:'Modifier mon mot de passe' },
-                { ico:'🔔', label:'Notifications',  sub:'Alertes nouvelles commandes' },
-              ]},
-              { titre: 'Application', items: [
-                { ico:'🆘', label:'Support & aide',  sub:'FAQ et contact' },
-                { ico:'📋', label:'CGU',             sub:"Conditions d'utilisation" },
-                { ico:'🔒', label:'Confidentialité', sub:'Données personnelles' },
-              ]},
+              { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone' }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier' }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes' }] },
+              { titre: 'Application', items: [{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }] },
             ].map(sec => (
               <div key={sec.titre}>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                   {sec.items.map((item, i) => (
-                    <div key={item.label} className={`flex items-center gap-3 px-4 py-3.5 ${i < sec.items.length-1 ? 'border-b border-gris-bd' : ''}`}>
+                    <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '')}>
                       <span className="text-xl flex-shrink-0">{item.ico}</span>
                       <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
                       <span className="text-gray-300">›</span>
@@ -759,26 +756,96 @@ export default function PanelPage() {
               onClick={() => { logout(); router.push('/') }}>
               🚪 Se déconnecter
             </button>
-
             <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
           </div>
-        )
         )}
       </div>
 
-      {/* ══════════ MODAL PRODUIT ══════════ */}
+      {/* ══ MODAL RÉCAP COMMANDE ══ */}
+      {viewOrder && (() => {
+        const o = viewOrder
+        const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+        const total = sousTotal + o.frais
+        return (
+          <div className="fixed inset-0 bg-black/65 z-[200] flex items-end justify-center" onClick={() => setViewOrder(null)}>
+            <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
+                <div>
+                  <h2 className="font-serif text-lg font-black text-brun">🧾 Récap {o.id}</h2>
+                  <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
+                </div>
+                <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setViewOrder(null)}>✕</button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className={'flex items-center gap-2 px-4 py-3 rounded-xl ' + (o.status === 'done' ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20')}>
+                  <span className="text-lg">{o.status === 'done' ? '✅' : '⏳'}</span>
+                  <div>
+                    <p className={'text-sm font-bold ' + (o.status === 'done' ? 'text-green-700' : 'text-brun')}>
+                      {o.status === 'done' ? 'Commande livrée' : 'En cours — ' + SL[o.status]}
+                    </p>
+                    <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
+                  </div>
+                </div>
+                <div className="bg-creme rounded-2xl p-4">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
+                  <p className="text-sm font-bold text-brun">{o.client}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">📞 {o.tel}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">📍 {o.adresse}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
+                  <div className="bg-white border border-gris-bd rounded-2xl overflow-hidden">
+                    {o.lignes.map((l, i) => (
+                      <div key={i} className={'px-4 py-3 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-brun">{l.icon} {l.produit}</p>
+                            <p className="text-[11px] text-or font-semibold mt-0.5">✂️ {l.decoupe} · {l.preparation}</p>
+                            {l.note ? <p className="text-[11px] text-gray-400 italic mt-0.5">📝 {l.note}</p> : null}
+                          </div>
+                          <div className="text-right flex-shrink-0 ml-3">
+                            <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
+                            <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} €</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
+                  <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
+                    <div className="flex justify-between text-xs text-gray-500"><span>Sous-total</span><span>{sousTotal.toFixed(2)} €</span></div>
+                    <div className="flex justify-between text-xs text-gray-500"><span>Livraison</span><span>{o.frais === 0 ? 'Offerts' : o.frais.toFixed(2) + ' €'}</span></div>
+                    <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2"><span>Total</span><span>{total.toFixed(2)} €</span></div>
+                  </div>
+                </div>
+                <div className="flex gap-3 pb-2">
+                  <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans" onClick={() => setViewOrder(null)}>Fermer</button>
+                  {o.status !== 'done' && (
+                    <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
+                      onClick={() => { progress(o.id); setViewOrder(null) }}>
+                      {BL[o.status]} →
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ══ MODAL PRODUIT ══ */}
       {modalProd && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center" onClick={() => setModalProd(null)}>
           <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
               <h2 className="font-serif text-lg font-black text-brun">{isNew ? '+ Nouveau produit' : '✏️ Modifier'}</h2>
-              <button className="bg-gris-bd border-none rounded-full w-8 h-8 text-sm cursor-pointer flex items-center justify-center" onClick={() => setModalProd(null)}>✕</button>
+              <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setModalProd(null)}>✕</button>
             </div>
             <div className="p-5 space-y-4">
-
-              {/* Photo */}
               <div>
-                <label className="text-xs font-bold text-brun block mb-2">📸 Photo du produit</label>
+                <label className="text-xs font-bold text-brun block mb-2">📸 Photo</label>
                 <div className="flex items-center gap-3">
                   {modalProd.photoUrl
                     ? <img src={modalProd.photoUrl} alt="Photo" className="w-20 h-20 rounded-xl object-cover border border-gris-bd" />
@@ -796,52 +863,49 @@ export default function PanelPage() {
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
                 </div>
               </div>
-
-              {/* Icône */}
               <div>
                 <label className="text-xs font-bold text-brun block mb-1.5">Icône</label>
                 <div className="flex flex-wrap gap-2">
                   {ICONS.map(ico => (
                     <button key={ico}
-                      className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all font-sans ${modalProd.icon === ico ? 'bg-brun scale-110' : 'bg-gris-bd'}`}
+                      className={'w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all font-sans ' + (modalProd.icon === ico ? 'bg-brun scale-110' : 'bg-gris-bd')}
                       onClick={() => setModalProd(f => f ? { ...f, icon: ico } : f)}>{ico}</button>
                   ))}
                 </div>
               </div>
-
               {[['nom', 'Nom *', 'Entrecôte Charolais'], ['desc', 'Description', '500g, persillé idéal']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder={ph} value={(modalProd as any)[k]}
+                    placeholder={ph}
+                    value={(modalProd as any)[k]}
                     onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
                 </div>
               ))}
-
               <div className="grid grid-cols-2 gap-3">
                 {[['prix', 'Prix (€) *', '18.90'], ['stock', 'Stock', '10']].map(([k, l, ph]) => (
                   <div key={k}>
                     <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
-                    <input type="number" min="0" step={k === 'prix' ? '0.10' : '1'}
+                    <input type="number" min="0"
                       className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                      placeholder={ph} value={(modalProd as any)[k]}
+                      placeholder={ph}
+                      value={(modalProd as any)[k]}
                       onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
                   </div>
                 ))}
               </div>
-
               {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', '🌿 Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder={ph} value={(modalProd as any)[k]}
+                    placeholder={ph}
+                    value={(modalProd as any)[k]}
                     onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
                 </div>
               ))}
-
               <div className="flex gap-3 pt-2 pb-4">
-                <button className="flex-1 bg-gris-bd text-brun border-none rounded-xl py-3 text-sm font-semibold cursor-pointer font-sans" onClick={() => setModalProd(null)}>Annuler</button>
-                <button className="flex-[2] bg-brun text-white border-none rounded-xl py-3 text-sm font-bold cursor-pointer font-sans" onClick={saveProduit}>
+                <button className="flex-1 bg-gris-bd text-brun rounded-xl py-3 text-sm font-semibold font-sans" onClick={() => setModalProd(null)}>Annuler</button>
+                <button className="flex-[2] bg-brun text-white rounded-xl py-3 text-sm font-bold font-sans" onClick={saveProduit}>
                   {isNew ? '✅ Créer' : '✅ Enregistrer'}
                 </button>
               </div>
@@ -850,102 +914,7 @@ export default function PanelPage() {
         </div>
       )}
 
-      {/* ══════════ MODAL RÉCAPITULATIF COMMANDE ══════════ */}
-      {viewOrder && (() => {
-        const o = viewOrder
-        const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
-        const total = sousTotal + o.frais
-        return (
-          <div className="fixed inset-0 bg-black/65 z-[200] flex items-end justify-center" onClick={() => setViewOrder(null)}>
-            <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-
-              {/* Header */}
-              <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
-                <div>
-                  <h2 className="font-serif text-lg font-black text-brun">🧾 Récapitulatif {o.id}</h2>
-                  <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
-                </div>
-                <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center flex-shrink-0" onClick={() => setViewOrder(null)}>✕</button>
-              </div>
-
-              <div className="p-5 space-y-4">
-
-                {/* Statut */}
-                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl ${o.status === 'done' ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20'}`}>
-                  <span className="text-lg">{o.status === 'done' ? '✅' : '⏳'}</span>
-                  <div>
-                    <p className={`text-sm font-bold ${o.status === 'done' ? 'text-green-700' : 'text-brun'}`}>
-                      {o.status === 'done' ? 'Commande livrée' : `En cours — ${SL[o.status]}`}
-                    </p>
-                    <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
-                  </div>
-                </div>
-
-                {/* Client */}
-                <div className="bg-creme rounded-2xl p-4">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
-                  <p className="text-sm font-bold text-brun">{o.client}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">📞 {o.tel}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">📍 {o.adresse}</p>
-                </div>
-
-                {/* Détail articles */}
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles commandés</p>
-                  <div className="bg-white border border-gris-bd rounded-2xl overflow-hidden">
-                    {o.lignes.map((l, i) => (
-                      <div key={i} className={`px-4 py-3 ${i < o.lignes.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-                        <div className="flex justify-between items-start mb-1">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-brun">{l.icon} {l.produit}</p>
-                            <p className="text-[11px] text-or font-semibold mt-0.5">✂️ {l.decoupe} · {l.preparation}</p>
-                            {l.note && <p className="text-[11px] text-gray-400 italic mt-0.5">📝 Note : {l.note}</p>}
-                          </div>
-                          <div className="text-right flex-shrink-0 ml-3">
-                            <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
-                            <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} €</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Récapitulatif financier */}
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
-                  <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Sous-total articles</span>
-                      <span>{sousTotal.toFixed(2)} €</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Frais de livraison</span>
-                      <span>{o.frais === 0 ? 'Offerts' : `${o.frais.toFixed(2)} €`}</span>
-                    </div>
-                    <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2">
-                      <span>Total</span>
-                      <span>{total.toFixed(2)} €</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 pb-2">
-                  <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans"
-                    onClick={() => setViewOrder(null)}>Fermer</button>
-                  {o.status !== 'done' && (
-                    <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
-                      onClick={() => { progress(o.id); setViewOrder(null) }}>
-                      {BL[o.status]} →
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
+      {/* Toast */}
       {toastMsg && (
         <div className="fixed bottom-28 left-1/2 -translate-x-1/2 bg-brun text-white px-5 py-2.5 rounded-xl text-sm font-semibold z-50 shadow-xl whitespace-nowrap">
           {toastMsg}
