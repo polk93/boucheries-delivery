@@ -1041,6 +1041,38 @@ function CguSection({ onBack }: { onBack: () => void }) {
   )
 }
 
+// ── Composant upload de document ──────────────────────────────────────────────
+function DocUpload({ label, sublabel, required, file, onChange }: {
+  label: string; sublabel: string; required?: boolean
+  file: File | null; onChange: (f: File | null) => void
+}) {
+  return (
+    <div>
+      <div className="flex items-start justify-between mb-1">
+        <div>
+          <label className="text-xs font-bold text-brun">{label} {required && <span className="text-rouge-vif">*</span>}</label>
+          <p className="text-[10px] text-gray-400">{sublabel}</p>
+        </div>
+        {file && <span className="text-green-500 text-sm flex-shrink-0 ml-2">✅</span>}
+      </div>
+      {file ? (
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5">
+          <span className="text-green-600 text-sm">📄</span>
+          <span className="text-xs text-green-700 font-semibold flex-1 truncate">{file.name}</span>
+          <button className="text-gray-400 text-xs flex-shrink-0 font-sans" onClick={() => onChange(null)}>✕</button>
+        </div>
+      ) : (
+        <label className="flex items-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-3 py-3 cursor-pointer hover:border-brun hover:bg-creme transition-all">
+          <span className="text-xl">📎</span>
+          <span className="text-xs text-gray-400 font-semibold">Choisir un fichier (PDF, JPG, PNG)</span>
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+            onChange={e => onChange(e.target.files?.[0] || null)} />
+        </label>
+      )}
+    </div>
+  )
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // DEVENIR LIVREUR — Formulaire style Uber Eats
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1050,10 +1082,26 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
     vehicule:'velo_elec', siret:'', iban:'',
     permis: false, disponibilite:'', message:''
   })
+  const [docs, setDocs] = useState<Record<string, File | null>>({
+    cni: null, siret_doc: null, permis_doc: null, carte_grise: null
+  })
   const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [step, setStep]       = useState<'info'|'form'>('info')
+
+  const needsPermis = ['scooter','voiture'].includes(form.vehicule)
+
+  function setDoc(key: string, file: File | null) {
+    setDocs(d => ({ ...d, [key]: file }))
+  }
+
+  function docValide() {
+    if (!docs.cni) return false
+    if (!docs.siret_doc) return false
+    if (needsPermis && (!docs.permis_doc || !docs.carte_grise)) return false
+    return true
+  }
 
   async function soumettre() {
     setLoading(true); setError('')
@@ -1067,15 +1115,21 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
           message: `
 CANDIDATURE LIVREUR
 -------------------
-Prénom & Nom : ${form.prenom} ${form.nom}
-Email        : ${form.email}
-Téléphone    : ${form.tel}
-Ville        : ${form.ville}
-Véhicule     : ${form.vehicule}
-SIRET        : ${form.siret || '—'}
-IBAN         : ${form.iban ? form.iban.slice(0,8) + '••••••••••••••' : '—'}
-Disponibilités : ${form.disponibilite}
-Message      : ${form.message || '—'}
+Prénom & Nom  : ${form.prenom} ${form.nom}
+Email         : ${form.email}
+Téléphone     : ${form.tel}
+Ville         : ${form.ville}
+Véhicule      : ${form.vehicule}
+SIRET         : ${form.siret || '—'}
+IBAN          : ${form.iban ? form.iban.slice(0,8) + '••••••••••••••' : '—'}
+Disponibilités: ${form.disponibilite}
+Message       : ${form.message || '—'}
+
+Documents joints (vérification manuelle) :
+- CNI               : ${docs.cni?.name || '—'}
+- Justif. SIRET     : ${docs.siret_doc?.name || '—'}
+- Permis B          : ${docs.permis_doc?.name || '—'}
+- Carte grise       : ${docs.carte_grise?.name || '—'}
           `.trim(),
         },
         'LbqBSABkR-S5wg9PR'
@@ -1284,11 +1338,74 @@ Message      : ${form.message || '—'}
               </button>
             ))}
           </div>
-          <label className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${form.permis ? 'border-brun bg-or-pale' : 'border-gray-200'}`}>
-            <input type="checkbox" className="w-4 h-4 accent-brun"
-              checked={form.permis} onChange={e => setForm(f => ({ ...f, permis: e.target.checked }))} />
-            <span className="text-xs font-semibold text-brun">Je possède un permis B (obligatoire scooter/voiture)</span>
-          </label>
+          {needsPermis && (
+            <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+              <p className="text-xs text-brun font-semibold">⚠️ Permis B + carte grise obligatoires pour scooter/voiture</p>
+            </div>
+          )}
+        </div>
+
+        {/* Documents obligatoires */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+          <h3 className="font-serif text-base font-bold text-brun">📎 Documents obligatoires</h3>
+          <p className="text-xs text-gray-400 -mt-2">Téléchargez vos documents pour valider votre dossier. Vos données sont sécurisées et chiffrées.</p>
+
+          {/* CNI */}
+          <DocUpload
+            label="🪪 Carte d'identité (recto-verso)"
+            sublabel="CNI ou passeport en cours de validité"
+            required
+            file={docs.cni}
+            onChange={f => setDoc('cni', f)}
+          />
+
+          {/* SIRET */}
+          <DocUpload
+            label="📄 Justificatif SIRET"
+            sublabel="Extrait Kbis ou avis de situation INSEE"
+            required
+            file={docs.siret_doc}
+            onChange={f => setDoc('siret_doc', f)}
+          />
+
+          {/* Permis + carte grise — uniquement scooter/voiture */}
+          {needsPermis && (<>
+            <DocUpload
+              label="🚗 Permis de conduire (recto-verso)"
+              sublabel="Permis B en cours de validité"
+              required
+              file={docs.permis_doc}
+              onChange={f => setDoc('permis_doc', f)}
+            />
+            <DocUpload
+              label="📋 Carte grise du véhicule"
+              sublabel="Certificat d'immatriculation à votre nom"
+              required
+              file={docs.carte_grise}
+              onChange={f => setDoc('carte_grise', f)}
+            />
+          </>)}
+
+          {/* Récap validation */}
+          <div className={`rounded-xl p-3 border ${docValide() ? 'bg-green-50 border-green-200' : 'bg-creme border-gris-bd'}`}>
+            <p className={`text-xs font-bold mb-1 ${docValide() ? 'text-green-700' : 'text-brun'}`}>
+              {docValide() ? '✅ Dossier complet' : '📋 Documents requis'}
+            </p>
+            <div className="space-y-0.5">
+              {[
+                { label: "Carte d'identité", ok: !!docs.cni },
+                { label: 'Justificatif SIRET', ok: !!docs.siret_doc },
+                ...(needsPermis ? [
+                  { label: 'Permis de conduire', ok: !!docs.permis_doc },
+                  { label: 'Carte grise', ok: !!docs.carte_grise },
+                ] : []),
+              ].map(d => (
+                <p key={d.label} className={`text-[11px] flex items-center gap-1.5 ${d.ok ? 'text-green-600' : 'text-gray-400'}`}>
+                  <span>{d.ok ? '✓' : '○'}</span>{d.label}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Disponibilités */}
@@ -1307,7 +1424,7 @@ Message      : ${form.message || '—'}
 
         <button
           className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-rouge-vif transition-colors"
-          disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.siret || !form.iban || !form.disponibilite || loading}
+          disabled={!form.prenom || !form.email || !form.tel || !form.ville || !form.siret || !form.iban || !form.disponibilite || !docValide() || loading}
           onClick={soumettre}>
           {loading ? '⏳ Envoi en cours…' : '🛵 Envoyer mon dossier'}
         </button>
@@ -1323,11 +1440,20 @@ Message      : ${form.message || '—'}
 // DEVENIR PARTENAIRE BOUCHER
 // ══════════════════════════════════════════════════════════════════════════════
 function PartenaireSection({ onBack }: { onBack: () => void }) {
-  const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', nom_boutique:'', adresse:'', ville:'', specialites:'', message:'' })
+  const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', nom_boutique:'', adresse:'', ville:'', siret:'', iban:'', specialites:'', message:'' })
+  const [docs, setDocs] = useState<Record<string, File | null>>({ siret_doc: null, iban_doc: null })
   const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [step, setStep]       = useState<'info'|'form'>('info')
+
+  function setDoc(key: string, file: File | null) { setDocs(d => ({ ...d, [key]: file })) }
+  function docValide() { return !!docs.siret_doc && !!docs.iban_doc }
+
+  // Validation SIRET : 14 chiffres
+  const siretOk = /^\d{14}$/.test(form.siret.replace(/\s/g, ''))
+  // Validation IBAN : commence par FR, min 27 chars
+  const ibanOk = /^FR\d{2}[A-Z0-9]{23,}$/i.test(form.iban.replace(/\s/g, ''))
 
   async function soumettre() {
     setLoading(true); setError('')
@@ -1343,11 +1469,17 @@ CANDIDATURE PARTENAIRE BOUCHER
 -------------------------------
 Boucherie    : ${form.nom_boutique}
 Adresse      : ${form.adresse}, ${form.ville}
+SIRET        : ${form.siret} ${siretOk ? '✅' : '⚠️ format à vérifier'}
+IBAN         : ${form.iban ? form.iban.slice(0,8) + '••••••••••••' : '—'} ${ibanOk ? '✅' : '⚠️ format à vérifier'}
 Spécialités  : ${form.specialites || '—'}
 Contact      : ${form.prenom} ${form.nom}
 Email        : ${form.email}
 Téléphone    : ${form.tel}
 Message      : ${form.message || '—'}
+
+Documents joints (vérification manuelle) :
+- Justif. SIRET / Kbis : ${docs.siret_doc?.name || '—'}
+- RIB / justif. IBAN   : ${docs.iban_doc?.name || '—'}
           `.trim(),
         },
         'LbqBSABkR-S5wg9PR'
@@ -1458,6 +1590,70 @@ Message      : ${form.message || '—'}
                 placeholder={ph as string} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
             </div>
           ))}
+
+          {/* SIRET */}
+          <div>
+            <label className="text-xs font-bold text-brun block mb-1">Numéro SIRET *</label>
+            <div className="relative">
+              <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none font-mono pr-8 ${form.siret ? (siretOk ? 'border-green-400 focus:border-green-500' : 'border-rouge-vif focus:border-rouge-vif') : 'border-gray-200 focus:border-brun'}`}
+                placeholder="123 456 789 00012" value={form.siret}
+                onChange={e => setForm(f => ({ ...f, siret: e.target.value }))} />
+              {form.siret && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">{siretOk ? '✅' : '❌'}</span>}
+            </div>
+            {form.siret && !siretOk && <p className="text-[11px] text-rouge-vif mt-0.5">Format invalide — 14 chiffres requis</p>}
+            <p className="text-[10px] text-gray-400 mt-0.5">Numéro à 14 chiffres visible sur votre Kbis</p>
+          </div>
+
+          {/* IBAN */}
+          <div>
+            <label className="text-xs font-bold text-brun block mb-1">IBAN *</label>
+            <div className="relative">
+              <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none font-mono pr-8 ${form.iban ? (ibanOk ? 'border-green-400 focus:border-green-500' : 'border-rouge-vif focus:border-rouge-vif') : 'border-gray-200 focus:border-brun'}`}
+                placeholder="FR76 3000 6000 0112 3456 7890 189"
+                value={form.iban} onChange={e => setForm(f => ({ ...f, iban: e.target.value.toUpperCase() }))} />
+              {form.iban && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">{ibanOk ? '✅' : '❌'}</span>}
+            </div>
+            {form.iban && !ibanOk && <p className="text-[11px] text-rouge-vif mt-0.5">IBAN français invalide (doit commencer par FR)</p>}
+            <p className="text-[10px] text-gray-400 mt-0.5">Pour recevoir vos paiements chaque semaine</p>
+          </div>
+        </div>
+
+        {/* Documents */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+          <h3 className="font-serif text-base font-bold text-brun">📎 Documents obligatoires</h3>
+          <p className="text-xs text-gray-400 -mt-2">Ces documents sont nécessaires pour activer votre compte partenaire.</p>
+
+          <DocUpload
+            label="📄 Kbis ou justificatif SIRET"
+            sublabel="Extrait Kbis de moins de 3 mois ou avis de situation INSEE"
+            required
+            file={docs.siret_doc}
+            onChange={f => setDoc('siret_doc', f)}
+          />
+
+          <DocUpload
+            label="🏦 RIB / Justificatif IBAN"
+            sublabel="Relevé d'identité bancaire au nom de la boucherie"
+            required
+            file={docs.iban_doc}
+            onChange={f => setDoc('iban_doc', f)}
+          />
+
+          <div className={`rounded-xl p-3 border ${docValide() && siretOk && ibanOk ? 'bg-green-50 border-green-200' : 'bg-creme border-gris-bd'}`}>
+            <p className={`text-xs font-bold mb-1 ${docValide() && siretOk && ibanOk ? 'text-green-700' : 'text-brun'}`}>
+              {docValide() && siretOk && ibanOk ? '✅ Dossier complet' : '📋 Vérifications requises'}
+            </p>
+            {[
+              { label: 'SIRET valide (14 chiffres)', ok: siretOk },
+              { label: 'IBAN valide (format FR)', ok: ibanOk },
+              { label: 'Kbis / justif. SIRET joint', ok: !!docs.siret_doc },
+              { label: 'RIB / justif. IBAN joint', ok: !!docs.iban_doc },
+            ].map(d => (
+              <p key={d.label} className={`text-[11px] flex items-center gap-1.5 ${d.ok ? 'text-green-600' : 'text-gray-400'}`}>
+                <span>{d.ok ? '✓' : '○'}</span>{d.label}
+              </p>
+            ))}
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
@@ -1488,7 +1684,7 @@ Message      : ${form.message || '—'}
 
         <button
           className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 active:bg-brun transition-colors"
-          disabled={!form.nom_boutique || !form.prenom || !form.email || !form.tel || !form.ville || loading}
+          disabled={!form.nom_boutique || !form.prenom || !form.email || !form.tel || !form.ville || !siretOk || !ibanOk || !docValide() || loading}
           onClick={soumettre}>
           {loading ? '⏳ Envoi en cours…' : '🤝 Envoyer ma candidature'}
         </button>

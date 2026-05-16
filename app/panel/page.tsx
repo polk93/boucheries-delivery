@@ -174,14 +174,14 @@ export default function PanelPage() {
     promoTexte: 'Livraison offerte dès 30 €',
     promotions: [] as any[],
     horaires: {
-      lun: { ouvert: true, debut: '08:00', fin: '19:30' },
-      mar: { ouvert: true, debut: '08:00', fin: '19:30' },
-      mer: { ouvert: true, debut: '08:00', fin: '19:30' },
-      jeu: { ouvert: true, debut: '08:00', fin: '19:30' },
-      ven: { ouvert: true, debut: '08:00', fin: '20:00' },
-      sam: { ouvert: true, debut: '07:30', fin: '19:00' },
-      dim: { ouvert: false, debut: '09:00', fin: '13:00' },
-    } as Record<string, { ouvert: boolean; debut: string; fin: string }>,
+      lun: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+      mar: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+      mer: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+      jeu: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:30' },
+      ven: { ouvert: true,  matin: true,  matinDebut: '08:00', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '20:00' },
+      sam: { ouvert: true,  matin: true,  matinDebut: '07:30', matinFin: '13:00', am: true,  amDebut: '15:00', amFin: '19:00' },
+      dim: { ouvert: false, matin: false, matinDebut: '09:00', matinFin: '13:00', am: false, amDebut: '15:00', amFin: '18:00' },
+    } as Record<string, { ouvert: boolean; matin: boolean; matinDebut: string; matinFin: string; am: boolean; amDebut: string; amFin: string }>,
   })
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
@@ -500,57 +500,45 @@ export default function PanelPage() {
           </div>
         )}
 
-        {/* ══════════ STOCKS ══════════ */}
-        {tab === 'stocks' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gris-bd bg-or-pale">
-              <p className="font-bold text-brun text-sm">Stocks — {myBoucherie?.nom}</p>
-            </div>
-            {myProduits.length === 0
-              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit à gérer.</div>
-              : myProduits.map((p, i) => {
-                  const pct = Math.min(100, Math.round(p.stock / 20 * 100))
-                  const bc = pct > 40 ? 'bg-green-400' : pct > 15 ? 'bg-orange-400' : 'bg-rouge-vif'
-                  return (
-                    <div key={p.id} className={`flex items-center gap-3 p-3 ${i < myProduits.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-brun">{p.icon} {p.nom}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full ${bc}`} style={{ width: `${pct}%` }} />
-                          </div>
-                          <span className={`text-[10px] font-bold ${p.stock === 0 ? 'text-red-500' : p.stock <= 4 ? 'text-orange-500' : 'text-green-600'}`}>
-                            {p.stock === 0 ? '⚠️ Rupture' : `${p.stock} unité${p.stock > 1 ? 's' : ''}`}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button className="w-8 h-8 border border-gray-200 rounded-xl text-gray-400 hover:border-brun hover:text-brun transition-colors font-sans text-base" onClick={() => adjustStock(p.id, -1)}>−</button>
-                        <span className="text-sm font-bold text-brun w-6 text-center">{p.stock}</span>
-                        <button className="w-8 h-8 border border-gray-200 rounded-xl text-gray-400 hover:border-brun hover:text-brun transition-colors font-sans text-base" onClick={() => adjustStock(p.id, 1)}>+</button>
-                      </div>
-                    </div>
-                  )
-                })
-            }
-          </div>
-        )}
-
-        {/* ══════════ PARAMÈTRES BOUTIQUE ══════════ */}
-        {tab === 'parametres' && (
+        {/* ══════════ BOUTIQUE ══════════ */}
+        {tab === 'boutique' && (
           <div className="space-y-4">
 
-            {/* Infos générales */}
+            {/* Aperçu carte */}
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
+                <div className="w-full h-28 bg-gradient-to-br from-brun to-brun-clair flex items-center justify-center relative">
+                  <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom ? boutique.nom[0] : '🔪'}</span>
+                  <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
+                    {boutique.promo ? '🏷️ Promo' : '🔪 Artisan'}
+                  </span>
+                </div>
+                <div className="p-3">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-serif text-sm font-bold text-brun">{boutique.nom || 'Nom de votre boutique'}</span>
+                    <span className="text-xs text-or">⭐ —</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
+                  <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
+                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🏪 Click & Collect</span>
+                    <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Infos */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🏪 Informations de la boutique</p>
+                <p className="font-bold text-brun text-sm">🏪 Informations</p>
               </div>
               <div className="p-4 space-y-3">
                 {[
-                  ['nom', 'Nom de la boutique', 'Maison Dupont'],
-                  ['tel', 'Téléphone', '01 23 45 67 89'],
-                  ['email', 'Email de contact', 'contact@maboucherie.fr'],
-                  ['adresse', 'Adresse', '12 rue du Marché, 75011 Paris'],
+                  ['nom',     'Nom de la boutique',  'Boucherie Dupont'],
+                  ['tel',     'Téléphone',            '01 23 45 67 89'],
+                  ['email',   'Email de contact',     'contact@maboucherie.fr'],
+                  ['adresse', 'Adresse',              '12 rue du Marché, Paris'],
                 ].map(([k, l, ph]) => (
                   <div key={k}>
                     <label className="text-xs font-bold text-brun block mb-1">{l}</label>
@@ -561,259 +549,76 @@ export default function PanelPage() {
                 ))}
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1">Description</label>
-                  <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none"
-                    rows={3} placeholder="Décrivez votre boucherie…"
+                  <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
+                    placeholder="Vos spécialités, votre histoire…"
                     value={boutique.desc}
                     onChange={e => { setBoutique(b => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
                 </div>
               </div>
             </div>
 
-            {/* Livraison — SUPPRIMÉ */}
-
-            {/* Promotions — gestion complète */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
-                <p className="font-bold text-brun text-sm">🏷️ Mes promotions</p>
-                <button
-                  className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans"
-                  onClick={() => {
-                    setBoutique(b => ({
-                      ...b,
-                      promotions: [...(b.promotions || []), {
-                        id: Date.now().toString(),
-                        titre: '',
-                        description: '',
-                        type: 'message',
-                        valeur: '',
-                        dateDebut: '',
-                        dateFin: '',
-                        active: true,
-                      }]
-                    }))
-                    setBoutiqueEdited(true)
-                  }}>
-                  + Ajouter
-                </button>
-              </div>
-
-              {(!boutique.promotions || boutique.promotions.length === 0) ? (
-                <div className="p-6 text-center text-gray-400">
-                  <span className="text-3xl block mb-2">🏷️</span>
-                  <p className="text-sm">Aucune promotion configurée.</p>
-                  <p className="text-xs mt-1">Cliquez sur "+ Ajouter" pour créer votre première promo.</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gris-bd">
-                  {(boutique.promotions || []).map((promo: any, idx: number) => (
-                    <div key={promo.id} className="p-4 space-y-3">
-                      {/* Toggle actif + supprimer */}
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <button
-                            className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${promo.active ? 'bg-green-400' : 'bg-gray-200'}`}
-                            onClick={() => {
-                              const promos = [...(boutique.promotions || [])]
-                              promos[idx] = { ...promos[idx], active: !promos[idx].active }
-                              setBoutique(b => ({ ...b, promotions: promos }))
-                              setBoutiqueEdited(true)
-                            }}>
-                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${promo.active ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                          </button>
-                          <span className={`text-xs font-bold ${promo.active ? 'text-green-600' : 'text-gray-400'}`}>
-                            {promo.active ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                        <button
-                          className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
-                          onClick={() => {
-                            const promos = (boutique.promotions || []).filter((_: any, i: number) => i !== idx)
-                            setBoutique(b => ({ ...b, promotions: promos }))
-                            setBoutiqueEdited(true)
-                          }}>
-                          🗑️ Supprimer
-                        </button>
-                      </div>
-
-                      {/* Type de promo */}
-                      <div>
-                        <label className="text-xs font-bold text-brun block mb-1.5">Type de promotion</label>
-                        <div className="flex flex-wrap gap-1.5">
-                          {[
-                            ['message', '💬 Message'],
-                            ['reduction', '% Réduction'],
-                            ['livraison', '🚚 Livraison offerte'],
-                            ['offre', '🎁 Offre spéciale'],
-                          ].map(([val, label]) => (
-                            <button key={val}
-                              className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
-                              onClick={() => {
-                                const promos = [...(boutique.promotions || [])]
-                                promos[idx] = { ...promos[idx], type: val }
-                                setBoutique(b => ({ ...b, promotions: promos }))
-                                setBoutiqueEdited(true)
-                              }}>
-                              {label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Titre */}
-                      <div>
-                        <label className="text-xs font-bold text-brun block mb-1">Titre affiché</label>
-                        <input
-                          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder="Ex: Offre de lancement, Weekend spécial…"
-                          value={promo.titre}
-                          onChange={e => {
-                            const promos = [...(boutique.promotions || [])]
-                            promos[idx] = { ...promos[idx], titre: e.target.value }
-                            setBoutique(b => ({ ...b, promotions: promos }))
-                            setBoutiqueEdited(true)
-                          }} />
-                      </div>
-
-                      {/* Description / valeur selon type */}
-                      {promo.type === 'reduction' && (
-                        <div>
-                          <label className="text-xs font-bold text-brun block mb-1">Pourcentage de réduction</label>
-                          <div className="flex items-center gap-2">
-                            <input type="number" min="1" max="100"
-                              className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                              placeholder="15"
-                              value={promo.valeur}
-                              onChange={e => {
-                                const promos = [...(boutique.promotions || [])]
-                                promos[idx] = { ...promos[idx], valeur: e.target.value }
-                                setBoutique(b => ({ ...b, promotions: promos }))
-                                setBoutiqueEdited(true)
-                              }} />
-                            <span className="text-sm font-bold text-brun">%</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {promo.type === 'livraison' && (
-                        <div>
-                          <label className="text-xs font-bold text-brun block mb-1">Dès quel montant</label>
-                          <div className="flex items-center gap-2">
-                            <input type="number" min="0"
-                              className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                              placeholder="30"
-                              value={promo.valeur}
-                              onChange={e => {
-                                const promos = [...(boutique.promotions || [])]
-                                promos[idx] = { ...promos[idx], valeur: e.target.value }
-                                setBoutique(b => ({ ...b, promotions: promos }))
-                                setBoutiqueEdited(true)
-                              }} />
-                            <span className="text-sm font-bold text-brun">€</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="text-xs font-bold text-brun block mb-1">Description</label>
-                        <input
-                          className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder={
-                            promo.type === 'reduction' ? 'Ex: -15% sur toute la gamme ce weekend' :
-                            promo.type === 'livraison' ? 'Ex: Livraison offerte dès 30 €' :
-                            promo.type === 'offre' ? 'Ex: 1 merguez offerte pour 500g achetés' :
-                            'Ex: Nouvelle gamme de printemps disponible !'
-                          }
-                          value={promo.description}
-                          onChange={e => {
-                            const promos = [...(boutique.promotions || [])]
-                            promos[idx] = { ...promos[idx], description: e.target.value }
-                            setBoutique(b => ({ ...b, promotions: promos }))
-                            setBoutiqueEdited(true)
-                          }} />
-                      </div>
-
-                      {/* Dates */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-bold text-brun block mb-1">Date début</label>
-                          <input type="date"
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-sans outline-none focus:border-brun"
-                            value={promo.dateDebut}
-                            onChange={e => {
-                              const promos = [...(boutique.promotions || [])]
-                              promos[idx] = { ...promos[idx], dateDebut: e.target.value }
-                              setBoutique(b => ({ ...b, promotions: promos }))
-                              setBoutiqueEdited(true)
-                            }} />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-brun block mb-1">Date fin</label>
-                          <input type="date"
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs font-sans outline-none focus:border-brun"
-                            value={promo.dateFin}
-                            onChange={e => {
-                              const promos = [...(boutique.promotions || [])]
-                              promos[idx] = { ...promos[idx], dateFin: e.target.value }
-                              setBoutique(b => ({ ...b, promotions: promos }))
-                              setBoutiqueEdited(true)
-                            }} />
-                        </div>
-                      </div>
-
-                      {/* Aperçu */}
-                      {promo.titre && (
-                        <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-3">
-                          <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Aperçu client</p>
-                          <p className="text-xs text-rouge-vif font-bold">
-                            {promo.type === 'reduction' ? '🏷️' : promo.type === 'livraison' ? '🚚' : promo.type === 'offre' ? '🎁' : '💬'} {promo.titre}
-                          </p>
-                          {promo.description && <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p>}
-                          {promo.dateDebut && promo.dateFin && (
-                            <p className="text-[10px] text-gray-400 mt-1">
-                              Du {new Date(promo.dateDebut).toLocaleDateString('fr-FR')} au {new Date(promo.dateFin).toLocaleDateString('fr-FR')}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Horaires */}
+            {/* Horaires plages matin/après-midi */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
                 <p className="font-bold text-brun text-sm">🕐 Horaires d'ouverture</p>
               </div>
-              <div className="p-4 space-y-3">
+              <div className="p-4 space-y-4">
                 {JOURS.map(([key, label]) => {
                   const h = boutique.horaires[key]
                   return (
-                    <div key={key} className="flex items-center gap-3">
-                      {/* Toggle ouvert/fermé */}
-                      <button
-                        className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${h.ouvert ? 'bg-green-400' : 'bg-gray-200'}`}
-                        onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], ouvert: !b.horaires[key].ouvert } } })); setBoutiqueEdited(true) }}>
-                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${h.ouvert ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                      </button>
-                      {/* Jour */}
-                      <span className={`text-xs font-bold w-7 flex-shrink-0 ${h.ouvert ? 'text-brun' : 'text-gray-300'}`}>{label}</span>
-                      {/* Horaires */}
-                      {h.ouvert ? (
-                        <div className="flex items-center gap-2 flex-1">
-                          <input type="time"
-                            className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                            value={h.debut}
-                            onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], debut: e.target.value } } })); setBoutiqueEdited(true) }} />
-                          <span className="text-xs text-gray-300 flex-shrink-0">→</span>
-                          <input type="time"
-                            className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                            value={h.fin}
-                            onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], fin: e.target.value } } })); setBoutiqueEdited(true) }} />
+                    <div key={key}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <button
+                          className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${h.ouvert ? 'bg-green-400' : 'bg-gray-200'}`}
+                          onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], ouvert: !b.horaires[key].ouvert } } })); setBoutiqueEdited(true) }}>
+                          <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${h.ouvert ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                        </button>
+                        <span className={`text-sm font-bold flex-1 ${h.ouvert ? 'text-brun' : 'text-gray-300'}`}>{label}</span>
+                        {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
+                      </div>
+                      {h.ouvert && (
+                        <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
+                          {/* Matin */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${h.matin ? 'bg-or' : 'bg-gray-200'}`}
+                              onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matin: !b.horaires[key].matin } } })); setBoutiqueEdited(true) }}>
+                              <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${h.matin ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </button>
+                            <span className={`text-xs font-semibold w-14 flex-shrink-0 ${h.matin ? 'text-brun' : 'text-gray-300'}`}>Matin</span>
+                            {h.matin ? (
+                              <div className="flex items-center gap-1.5 flex-1">
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.matinDebut}
+                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matinDebut: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                <span className="text-xs text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.matinFin}
+                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], matinFin: e.target.value } } })); setBoutiqueEdited(true) }} />
+                              </div>
+                            ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
+                          </div>
+                          {/* Après-midi */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              className={`w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ${h.am ? 'bg-or' : 'bg-gray-200'}`}
+                              onClick={() => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], am: !b.horaires[key].am } } })); setBoutiqueEdited(true) }}>
+                              <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${h.am ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                            </button>
+                            <span className={`text-xs font-semibold w-14 flex-shrink-0 ${h.am ? 'text-brun' : 'text-gray-300'}`}>Après-m.</span>
+                            {h.am ? (
+                              <div className="flex items-center gap-1.5 flex-1">
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.amDebut}
+                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], amDebut: e.target.value } } })); setBoutiqueEdited(true) }} />
+                                <span className="text-xs text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.amFin}
+                                  onChange={e => { setBoutique(b => ({ ...b, horaires: { ...b.horaires, [key]: { ...b.horaires[key], amFin: e.target.value } } })); setBoutiqueEdited(true) }} />
+                              </div>
+                            ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
+                          </div>
                         </div>
-                      ) : (
-                        <span className="text-xs text-gray-300 italic">Fermé</span>
                       )}
                     </div>
                   )
@@ -821,46 +626,138 @@ export default function PanelPage() {
               </div>
             </div>
 
+            {/* Promotions */}
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
+                <p className="font-bold text-brun text-sm">🏷️ Promotions</p>
+                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans"
+                  onClick={() => { setBoutique(b => ({ ...b, promotions: [...(b.promotions||[]), { id: Date.now().toString(), titre:'', description:'', type:'message', valeur:'', dateDebut:'', dateFin:'', active:true }] })); setBoutiqueEdited(true) }}>
+                  + Ajouter
+                </button>
+              </div>
+              {(!boutique.promotions || boutique.promotions.length === 0)
+                ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">🏷️</span><p className="text-sm">Aucune promotion active.</p></div>
+                : <div className="divide-y divide-gris-bd">
+                    {(boutique.promotions||[]).map((promo: any, idx: number) => (
+                      <div key={promo.id} className="p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <button className={`w-10 h-5 rounded-full relative transition-colors ${promo.active?'bg-green-400':'bg-gray-200'}`}
+                              onClick={() => { const p=[...(boutique.promotions||[])]; p[idx]={...p[idx],active:!p[idx].active}; setBoutique(b=>({...b,promotions:p})); setBoutiqueEdited(true) }}>
+                              <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${promo.active?'translate-x-5':'translate-x-0.5'}`}/>
+                            </button>
+                            <span className={`text-xs font-bold ${promo.active?'text-green-600':'text-gray-400'}`}>{promo.active?'Active':'Inactive'}</span>
+                          </div>
+                          <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
+                            onClick={() => { const p=(boutique.promotions||[]).filter((_:any,i:number)=>i!==idx); setBoutique(b=>({...b,promotions:p})); setBoutiqueEdited(true) }}>
+                            🗑️</button>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[['message','💬 Message'],['reduction','% Réduction'],['livraison','🚚 Livraison'],['offre','🎁 Offre']].map(([val,lbl])=>(
+                            <button key={val} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${promo.type===val?'bg-brun text-white border-brun':'border-gray-200 text-gray-500'}`}
+                              onClick={()=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],type:val};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}}>
+                              {lbl}</button>
+                          ))}
+                        </div>
+                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder="Titre affiché…" value={promo.titre}
+                          onChange={e=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],titre:e.target.value};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}} />
+                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder="Description…" value={promo.description}
+                          onChange={e=>{const p=[...(boutique.promotions||[])];p[idx]={...p[idx],description:e.target.value};setBoutique(b=>({...b,promotions:p}));setBoutiqueEdited(true)}} />
+                        {promo.titre && (
+                          <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
+                            <p className="text-xs text-rouge-vif font-bold">{promo.type==='reduction'?'🏷️':promo.type==='livraison'?'🚚':promo.type==='offre'?'🎁':'💬'} {promo.titre}</p>
+                            {promo.description && <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p>}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+              }
+            </div>
+
             {/* Apparence */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🎨 Apparence & badges</p>
+                <p className="font-bold text-brun text-sm">🎨 Apparence</p>
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">Badge affiché sur la carte</label>
+                  <label className="text-xs font-bold text-brun block mb-2">Badge sur la carte</label>
                   <div className="flex flex-wrap gap-2">
-                    {[['Aucun', '—'], ['Nouveau', '✨'], ['Promo', '🏷️'], ['Populaire', '🔥'], ['Premium', '⭐']].map(([b, ico]) => (
-                      <button key={b}
-                        className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all font-sans ${
-                          (b === 'Aucun' && !boutique.promo) || (b === 'Promo' && boutique.promo)
-                            ? 'bg-brun text-white border-brun'
-                            : 'border-gray-200 text-gray-500'
-                        }`}
-                        onClick={() => { setBoutique(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
-                        {ico} {b}
-                      </button>
+                    {[['Aucun','—'],['Nouveau','✨'],['Promo','🏷️'],['Populaire','🔥'],['Premium','⭐']].map(([b,ico])=>(
+                      <button key={b} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${(b==='Aucun'&&!boutique.promo)||(b==='Promo'&&boutique.promo)?'bg-brun text-white border-brun':'border-gray-200 text-gray-500'}`}
+                        onClick={()=>{setBoutique(bq=>({...bq,promo:b==='Promo'}));setBoutiqueEdited(true)}}>
+                        {ico} {b}</button>
                     ))}
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1">Photo de couverture</label>
-                  <button className="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 text-sm text-gray-400 font-sans active:border-brun active:text-brun transition-colors">
-                    📷 Changer la photo de couverture
-                  </button>
+                  <button className="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 text-sm text-gray-400 font-sans">📷 Changer la photo</button>
                 </div>
               </div>
             </div>
 
-            {/* Bouton sauvegarder */}
             {boutiqueEdited && (
-              <button
-                className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600 transition-colors"
+              <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
                 onClick={() => { setBoutiqueEdited(false); showToast('✅ Boutique mise à jour !') }}>
                 💾 Enregistrer les modifications
               </button>
             )}
           </div>
+        )}
+
+        {/* ══════════ PARAMÈTRES GÉNÉRAUX ══════════ */}
+        {tab === 'parametres' && (
+          <div className="space-y-4">
+
+            {/* Compte */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
+              </div>
+              {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
+            </div>
+
+            {[
+              { titre: 'Mon compte', items: [
+                { ico:'👤', label:'Mon profil',     sub:'Nom, email, téléphone' },
+                { ico:'🔒', label:'Mot de passe',   sub:'Modifier mon mot de passe' },
+                { ico:'🔔', label:'Notifications',  sub:'Alertes nouvelles commandes' },
+              ]},
+              { titre: 'Application', items: [
+                { ico:'🆘', label:'Support & aide',  sub:'FAQ et contact' },
+                { ico:'📋', label:'CGU',             sub:"Conditions d'utilisation" },
+                { ico:'🔒', label:'Confidentialité', sub:'Données personnelles' },
+              ]},
+            ].map(sec => (
+              <div key={sec.titre}>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  {sec.items.map((item, i) => (
+                    <div key={item.label} className={`flex items-center gap-3 px-4 py-3.5 ${i < sec.items.length-1 ? 'border-b border-gris-bd' : ''}`}>
+                      <span className="text-xl flex-shrink-0">{item.ico}</span>
+                      <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
+                      <span className="text-gray-300">›</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
+              onClick={() => { logout(); router.push('/') }}>
+              🚪 Se déconnecter
+            </button>
+
+            <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+          </div>
+        )
         )}
       </div>
 

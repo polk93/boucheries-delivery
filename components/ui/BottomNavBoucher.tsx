@@ -7,7 +7,7 @@ export default function BottomNavBoucher({ currentTab, onTabChange }: {
   const tabs = [
     { id: 'commandes',  ico: '📋', label: 'Commandes' },
     { id: 'produits',   ico: '🛍️', label: 'Produits'  },
-    { id: 'stocks',     ico: '📦', label: 'Stocks'    },
+    { id: 'boutique',   ico: '🏪', label: 'Boutique'  },
     { id: 'parametres', ico: '⚙️', label: 'Paramètres'},
   ]
 
