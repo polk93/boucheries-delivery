@@ -1081,8 +1081,8 @@ Message      : ${form.message || '—'}
         'user_iuliSrqE6TWPcIpbQ'
       )
       setSent(true)
-    } catch (e) {
-      setError("Erreur d'envoi. Contactez boucheriesdelivery@gmail.com directement.")
+    } catch (e: any) {
+      setError(`Erreur : ${e?.text || e?.message || JSON.stringify(e)}`)
     } finally {
       setLoading(false)
     }
@@ -1353,8 +1353,8 @@ Message      : ${form.message || '—'}
         'user_iuliSrqE6TWPcIpbQ'
       )
       setSent(true)
-    } catch (e) {
-      setError("Erreur d'envoi. Contactez boucheriesdelivery@gmail.com directement.")
+    } catch (e: any) {
+      setError(`Erreur : ${e?.text || e?.message || JSON.stringify(e)}`)
     } finally {
       setLoading(false)
     }
