@@ -180,102 +180,11 @@ export default function PaiementPage() {
     router.push('/')
   }
 
-  // ── Écran choix mode ───────────────────────────────────────────────────────
-  if (mode === null) return (
-    <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
-      <div className="bg-brun px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.push('/')} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
-        <h1 className="font-serif text-lg font-bold text-or">Finaliser ma commande</h1>
-      </div>
-
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
-
-        {/* Résumé panier */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Votre commande</p>
-          {items.map(item => (
-            <div key={item.cart_key} className="flex justify-between items-center py-2 border-b border-gris-bd last:border-0">
-              <div className="flex items-center gap-2">
-                <span>{item.icon}</span>
-                <div>
-                  <p className="text-sm font-semibold text-brun">{item.nom} ×{item.quantite}</p>
-                  {item.decoupe && <p className="text-[11px] text-or">✂️ {item.decoupe}</p>}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-brun">{(item.prix * item.quantite).toFixed(2)} €</span>
-                <button className="text-gray-400 text-xs" onClick={() => setEditItem(item)}>✏️</button>
-              </div>
-            </div>
-          ))}
-          <div className="flex justify-between text-sm font-black text-brun mt-3 pt-2 border-t-2 border-brun">
-            <span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span>
-          </div>
-        </div>
-
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Comment récupérer votre commande ?</p>
-
-        {/* Livraison */}
-        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left"
-          onClick={() => setMode('livraison')}>
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-brun flex items-center justify-center text-2xl flex-shrink-0">🛵</div>
-            <div className="flex-1">
-              <p className="font-serif text-base font-black text-brun">Livraison à domicile</p>
-              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Livré chez vous en moins de 45 min, chaîne du froid garantie.</p>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-xs font-bold text-rouge-vif bg-rouge-pale px-2 py-0.5 rounded-full">
-                  {calculerFrais(distanceKm).toFixed(2)} €
-                </span>
-                <span className="text-xs text-gray-400">📍 {distanceKm.toFixed(1)} km · {TARIF_KM} €/km</span>
-                <span className="text-xs text-gray-400">🕐 25–45 min</span>
-              </div>
-            </div>
-            <span className="text-gray-300 text-lg">›</span>
-          </div>
-        </button>
-
-        {/* Click & Collect */}
-        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left"
-          onClick={() => setMode('click_collect')}>
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-or flex items-center justify-center text-2xl flex-shrink-0">🏪</div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <p className="font-serif text-base font-black text-brun">Click & Collect</p>
-                <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">GRATUIT</span>
-              </div>
-              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Commandez, récupérez en boutique. Prêt en 20 min.</p>
-              {boucherie && <p className="text-xs text-or font-semibold mt-1">📍 {boucherie.nom}</p>}
-            </div>
-            <span className="text-gray-300 text-lg">›</span>
-          </div>
-        </button>
-
-        {/* Info tarification km */}
-        <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-          <p className="text-xs font-bold text-brun mb-1.5">💡 Tarification livraison</p>
-          <div className="space-y-1">
-            {[
-              ['< 1 km', calculerFrais(0.8).toFixed(2) + ' €'],
-              ['1–2 km', calculerFrais(1.5).toFixed(2) + ' €'],
-              ['2–4 km', calculerFrais(3).toFixed(2) + ' €'],
-              ['4–6 km', calculerFrais(5).toFixed(2) + ' €'],
-              ['> 6 km', calculerFrais(8).toFixed(2) + ' € max'],
-            ].map(([d, p]) => (
-              <div key={d} className="flex justify-between text-xs text-brun-clair">
-                <span>{d}</span><span className="font-bold">{p}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-gray-400 mt-2">Base {TARIF_BASE} € + {TARIF_KM} €/km · Plafonné à {TARIF_MAX} €</p>
-        </div>
-      </div>
-
-      {editItem && <EditRecapModal item={editItem} onClose={() => setEditItem(null)} />}
-    </div>
-  )
-
+  // V1 : Click & Collect uniquement — on bypass le choix de mode
+  if (mode === null) {
+    setMode('click_collect')
+    return null
+  }
   // ── Tunnel ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
