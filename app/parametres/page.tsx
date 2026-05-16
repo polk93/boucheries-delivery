@@ -1330,12 +1330,11 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           ))}
         </div>
 
-        <div className="bg-rouge-pale border border-rouge-vif/20 rounded-2xl p-4 space-y-2">
-          <p className="font-bold text-rouge-vif text-sm">🎁 Offre de lancement — 50 premières boucheries</p>
-          <p className="text-xs text-brun-clair flex items-start gap-1.5"><span className="text-green-500 flex-shrink-0">✓</span>3 premiers mois offerts — sans engagement</p>
-          <div className="border-t border-rouge-vif/10 pt-2 mt-2">
-            <p className="text-xs text-gray-400">Puis <span className="font-black text-brun">89,99 € / mois</span> — résiliable à tout moment</p>
-          </div>
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2">
+          <p className="font-bold text-green-700 text-sm">🎉 Inscription 100% gratuite</p>
+          <p className="text-xs text-green-700 flex items-start gap-1.5"><span className="flex-shrink-0">✓</span>Aucun abonnement, aucun frais cachés</p>
+          <p className="text-xs text-green-700 flex items-start gap-1.5"><span className="flex-shrink-0">✓</span>Vous ne payez que sur les commandes réalisées</p>
+          <p className="text-xs text-green-700 flex items-start gap-1.5"><span className="flex-shrink-0">✓</span>Résiliable à tout moment, sans engagement</p>
         </div>
 
         <div className="bg-white rounded-2xl p-4 shadow-sm">
@@ -1353,7 +1352,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <p className="font-bold text-brun text-sm">Questions fréquentes</p>
           {[
-            ['Combien ça coûte ?',"Rien pour les 3 premiers mois. Ensuite, uniquement une commission sur les commandes réalisées — pas d'abonnement fixe."],
+            ['Combien ça coûte ?',"L'inscription est 100% gratuite. Vous ne payez qu'une petite commission sur les commandes réalisées — aucun abonnement fixe."],
             ['Combien de temps pour démarrer ?',"Votre boutique est en ligne en 48h. Notre équipe s'occupe de tout."],
             ["Et si je n'ai pas de livreur ?",'Nous proposons le Click & Collect pour démarrer sans logistique. Livraison intégrée quand vous êtes prêt.'],
             ['Qui gère le paiement ?','Stripe gère tous les paiements. Vous recevez votre virement chaque semaine sur votre compte.'],
