@@ -188,6 +188,13 @@ export default function PanelPage() {
   const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
   const [showHistorique, setShowHistorique] = useState(false)
+  const [paramsSection, setParamsSection] = useState<'main'|'hist_cmd'|'hist_pay'>('main')
+
+  // Historique du jour uniquement dans l'onglet commandes
+  const todayStr = new Date().toLocaleDateString('fr-FR')
+  const historiqueToday = historique.filter(o => o.date === todayStr)
+  // Historique des autres jours → onglet paramètres
+  const historiqueOld = historique.filter(o => o.date !== todayStr)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -391,7 +398,7 @@ export default function PanelPage() {
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(true)}>
-                🗂️ Historique ({historique.length})
+                🗂️ Aujourd'hui ({historiqueToday.length})
               </button>
             </div>
 
@@ -453,21 +460,22 @@ export default function PanelPage() {
             )}
 
             {showHistorique && (
-              historique.length === 0
+              historiqueToday.length === 0
                 ? (
                   <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
                     <span className="text-4xl block mb-2">🗂️</span>
-                    <p className="text-sm">Aucune commande archivée</p>
+                    <p className="text-sm">Aucune commande livrée aujourd'hui</p>
+                    <p className="text-xs mt-1 text-gray-300">L'historique complet est dans Paramètres → Historique</p>
                   </div>
                 )
-                : historique.map(o => {
+                : historiqueToday.map(o => {
                   const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
                   return (
                     <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
                       <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
                         <div>
                           <span className="font-black text-brun text-sm">{o.id}</span>
-                          <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                          <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
                         </div>
                         <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
                       </div>
@@ -725,38 +733,157 @@ export default function PanelPage() {
         {/* ══ PARAMÈTRES GÉNÉRAUX ══ */}
         {tab === 'parametres' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
-              </div>
-              {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
-            </div>
 
-            {[
-              { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone' }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier' }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes' }] },
-              { titre: 'Application', items: [{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }] },
-            ].map(sec => (
-              <div key={sec.titre}>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
-                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                  {sec.items.map((item, i) => (
-                    <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '')}>
-                      <span className="text-xl flex-shrink-0">{item.ico}</span>
-                      <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
-                      <span className="text-gray-300">›</span>
+            {/* Sous-page historique commandes */}
+            {paramsSection === 'hist_cmd' && (
+              <div className="space-y-3">
+                <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={() => setParamsSection('main')}>
+                  ← Historique des commandes
+                </button>
+                {historiqueOld.length === 0 && historiqueToday.length === 0
+                  ? <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm"><span className="text-4xl block mb-2">📦</span><p className="text-sm">Aucun historique disponible</p></div>
+                  : [...historiqueOld, ...historiqueToday].sort((a, b) => b.date.localeCompare(a.date)).map(o => {
+                      const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
+                      return (
+                        <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                          <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
+                            <div>
+                              <span className="font-black text-brun text-sm">{o.id}</span>
+                              <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                            </div>
+                            <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
+                          </div>
+                          <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
+                            <div>
+                              <p className="text-sm font-bold text-brun">{o.client}</p>
+                              <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''} · {o.creneau}</p>
+                            </div>
+                            <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
+                          </div>
+                          <div className="px-4 py-3">
+                            <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                              onClick={() => setViewOrder(o)}>🧾 Voir le récapitulatif</button>
+                          </div>
+                        </div>
+                      )
+                    })
+                }
+              </div>
+            )}
+
+            {/* Sous-page historique paiements */}
+            {paramsSection === 'hist_pay' && (
+              <div className="space-y-3">
+                <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={() => setParamsSection('main')}>
+                  ← Historique des paiements
+                </button>
+
+                {/* Résumé */}
+                <div className="bg-brun rounded-2xl p-4 grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Total encaissé', val: [...historique].reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2) + ' €' },
+                    { label: 'Commandes', val: String(historique.length) },
+                    { label: 'Panier moyen', val: historique.length ? (historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0) / historique.length).toFixed(2) + ' €' : '—' },
+                    { label: "Frais de livraison", val: historique.reduce((s, o) => s + o.frais, 0).toFixed(2) + ' €' },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white/10 rounded-xl p-3 text-center">
+                      <p className="text-white font-black text-base">{s.val}</p>
+                      <p className="text-white/60 text-[10px]">{s.label}</p>
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
 
-            <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
-              onClick={() => { logout(); router.push('/') }}>
-              🚪 Se déconnecter
-            </button>
-            <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+                {/* Liste transactions */}
+                {historique.length === 0
+                  ? <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm"><span className="text-4xl block mb-2">💳</span><p className="text-sm">Aucun paiement enregistré</p></div>
+                  : <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                      <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between">
+                        <p className="text-xs font-bold text-brun">Transactions</p>
+                        <p className="text-xs text-gray-400">{historique.length} entrée{historique.length > 1 ? 's' : ''}</p>
+                      </div>
+                      {historique.map((o, i) => {
+                        const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
+                        return (
+                          <div key={o.id} className={'px-4 py-3 flex items-center justify-between ' + (i < historique.length - 1 ? 'border-b border-gris-bd' : '')}>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-brun">{o.id}</p>
+                              <p className="text-xs text-gray-400">{o.date} · {o.client}</p>
+                              {o.frais > 0 && <p className="text-[10px] text-gray-300">dont {o.frais.toFixed(2)} € livraison</p>}
+                            </div>
+                            <div className="text-right flex-shrink-0 ml-3">
+                              <p className="text-sm font-black text-green-600">+{total.toFixed(2)} €</p>
+                              <p className="text-[10px] text-gray-400">✅ Encaissé</p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                }
+              </div>
+            )}
+
+            {/* Page principale paramètres */}
+            {paramsSection === 'main' && (
+              <>
+                <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
+                    <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
+                  </div>
+                  {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
+                </div>
+
+                {/* Historique */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Historique</p>
+                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <button className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-gris-bd text-left"
+                      onClick={() => setParamsSection('hist_cmd')}>
+                      <span className="text-xl flex-shrink-0">📦</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-brun">Historique des commandes</p>
+                        <p className="text-xs text-gray-400">Toutes les commandes livrées · {historique.length} au total</p>
+                      </div>
+                      <span className="text-gray-300">›</span>
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
+                      onClick={() => setParamsSection('hist_pay')}>
+                      <span className="text-xl flex-shrink-0">💳</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-brun">Historique des paiements</p>
+                        <p className="text-xs text-gray-400">Transactions et encaissements</p>
+                      </div>
+                      <span className="text-gray-300">›</span>
+                    </button>
+                  </div>
+                </div>
+
+                {[
+                  { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone' }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier' }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes' }] },
+                  { titre: 'Application', items: [{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }] },
+                ].map(sec => (
+                  <div key={sec.titre}>
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
+                    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                      {sec.items.map((item, i) => (
+                        <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '')}>
+                          <span className="text-xl flex-shrink-0">{item.ico}</span>
+                          <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
+                          <span className="text-gray-300">›</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
+                  onClick={() => { logout(); router.push('/') }}>
+                  🚪 Se déconnecter
+                </button>
+                <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -921,7 +1048,7 @@ export default function PanelPage() {
         </div>
       )}
 
-      <BottomNavBoucher currentTab={tab} onTabChange={setTab} />
+      <BottomNavBoucher currentTab={tab} onTabChange={t => { setTab(t); setParamsSection('main') }} />
     </div>
   )
 }
