@@ -64,12 +64,15 @@ export async function POST(req: NextRequest) {
       }
 
       const data = await res.json()
-      // Shipday retourne différents formats selon la version de l'API
+      console.log('[Shipday create raw]', JSON.stringify(data))
+
+      // Shipday peut retourner la commande à différents niveaux
+      const order = data?.order || data?.data || data || {}
       return NextResponse.json({
-        orderId: data.orderId || data.id || data.order_id || data.orderNumber || null,
-        status: data.orderStatus || data.status || null,
-        trackingUrl: data.trackingLink || data.tracking_url || data.trackingUrl || null,
-        raw: data, // pour debug
+        orderId: order.orderId || order.id || order.order_id || order.orderNumber || data.orderId || null,
+        status: order.orderStatus || order.status || data.orderStatus || null,
+        trackingUrl: order.trackingLink || order.tracking_url || order.trackingUrl || data.trackingLink || null,
+        raw: data,
       })
     }
 
