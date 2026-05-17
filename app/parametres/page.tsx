@@ -1445,7 +1445,26 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
-  const [step, setStep]       = useState<'info'|'form'>('info')
+  const [step, setStep]       = useState<'info'|'form'|'stripe'>('info')
+
+  if (step === 'stripe') return (
+    <PageWrapper title="🔪 Activation Stripe" onBack={() => setStep('form')}>
+      <div className="text-center py-16 space-y-4">
+        <span className="text-6xl block">⏳</span>
+        <h2 className="font-serif text-xl font-bold text-brun">Redirection vers Stripe…</h2>
+        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
+          Vous allez être redirigé vers Stripe pour configurer votre compte de paiement en 5 minutes.
+        </p>
+        <div className="bg-or-pale border border-or/20 rounded-xl p-4 text-left space-y-2 max-w-xs mx-auto">
+          <p className="text-xs font-bold text-brun">Ce que Stripe va vous demander :</p>
+          <p className="text-xs text-gray-500">✓ Vérification d'identité (CNI ou passeport)</p>
+          <p className="text-xs text-gray-500">✓ Coordonnées bancaires (IBAN)</p>
+          <p className="text-xs text-gray-500">✓ Informations professionnelles (SIRET)</p>
+        </div>
+        <p className="text-xs text-gray-300">Connexion sécurisée SSL · Données protégées par Stripe</p>
+      </div>
+    </PageWrapper>
+  )
 
   function setDoc(key: string, file: File | null) { setDocs(d => ({ ...d, [key]: file })) }
   function docValide() { return !!docs.siret_doc && !!docs.iban_doc }
@@ -1458,6 +1477,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   async function soumettre() {
     setLoading(true); setError('')
     try {
+      // 1. Envoyer l'email de candidature
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
         'service_uq712ai',
@@ -1469,24 +1489,41 @@ CANDIDATURE PARTENAIRE BOUCHER
 -------------------------------
 Boucherie    : ${form.nom_boutique}
 Adresse      : ${form.adresse}, ${form.ville}
-SIRET        : ${form.siret} ${siretOk ? '✅' : '⚠️ format à vérifier'}
-IBAN         : ${form.iban ? form.iban.slice(0,8) + '••••••••••••' : '—'} ${ibanOk ? '✅' : '⚠️ format à vérifier'}
+SIRET        : ${form.siret} ${siretOk ? '✅' : '⚠️'}
+IBAN         : ${form.iban ? form.iban.slice(0,8) + '••••••••••••' : '—'} ${ibanOk ? '✅' : '⚠️'}
 Spécialités  : ${form.specialites || '—'}
 Contact      : ${form.prenom} ${form.nom}
 Email        : ${form.email}
 Téléphone    : ${form.tel}
 Message      : ${form.message || '—'}
-
-Documents joints (vérification manuelle) :
-- Justif. SIRET / Kbis : ${docs.siret_doc?.name || '—'}
-- RIB / justif. IBAN   : ${docs.iban_doc?.name || '—'}
+Documents joints :
+- Kbis : ${docs.siret_doc?.name || '—'}
+- RIB  : ${docs.iban_doc?.name || '—'}
           `.trim(),
         },
         'LbqBSABkR-S5wg9PR'
       )
-      setSent(true)
+
+      // 2. Créer le compte Stripe Connect Express et rediriger
+      setStep('stripe')
+      const res = await fetch('/api/connect/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          nom_boutique: form.nom_boutique,
+          ville: form.ville,
+        }),
+      })
+      const data = await res.json()
+      if (data.onboardingUrl) {
+        window.location.href = data.onboardingUrl
+      } else {
+        throw new Error(data.error || 'Erreur Stripe')
+      }
     } catch (e: any) {
       setError(`Erreur : ${e?.text || e?.message || JSON.stringify(e)}`)
+      setStep('form')
     } finally {
       setLoading(false)
     }
