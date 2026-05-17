@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
       const boucherie = ADRESSES_BOUCHERIES[boucherieId]
       if (!boucherie) return NextResponse.json({ error: 'Boucherie inconnue' }, { status: 400 })
 
+      const isSandbox = process.env.STUART_ENV !== 'production'
+
       const res = await fetch(`${STUART_BASE}/v2/jobs`, {
         method: 'POST',
         headers: {
@@ -104,6 +106,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           job: {
+            ...(isSandbox && { simulation: true }),
             pickups: [{
               address: boucherie.adresse,
               comment: `Commande ${numeroCommande} — Merci de récupérer la commande à la boucherie.`,
@@ -112,7 +115,6 @@ export async function POST(req: NextRequest) {
                 phone: boucherie.tel,
                 company: boucherie.nom,
               },
-              // Heure de pickup = heure où la commande est prête (prévue 20 min après paiement)
               pickup_at: heurePickup,
             }],
             dropoffs: [{
