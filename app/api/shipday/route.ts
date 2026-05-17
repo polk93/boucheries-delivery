@@ -64,10 +64,12 @@ export async function POST(req: NextRequest) {
       }
 
       const data = await res.json()
+      // Shipday retourne différents formats selon la version de l'API
       return NextResponse.json({
-        orderId: data.orderId,
-        status: data.orderStatus,
-        trackingUrl: data.trackingLink || null,
+        orderId: data.orderId || data.id || data.order_id || data.orderNumber || null,
+        status: data.orderStatus || data.status || null,
+        trackingUrl: data.trackingLink || data.tracking_url || data.trackingUrl || null,
+        raw: data, // pour debug
       })
     }
 

@@ -20,7 +20,16 @@ export default function TestShipdayPage() {
     } finally { setLoading(false) }
   }
 
-  async function testOrder() {
+  async function testOrderStatus() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/shipday?debug=1')
+      const data = await res.json()
+      setResult({ test: 'Commandes actives', status: res.status, data })
+    } catch (e: any) {
+      setResult({ error: e.message })
+    } finally { setLoading(false) }
+  }
     setLoading(true)
     try {
       const res = await fetch('/api/shipday', {
@@ -56,6 +65,10 @@ export default function TestShipdayPage() {
         <button onClick={testCarriers} disabled={loading}
           className="w-full bg-brun text-white py-3 rounded-xl font-bold font-sans disabled:bg-gray-300">
           {loading ? '⏳' : '1. Tester la connexion (livreurs)'}
+        </button>
+        <button onClick={testOrderStatus} disabled={loading}
+          className="w-full bg-blue-500 text-white py-3 rounded-xl font-bold font-sans disabled:bg-gray-300">
+          {loading ? '⏳' : '3. Voir commandes actives (debug)'}
         </button>
         <button onClick={testOrder} disabled={loading}
           className="w-full bg-or text-brun py-3 rounded-xl font-bold font-sans disabled:bg-gray-300">
