@@ -1089,6 +1089,30 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [step, setStep]       = useState<'info'|'form'>('info')
+  const [stripeStep, setStripeStep] = useState(false)
+
+  if (stripeStep) return (
+    <PageWrapper title="🛵 Activation paiement" onBack={() => setStripeStep(false)}>
+      <div className="text-center py-16 space-y-4">
+        <span className="text-6xl block">⏳</span>
+        <h2 className="font-serif text-xl font-bold text-brun">Redirection vers Stripe…</h2>
+        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
+          Configurez votre compte de paiement pour recevoir vos revenus automatiquement chaque semaine.
+        </p>
+        <div className="bg-or-pale border border-or/20 rounded-xl p-4 text-left space-y-2 max-w-xs mx-auto">
+          <p className="text-xs font-bold text-brun">Stripe va vous demander :</p>
+          <p className="text-xs text-gray-500">✓ Vérification d'identité (CNI)</p>
+          <p className="text-xs text-gray-500">✓ Votre IBAN pour les virements</p>
+          <p className="text-xs text-gray-500">✓ Votre numéro SIRET</p>
+        </div>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3 max-w-xs mx-auto">
+          <p className="text-xs font-bold text-green-700">💶 Virement automatique chaque lundi</p>
+          <p className="text-xs text-gray-500 mt-0.5">Frais livraison + 100% des pourboires</p>
+        </div>
+        <p className="text-xs text-gray-300">Sécurisé par Stripe · Données chiffrées</p>
+      </div>
+    </PageWrapper>
+  )
 
   const needsPermis = ['scooter','voiture'].includes(form.vehicule)
 
@@ -1106,6 +1130,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
   async function soumettre() {
     setLoading(true); setError('')
     try {
+      // 1. Envoyer l'email de candidature
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
         'service_uq712ai',
@@ -1124,8 +1149,7 @@ SIRET         : ${form.siret || '—'}
 IBAN          : ${form.iban ? form.iban.slice(0,8) + '••••••••••••••' : '—'}
 Disponibilités: ${form.disponibilite}
 Message       : ${form.message || '—'}
-
-Documents joints (vérification manuelle) :
+Documents joints :
 - CNI               : ${docs.cni?.name || '—'}
 - Justif. SIRET     : ${docs.siret_doc?.name || '—'}
 - Permis B          : ${docs.permis_doc?.name || '—'}
@@ -1134,9 +1158,28 @@ Documents joints (vérification manuelle) :
         },
         'LbqBSABkR-S5wg9PR'
       )
-      setSent(true)
+
+      // 2. Créer le compte Stripe Connect Express du livreur
+      setStripeStep(true)
+      const res = await fetch('/api/connect/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          nom_boutique: `Livreur — ${form.prenom} ${form.nom}`,
+          ville: form.ville,
+          type: 'livreur',
+        }),
+      })
+      const data = await res.json()
+      if (data.onboardingUrl) {
+        window.location.href = data.onboardingUrl
+      } else {
+        throw new Error(data.error || 'Erreur Stripe')
+      }
     } catch (e: any) {
       setError(`Erreur : ${e?.text || e?.message || JSON.stringify(e)}`)
+      setStripeStep(false)
     } finally {
       setLoading(false)
     }

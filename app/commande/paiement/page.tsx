@@ -191,11 +191,54 @@ export default function PaiementPage() {
     setLoading(true)
     await new Promise(r => setTimeout(r, 1800))
     const numero = '#' + Math.floor(1000 + Math.random() * 9000)
+
+    // Si livraison → dispatcher via Shipday automatiquement
+    if (mode === 'livraison') {
+      try {
+        const heurePickup = new Date(Date.now() + 20 * 60 * 1000)
+          .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+
+        const adressesB: Record<number, { adresse: string; nom: string; tel: string }> = {
+          1: { adresse: '12 rue de la Roquette, 75011 Paris', nom: 'Maison Dupont',    tel: '0123456789' },
+          2: { adresse: '34 rue Oberkampf, 75011 Paris',       nom: 'Boucherie Le Gall', tel: '0123456790' },
+          3: { adresse: '8 rue du Commerce, 75015 Paris',      nom: 'Comptoir du Veau', tel: '0123456791' },
+          4: { adresse: '22 avenue de la République, 75011 Paris', nom: "L'Agneau d'Or", tel: '0123456792' },
+          5: { adresse: '5 rue de Bretagne, 75003 Paris',      nom: 'Bœuf & Tradition', tel: '0123456793' },
+          6: { adresse: '18 rue Lepic, 75018 Paris',           nom: 'Ferme & Boucherie Morel', tel: '0123456794' },
+        }
+        const boucherieInfo = adressesB[boucherie?.id || 1]
+
+        const res = await fetch('/api/shipday', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create',
+            numeroCommande: numero,
+            nomClient: `${adresse.prenom} ${adresse.nom}`,
+            telClient: '0600000000',
+            adresseClient: `${adresse.adresse}, ${adresse.cp} ${adresse.ville}`,
+            nomBoucherie: boucherieInfo?.nom || boucherie?.nom,
+            adresseBoucherie: boucherieInfo?.adresse,
+            telBoucherie: boucherieInfo?.tel,
+            montantTotal: total,
+            pourboire: pourboireVal,
+            heurePickup,
+            items: items.map(i => ({ nom: i.nom, qty: i.quantite, prix: i.prix })),
+          }),
+        })
+        if (res.ok) {
+          const shipday = await res.json()
+          console.log('[Shipday] Commande créée:', shipday.orderId)
+        }
+      } catch (e) {
+        console.warn('[Shipday] Non disponible, mode simulation')
+      }
+    }
+
     const heure = creneaux[creneauCC]?.heure || ''
     const bid = boucherie?.id || ''
     clear()
-    toast.success('🎉 Commande confirmée !')
-    router.push(`/confirmation?numero=${numero}&heure=${heure}&bid=${bid}`)
+    router.push(`/confirmation?numero=${numero}&heure=${heure}&bid=${bid}&mode=${mode}`)
     setLoading(false)
   }
 
@@ -205,11 +248,109 @@ export default function PaiementPage() {
     router.push('/')
   }
 
-  // V1 : Click & Collect uniquement — on bypass le choix de mode
-  if (mode === null) {
-    setMode('click_collect')
-    return null
-  }
+  const [stuartQuote, setStuartQuote] = useState<{ prixStuart: number; dureeMin: number; distanceKm: string } | null>(null)
+  const [stuartLoading, setStuartLoading] = useState(false)
+
+  // ── Écran choix du mode ────────────────────────────────────────────────────
+  if (mode === null) return (
+    <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
+      <div className="bg-brun px-4 py-4 flex items-center gap-3">
+        <button onClick={() => router.push('/')} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
+        <h1 className="font-serif text-lg font-bold text-or">Finaliser ma commande</h1>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
+        {/* Résumé panier */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Votre commande</p>
+          {items.map(item => (
+            <div key={item.cart_key} className="flex justify-between items-center py-2 border-b border-gris-bd last:border-0">
+              <div className="flex items-center gap-2">
+                <span>{item.icon}</span>
+                <p className="text-sm font-semibold text-brun">{item.nom} ×{item.quantite}</p>
+              </div>
+              <span className="text-sm font-bold text-brun">{(item.prix * item.quantite).toFixed(2)} €</span>
+            </div>
+          ))}
+          <div className="flex justify-between text-sm font-black text-brun mt-3 pt-2 border-t-2 border-brun">
+            <span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span>
+          </div>
+        </div>
+
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Comment récupérer votre commande ?</p>
+
+        {/* Click & Collect */}
+        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left active:scale-[.98]"
+          onClick={() => setMode('click_collect')}>
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-or flex items-center justify-center text-2xl flex-shrink-0">🏪</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-serif text-base font-black text-brun">Click &amp; Collect</p>
+                <span className="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-full">GRATUIT</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Commandez, récupérez en boutique. Prêt en 20 min.</p>
+              {boucherie && <p className="text-xs text-or font-semibold mt-1">📍 {boucherie.nom}</p>}
+            </div>
+            <span className="text-gray-300 text-lg">›</span>
+          </div>
+        </button>
+
+        {/* Livraison Stuart */}
+        <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left active:scale-[.98]"
+          onClick={async () => {
+            setStuartLoading(true)
+            try {
+              // Obtenir un devis Stuart avant de choisir
+              const res = await fetch('/api/stuart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'quote',
+                  boucherieId: boucherie?.id || 1,
+                  adresseClient: '12 rue du Client, 75011 Paris', // sera remplacé par l'adresse saisie
+                }),
+              })
+              if (res.ok) {
+                const q = await res.json()
+                setStuartQuote(q)
+              }
+            } catch {
+              // Stuart non configuré → frais fixes
+            } finally {
+              setStuartLoading(false)
+              setMode('livraison')
+            }
+          }}>
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-brun flex items-center justify-center text-2xl flex-shrink-0">🛵</div>
+            <div className="flex-1">
+              <p className="font-serif text-base font-black text-brun">Livraison à domicile</p>
+              <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Livré chez vous en moins de 45 min, chaîne du froid garantie.</p>
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                <span className="text-xs font-bold text-rouge-vif bg-rouge-pale px-2 py-0.5 rounded-full">
+                  {stuartQuote ? stuartQuote.prixStuart.toFixed(2) : calculerFrais(distanceKm).toFixed(2)} €
+                </span>
+                <span className="text-xs text-gray-400">
+                  {stuartQuote ? `🕐 ~${stuartQuote.dureeMin} min · 📍 ${stuartQuote.distanceKm} km` : '🕐 25–45 min · 🛵 Stuart'}
+                </span>
+              </div>
+            </div>
+            <span className="text-gray-300 text-lg">{stuartLoading ? '⏳' : '›'}</span>
+          </div>
+        </button>
+
+        {/* Info Stuart */}
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3 flex gap-2 items-start">
+          <span className="text-base flex-shrink-0">🛵</span>
+          <div>
+            <p className="text-xs font-bold text-brun">Livraison assurée par Stuart</p>
+            <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">Livreurs professionnels indépendants · Suivi en temps réel · Chaîne du froid garantie</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
   // ── Tunnel ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-creme" style={{ paddingBottom: 40 }}>
