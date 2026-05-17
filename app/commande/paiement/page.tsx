@@ -192,11 +192,11 @@ export default function PaiementPage() {
     await new Promise(r => setTimeout(r, 1800))
     const numero = '#' + Math.floor(1000 + Math.random() * 9000)
 
-    // Si livraison → dispatcher Stuart automatiquement
+    // Livraison → Stuart dispatche automatiquement (activer avec STUART_CLIENT_ID sur Vercel)
     if (mode === 'livraison') {
       try {
         const heurePickup = new Date(Date.now() + 20 * 60 * 1000).toISOString()
-        const res = await fetch('/api/stuart', {
+        await fetch('/api/stuart', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -210,12 +210,8 @@ export default function PaiementPage() {
             heurePickup,
           }),
         })
-        if (res.ok) {
-          const stuart = await res.json()
-          console.log('[Stuart] Course créée:', stuart.jobId, 'Livreur:', stuart.livreurNom)
-        }
       } catch (e) {
-        console.warn('[Stuart] Non disponible, mode simulation')
+        console.warn('[Stuart] Non configuré, mode simulation')
       }
     }
 
