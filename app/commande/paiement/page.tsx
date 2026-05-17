@@ -192,46 +192,30 @@ export default function PaiementPage() {
     await new Promise(r => setTimeout(r, 1800))
     const numero = '#' + Math.floor(1000 + Math.random() * 9000)
 
-    // Si livraison → dispatcher via Shipday automatiquement
+    // Si livraison → dispatcher Stuart automatiquement
     if (mode === 'livraison') {
       try {
-        const heurePickup = new Date(Date.now() + 20 * 60 * 1000)
-          .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-
-        const adressesB: Record<number, { adresse: string; nom: string; tel: string }> = {
-          1: { adresse: '12 rue de la Roquette, 75011 Paris', nom: 'Maison Dupont',    tel: '0123456789' },
-          2: { adresse: '34 rue Oberkampf, 75011 Paris',       nom: 'Boucherie Le Gall', tel: '0123456790' },
-          3: { adresse: '8 rue du Commerce, 75015 Paris',      nom: 'Comptoir du Veau', tel: '0123456791' },
-          4: { adresse: '22 avenue de la République, 75011 Paris', nom: "L'Agneau d'Or", tel: '0123456792' },
-          5: { adresse: '5 rue de Bretagne, 75003 Paris',      nom: 'Bœuf & Tradition', tel: '0123456793' },
-          6: { adresse: '18 rue Lepic, 75018 Paris',           nom: 'Ferme & Boucherie Morel', tel: '0123456794' },
-        }
-        const boucherieInfo = adressesB[boucherie?.id || 1]
-
-        const res = await fetch('/api/shipday', {
+        const heurePickup = new Date(Date.now() + 20 * 60 * 1000).toISOString()
+        const res = await fetch('/api/stuart', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'create',
-            numeroCommande: numero,
+            boucherieId: boucherie?.id || 1,
+            adresseClient: `${adresse.adresse}, ${adresse.cp} ${adresse.ville}`,
             nomClient: `${adresse.prenom} ${adresse.nom}`,
             telClient: '0600000000',
-            adresseClient: `${adresse.adresse}, ${adresse.cp} ${adresse.ville}`,
-            nomBoucherie: boucherieInfo?.nom || boucherie?.nom,
-            adresseBoucherie: boucherieInfo?.adresse,
-            telBoucherie: boucherieInfo?.tel,
-            montantTotal: total,
-            pourboire: pourboireVal,
+            commentaire: `Commande ${numero} — Boucherie artisanale`,
+            numeroCommande: numero,
             heurePickup,
-            items: items.map(i => ({ nom: i.nom, qty: i.quantite, prix: i.prix })),
           }),
         })
         if (res.ok) {
-          const shipday = await res.json()
-          console.log('[Shipday] Commande créée:', shipday.orderId)
+          const stuart = await res.json()
+          console.log('[Stuart] Course créée:', stuart.jobId, 'Livreur:', stuart.livreurNom)
         }
       } catch (e) {
-        console.warn('[Shipday] Non disponible, mode simulation')
+        console.warn('[Stuart] Non disponible, mode simulation')
       }
     }
 
