@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
+import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
 
 type Section =
@@ -1509,6 +1510,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
     </PageWrapper>
   )
 
+  const { addBoucher } = useAccounts()
   function setDoc(key: string, file: File | null) { setDocs(d => ({ ...d, [key]: file })) }
   function docValide() { return !!docs.siret_doc && !!docs.iban_doc }
 
@@ -1520,7 +1522,32 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   async function soumettre() {
     setLoading(true); setError('')
     try {
-      // 1. Envoyer l'email de candidature
+      const createRes = await fetch('/api/boucher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          nom: form.nom,
+          prenom: form.prenom,
+          nom_boutique: form.nom_boutique,
+          ville: form.ville,
+        }),
+      })
+      const createData = await createRes.json()
+      if (!createRes.ok) throw new Error(createData.error || 'Erreur création compte')
+
+      // Stocker le compte localement pour la connexion
+      addBoucher({
+        id: 'boucher_' + Date.now(),
+        nom: `${form.prenom} ${form.nom}`.trim(),
+        email: form.email,
+        password: createData.password,
+        nom_boutique: form.nom_boutique,
+        ville: form.ville,
+        createdAt: new Date().toISOString(),
+      })
+
+      // 2. Envoyer l'email de candidature à l'admin
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
         'service_uq712ai',
@@ -1542,12 +1569,13 @@ Message      : ${form.message || '—'}
 Documents joints :
 - Kbis : ${docs.siret_doc?.name || '—'}
 - RIB  : ${docs.iban_doc?.name || '—'}
+Mot de passe généré : ${createData.password}
           `.trim(),
         },
         'LbqBSABkR-S5wg9PR'
       )
 
-      // 2. Créer le compte Stripe Connect Express et rediriger
+      // 3. Rediriger vers Stripe Connect onboarding
       setStep('stripe')
       const res = await fetch('/api/connect/onboard', {
         method: 'POST',

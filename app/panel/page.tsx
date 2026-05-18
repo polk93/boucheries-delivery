@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
 import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
 import AuthModal from '@/components/ui/AuthModal'
+import { useAccounts } from '@/store/accounts'
 import { BOUCHERIES, type Produit } from '@/lib/data'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -188,7 +189,7 @@ export default function PanelPage() {
   const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
   const [showHistorique, setShowHistorique] = useState(false)
-  const [paramsSection, setParamsSection] = useState<'main'|'hist_cmd'|'hist_pay'>('main')
+  const [paramsSection, setParamsSection] = useState<'main'|'hist_cmd'|'hist_pay'|'mdp'>('main')
 
   // Historique du jour uniquement dans l'onglet commandes
   const todayStr = new Date().toLocaleDateString('fr-FR')
@@ -734,7 +735,10 @@ export default function PanelPage() {
         {tab === 'parametres' && (
           <div className="space-y-4">
 
-            {/* Sous-page historique commandes */}
+            {/* Sous-page mot de passe */}
+            {paramsSection === 'mdp' && (
+              <MdpSection email={user.email} onBack={() => setParamsSection('main')} />
+            )}
             {paramsSection === 'hist_cmd' && (
               <div className="space-y-3">
                 <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={() => setParamsSection('main')}>
@@ -860,14 +864,16 @@ export default function PanelPage() {
                 </div>
 
                 {[
-                  { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone' }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier' }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes' }] },
+                  { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone', action: undefined }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier mon mot de passe', action: () => setParamsSection('mdp') }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes', action: undefined }] },
                   { titre: 'Application', items: [{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }] },
                 ].map(sec => (
                   <div key={sec.titre}>
                     <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                       {sec.items.map((item, i) => (
-                        <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '')}>
+                        <div key={item.label}
+                          className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '') + (item.action ? ' cursor-pointer active:bg-creme' : '')}
+                          onClick={item.action || undefined}>
                           <span className="text-xl flex-shrink-0">{item.ico}</span>
                           <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
                           <span className="text-gray-300">›</span>
@@ -1049,6 +1055,70 @@ export default function PanelPage() {
       )}
 
       <BottomNavBoucher currentTab={tab} onTabChange={t => { setTab(t); setParamsSection('main') }} />
+    </div>
+  )
+}
+
+// ── Composant changement de mot de passe ─────────────────────────────────────
+function MdpSection({ email, onBack }: { email: string; onBack: () => void }) {
+  const { updatePassword } = useAccounts()
+  const [form, setForm] = useState({ ancien: '', nouveau: '', confirm: '' })
+  const [error, setError] = useState('')
+  const [done, setDone] = useState(false)
+
+  function save() {
+    setError('')
+    if (!form.ancien) { setError('Saisissez votre mot de passe actuel.'); return }
+    if (form.nouveau.length < 6) { setError('Le nouveau mot de passe doit faire au moins 6 caractères.'); return }
+    if (form.nouveau !== form.confirm) { setError('Les mots de passe ne correspondent pas.'); return }
+    updatePassword(email, form.nouveau)
+    setDone(true)
+  }
+
+  if (done) return (
+    <div className="space-y-4">
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={onBack}>← Paramètres</button>
+      <div className="bg-white rounded-2xl p-8 text-center shadow-sm space-y-3">
+        <span className="text-5xl block">✅</span>
+        <p className="font-serif text-lg font-bold text-brun">Mot de passe modifié !</p>
+        <p className="text-sm text-gray-400">Votre nouveau mot de passe est actif.</p>
+        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={onBack}>Retour</button>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="space-y-4">
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={onBack}>← Modifier mon mot de passe</button>
+      <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+        <h2 className="font-serif text-base font-bold text-brun">🔒 Nouveau mot de passe</h2>
+        <div>
+          <label className="text-xs font-bold text-brun block mb-1">Mot de passe actuel</label>
+          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            value={form.ancien} onChange={e => setForm(f => ({ ...f, ancien: e.target.value }))} />
+        </div>
+        <div>
+          <label className="text-xs font-bold text-brun block mb-1">Nouveau mot de passe</label>
+          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            placeholder="6 caractères minimum"
+            value={form.nouveau} onChange={e => setForm(f => ({ ...f, nouveau: e.target.value }))} />
+        </div>
+        <div>
+          <label className="text-xs font-bold text-brun block mb-1">Confirmer le mot de passe</label>
+          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+            value={form.confirm} onChange={e => setForm(f => ({ ...f, confirm: e.target.value }))} />
+        </div>
+        {error && <p className="text-xs text-rouge-vif font-semibold">{error}</p>}
+        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
+          disabled={!form.ancien || !form.nouveau || !form.confirm}
+          onClick={save}>
+          💾 Enregistrer
+        </button>
+      </div>
+      <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+        <p className="text-xs text-brun font-semibold mb-1">💡 Conseils</p>
+        <p className="text-xs text-gray-500">Utilisez au moins 8 caractères avec des chiffres et des symboles pour sécuriser votre compte.</p>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useAuth, DEMO_CLIENT, DEMO_BOUCHER, isDemoEmail } from '@/store/auth'
+import { useAccounts } from '@/store/accounts'
 
 interface AuthModalProps {
   onClose: () => void
@@ -9,6 +10,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModalProps) {
   const { login } = useAuth()
+  const { findBoucher } = useAccounts()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [role, setRole] = useState<'client' | 'boucher'>(defaultRole)
   const [form, setForm] = useState({ nom: '', email: '', password: '' })
@@ -18,7 +20,7 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
     setError('')
     const email = form.email.toLowerCase().trim()
 
-    // ── Connexion compte démo ────────────────────────────────────────────────
+    // Compte démo
     if (isDemoEmail(email)) {
       const demoUser = email === DEMO_BOUCHER.email ? DEMO_BOUCHER : DEMO_CLIENT
       login(demoUser)
@@ -26,10 +28,29 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
       return
     }
 
-    // ── Connexion compte réel ────────────────────────────────────────────────
     if (!form.email.trim()) { setError('Veuillez saisir votre email.'); return }
     if (!form.password.trim()) { setError('Veuillez saisir votre mot de passe.'); return }
 
+    // Vérifier si c'est un compte boucher créé via le formulaire d'inscription
+    const boucherAccount = findBoucher(email)
+    if (boucherAccount) {
+      if (boucherAccount.password !== form.password) {
+        setError('Mot de passe incorrect.')
+        return
+      }
+      login({
+        id: boucherAccount.id,
+        nom: boucherAccount.nom,
+        email: boucherAccount.email,
+        role: 'boucher',
+        isDemo: false,
+        boucherieNom: boucherAccount.nom_boutique,
+      })
+      onClose()
+      return
+    }
+
+    // Compte client standard
     login({
       id: 'user_' + Date.now(),
       nom: form.nom || form.email.split('@')[0],
