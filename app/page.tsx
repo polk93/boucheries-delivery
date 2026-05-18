@@ -247,22 +247,30 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
       {/* ── HEADER ── */}
       <header className="bg-brun sticky top-0 z-30 shadow-xl">
         <div className="w-full max-w-2xl mx-auto px-4 flex items-center gap-2 h-14">
-          <span className="font-serif text-lg font-black text-or whitespace-nowrap flex-shrink-0">
-            <span className="text-or">Boucheries</span><span className="text-white"> Delivery</span>
-          </span>
 
-          {/* Géoloc */}
-          <button
-            className={`flex items-center gap-1 border rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all ${geoStatus === 'ok' ? 'bg-green-500/20 border-green-400/40 text-green-300' : geoStatus === 'loading' ? 'bg-white/10 border-white/20 text-white/60 animate-pulse' : 'bg-white/10 border-white/20 text-white'}`}
-            onClick={geoStatus !== 'ok' ? requestGeo : undefined}>
-            📍<span className="max-w-[70px] truncate hidden xs:inline ml-0.5">{geoStatus === 'loading' ? '…' : cityName}</span>
-          </button>
+          {/* Logo SVG */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <svg width="28" height="28" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="96" cy="96" r="90" fill="#3D2012"/>
+              <circle cx="96" cy="96" r="86" stroke="#C8953A" strokeWidth="4" fill="none"/>
+              <rect x="58" y="52" width="46" height="10" rx="4" fill="#FAF7F2" transform="rotate(-20 58 52)"/>
+              <rect x="72" y="58" width="58" height="32" rx="6" fill="#FAF7F2" transform="rotate(-20 72 58)"/>
+              <rect x="44" y="82" width="36" height="28" rx="5" fill="#C8953A" transform="rotate(-20 44 82)"/>
+              <circle cx="52" cy="92" r="4" fill="#FAF7F2" transform="rotate(-20 52 92)"/>
+              <circle cx="64" cy="88" r="4" fill="#FAF7F2" transform="rotate(-20 64 88)"/>
+              <ellipse cx="108" cy="138" rx="22" ry="12" fill="#C0392B"/>
+              <ellipse cx="102" cy="135" rx="10" ry="6" fill="#E74C3C"/>
+            </svg>
+            <span className="font-serif text-sm font-black text-or leading-tight hidden xs:block">
+              Boucheries<br/><span className="text-white text-xs font-bold">Delivery</span>
+            </span>
+          </div>
 
           {/* Recherche */}
           <div ref={searchRef} className="flex-1 flex items-center bg-white/12 border border-white/20 rounded-xl overflow-hidden min-w-0">
             <input
               className="flex-1 bg-transparent border-none outline-none text-white placeholder-white/40 px-2.5 py-1.5 text-sm font-sans min-w-0"
-              placeholder="Rechercher…"
+              placeholder="Rechercher une boucherie…"
               value={searchQuery}
               onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true) }}
               onFocus={() => setSearchOpen(true)}
@@ -284,13 +292,6 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
                 {totalItems()}
               </span>
             )}
-          </button>
-
-          {/* Profil */}
-          <button
-            className="flex-shrink-0 bg-white/15 border border-white/25 rounded-xl px-2 py-1.5 text-white text-xs font-semibold hidden sm:block"
-            onClick={() => router.push('/parametres')}>
-            {user?.nom.split(' ')[0]}
           </button>
         </div>
       </header>
@@ -337,24 +338,6 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
           <button className="text-xs font-bold text-orange-600 ml-3 flex-shrink-0" onClick={requestGeo}>Activer</button>
         </div>
       )}
-
-      {/* ── HERO ── */}
-      <section className="bg-gradient-to-br from-brun via-brun-clair to-rouge px-4 py-7 relative overflow-hidden">
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-8xl opacity-10 pointer-events-none">🥩</div>
-        <div className="max-w-2xl mx-auto">
-          <h1 className="font-serif font-black text-white leading-tight mb-2" style={{ fontSize: 'clamp(1.4rem, 5vw, 2rem)' }}>
-            La meilleure viande,<br /><span className="text-or">livrée chez vous</span>
-          </h1>
-          <p className="text-white/70 text-sm mb-3">
-            {userPos ? `📍 ${filtered.length} boucherie${filtered.length > 1 ? 's' : ''} à moins de ${rayonKm} km` : 'Les boucheries artisanales de votre quartier.'}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {['🏆 Artisans', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Sur mesure'].map(t => (
-              <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── CATÉGORIES ── */}
       <div className="bg-white border-b border-gris-bd px-4 py-3">
