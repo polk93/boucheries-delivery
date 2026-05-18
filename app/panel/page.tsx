@@ -52,6 +52,7 @@ interface Commande {
   status: string
   modePaiement: string
   stripeId: string
+  mode?: 'livraison' | 'click_collect'
 }
 
 interface HoraireJour {
@@ -70,7 +71,7 @@ const ORDERS_INIT: Commande[] = [
     id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
     adresse: '8 rue Léon Frot, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:42',
-    frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001',
+    frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001', mode: 'livraison' as const,
     lignes: [
       { produit: 'Entrecôte Charolais', icon: '🥩', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
       { produit: 'Merguez Maison', icon: '🌶️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ' },
@@ -80,7 +81,7 @@ const ORDERS_INIT: Commande[] = [
     id: '#1041', client: 'Théo B.', tel: '07 89 01 23 45',
     adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13h–14h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:24',
-    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002',
+    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002', mode: 'click_collect' as const,
     lignes: [
       { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée' },
     ],
@@ -89,7 +90,7 @@ const ORDERS_INIT: Commande[] = [
     id: '#1040', client: 'Marie L.', tel: '06 55 44 33 22',
     adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12h–13h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:06',
-    frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003',
+    frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003', mode: 'click_collect' as const,
     lignes: [
       { produit: "Bavette d'Aloyau", icon: '🥩', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
     ],
@@ -98,7 +99,7 @@ const ORDERS_INIT: Commande[] = [
     id: '#1039', client: 'Jules R.', tel: '07 11 22 33 44',
     adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:48',
-    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004',
+    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004', mode: 'livraison' as const,
     lignes: [
       { produit: 'Merguez Maison', icon: '🌶️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
     ],
@@ -110,7 +111,7 @@ const HISTORIQUE_INIT: Commande[] = [
     id: '#1038', client: 'Anna K.', tel: '06 98 76 54 32',
     adresse: '31 rue de la Folie Méricourt, 75011 Paris', creneau: "Aujourd'hui 11h–12h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:21',
-    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005',
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005', mode: 'livraison' as const,
     lignes: [
       { produit: 'Côtes de Porc', icon: '🍖', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
     ],
@@ -427,7 +428,12 @@ export default function PanelPage() {
                           <p className="text-xs text-gray-400">📍 {o.adresse}</p>
                           <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
                         </div>
-                        <p className="text-base font-black text-rouge-vif">{total.toFixed(2)} €</p>
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <p className="text-base font-black text-rouge-vif">{total.toFixed(2)} €</p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${o.mode === 'livraison' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-700'}`}>
+                            {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}
+                          </span>
+                        </div>
                       </div>
                       {/* Récapitulatif articles */}
                       <div className="px-4 py-2">
