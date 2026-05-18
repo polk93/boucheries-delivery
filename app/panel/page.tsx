@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
@@ -421,16 +421,29 @@ export default function PanelPage() {
                         </div>
                         <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + SC[o.status]}>{SL[o.status]}</span>
                       </div>
-                      <div className="px-4 py-3 flex justify-between items-start">
+                      <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
                           <p className="text-xs text-gray-400">📍 {o.adresse}</p>
                           <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
                         </div>
                         <p className="text-base font-black text-rouge-vif">{total.toFixed(2)} €</p>
                       </div>
-                      <div className="px-4 pb-4 flex gap-2">
+                      {/* Récapitulatif articles */}
+                      <div className="px-4 py-2">
+                        {o.lignes.map((l, i) => (
+                          <div key={i} className={'flex items-center gap-2 py-1.5 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
+                            <span className="text-sm flex-shrink-0">{l.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-brun truncate">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
+                              {l.decoupe && <p className="text-[10px] text-or">✂️ {l.decoupe}{l.preparation ? ` · ${l.preparation}` : ''}</p>}
+                              {l.note ? <p className="text-[10px] text-gray-400 italic">📝 {l.note}</p> : null}
+                            </div>
+                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 pb-4 pt-2 flex gap-2 border-t border-gris-bd">
                         <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-sm font-bold px-4 py-3 rounded-xl font-sans flex-shrink-0">📞</a>
                         {o.status !== 'done' && (
                           <button className="flex-1 bg-brun text-white text-sm font-bold py-3 rounded-xl font-sans"
@@ -1111,4 +1124,3 @@ function MdpSection({ email, onBack }: { email: string; onBack: () => void }) {
     </div>
   )
 }
-
