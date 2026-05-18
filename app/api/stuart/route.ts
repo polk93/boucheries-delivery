@@ -1,50 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // ── Config Stuart ─────────────────────────────────────────────────────────────
-const STUART_BASE = process.env.STUART_ENV === 'production'
-  ? 'https://api.stuart.com'
-  : 'https://api.sandbox.stuart.com'
+// Sandbox : comptes démo
+const SANDBOX_BASE   = 'https://api.sandbox.stuart.com'
+const SANDBOX_ID     = process.env.STUART_CLIENT_ID!
+const SANDBOX_SECRET = process.env.STUART_CLIENT_SECRET!
 
-const CLIENT_ID     = process.env.STUART_CLIENT_ID!
-const CLIENT_SECRET = process.env.STUART_CLIENT_SECRET!
+// Production : vrais comptes
+const PROD_BASE      = 'https://api.stuart.com'
+const PROD_ID        = process.env.STUART_PROD_CLIENT_ID!
+const PROD_SECRET    = process.env.STUART_PROD_CLIENT_SECRET!
 
-// ── Adresses boucheries (à remplacer par Supabase en V2) ──────────────────────
+// ── Adresses boucheries ───────────────────────────────────────────────────────
 const ADRESSES_BOUCHERIES: Record<number, { adresse: string; nom: string; tel: string }> = {
-  1: { adresse: '12 rue de la Roquette, 75011 Paris', nom: 'Maison Dupont',          tel: '0123456789' },
-  2: { adresse: '34 rue Oberkampf, 75011 Paris',       nom: 'Boucherie Le Gall',      tel: '0123456790' },
-  3: { adresse: '8 rue du Commerce, 75015 Paris',      nom: 'Comptoir du Veau',       tel: '0123456791' },
-  4: { adresse: '22 avenue de la République, 75011 Paris', nom: "L'Agneau d'Or",      tel: '0123456792' },
-  5: { adresse: '5 rue de Bretagne, 75003 Paris',      nom: 'Bœuf & Tradition',       tel: '0123456793' },
+  1: { adresse: '12 rue de la Roquette, 75011 Paris', nom: 'Maison Dupont',           tel: '0123456789' },
+  2: { adresse: '34 rue Oberkampf, 75011 Paris',       nom: 'Boucherie Le Gall',       tel: '0123456790' },
+  3: { adresse: '8 rue du Commerce, 75015 Paris',      nom: 'Comptoir du Veau',        tel: '0123456791' },
+  4: { adresse: '22 avenue de la République, 75011 Paris', nom: "L'Agneau d'Or",       tel: '0123456792' },
+  5: { adresse: '5 rue de Bretagne, 75003 Paris',      nom: 'Bœuf & Tradition',        tel: '0123456793' },
   6: { adresse: '18 rue Lepic, 75018 Paris',           nom: 'Ferme & Boucherie Morel', tel: '0123456794' },
 }
 
-// ── Obtenir un token OAuth Stuart ────────────────────────────────────────────
-async function getStuartToken(): Promise<string> {
-  const res = await fetch(`${STUART_BASE}/oauth/token`, {
+// ── Obtenir un token OAuth Stuart ─────────────────────────────────────────────
+async function getStuartToken(isDemo: boolean): Promise<{ token: string; base: string }> {
+  const base   = isDemo ? SANDBOX_BASE : PROD_BASE
+  const id     = isDemo ? SANDBOX_ID   : PROD_ID
+  const secret = isDemo ? SANDBOX_SECRET : PROD_SECRET
+
+  const res = await fetch(`${base}/oauth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
+      client_id: id,
+      client_secret: secret,
       grant_type: 'client_credentials',
       scope: 'api',
     }),
   })
+
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Stuart auth failed: ${err}`)
+    throw new Error(`Stuart auth failed (${isDemo ? 'sandbox' : 'production'}): ${err}`)
   }
+
   const data = await res.json()
-  return data.access_token
+  return { token: data.access_token, base }
 }
 
 // ── Route principale ─────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { action } = body
+    const { action, isDemo = false } = body
 
-    const token = await getStuartToken()
+    const { token, base } = await getStuartToken(isDemo)
+    console.log(`[Stuart] Environnement: ${isDemo ? 'SANDBOX (démo)' : 'PRODUCTION'}`)
 
     // ── Action : estimer le prix et la durée ─────────────────────────────────
     if (action === 'quote') {
@@ -53,7 +63,7 @@ export async function POST(req: NextRequest) {
       const boucherie = ADRESSES_BOUCHERIES[boucherieId]
       if (!boucherie) return NextResponse.json({ error: 'Boucherie inconnue' }, { status: 400 })
 
-      const res = await fetch(`${STUART_BASE}/v2/jobs/pricing`, {
+      const res = await fetch(`${base}/v2/jobs/pricing`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +108,7 @@ export async function POST(req: NextRequest) {
 
       const isSandbox = process.env.STUART_ENV !== 'production'
 
-      const res = await fetch(`${STUART_BASE}/v2/jobs`, {
+      const res = await fetch(`${base}/v2/jobs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +162,7 @@ export async function POST(req: NextRequest) {
     // ── Action : statut d'une course ─────────────────────────────────────────
     if (action === 'status') {
       const { jobId } = body
-      const res = await fetch(`${STUART_BASE}/v2/jobs/${jobId}`, {
+      const res = await fetch(`${base}/v2/jobs/${jobId}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       })
       if (!res.ok) return NextResponse.json({ error: 'Impossible de récupérer le statut' }, { status: 400 })

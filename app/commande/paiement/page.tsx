@@ -192,7 +192,7 @@ export default function PaiementPage() {
     await new Promise(r => setTimeout(r, 1800))
     const numero = '#' + Math.floor(1000 + Math.random() * 9000)
 
-    // Livraison → Stuart dispatche automatiquement (activer avec STUART_CLIENT_ID sur Vercel)
+    // Livraison → Stuart dispatche automatiquement
     if (mode === 'livraison') {
       try {
         const heurePickup = new Date(Date.now() + 20 * 60 * 1000).toISOString()
@@ -201,6 +201,7 @@ export default function PaiementPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'create',
+            isDemo: false, // toujours production pour les vraies commandes
             boucherieId: boucherie?.id || 1,
             adresseClient: `${adresse.adresse}, ${adresse.cp} ${adresse.ville}`,
             nomClient: `${adresse.prenom} ${adresse.nom}`,
