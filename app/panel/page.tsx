@@ -863,17 +863,24 @@ export default function PanelPage() {
                   </div>
                 </div>
 
-                {[
-                  { titre: 'Mon compte', items: [{ ico: '👤', label: 'Mon profil', sub: 'Nom, email, téléphone', action: undefined }, { ico: '🔒', label: 'Mot de passe', sub: 'Modifier mon mot de passe', action: () => setParamsSection('mdp') }, { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes', action: undefined }] },
-                  { titre: 'Application', items: [{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }] },
-                ].map(sec => (
+                {([
+                  { titre: 'Mon compte', items: [
+                    { ico: '👤', label: 'Mon profil',    sub: 'Nom, email, téléphone',       action: null as null | (() => void) },
+                    { ico: '🔒', label: 'Mot de passe',  sub: 'Modifier mon mot de passe',   action: (() => setParamsSection('mdp')) as null | (() => void) },
+                    { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes',            action: null as null | (() => void) },
+                  ]},
+                  { titre: 'Application', items: [
+                    { ico: '🆘', label: 'Support', sub: 'FAQ et contact',            action: null as null | (() => void) },
+                    { ico: '📋', label: 'CGU',     sub: "Conditions d'utilisation", action: null as null | (() => void) },
+                  ]},
+                ] as { titre: string; items: { ico: string; label: string; sub: string; action: null | (() => void) }[] }[]).map(sec => (
                   <div key={sec.titre}>
                     <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
                     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
                       {sec.items.map((item, i) => (
                         <div key={item.label}
                           className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '') + (item.action ? ' cursor-pointer active:bg-creme' : '')}
-                          onClick={item.action || undefined}>
+                          onClick={item.action ?? undefined}>
                           <span className="text-xl flex-shrink-0">{item.ico}</span>
                           <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
                           <span className="text-gray-300">›</span>
