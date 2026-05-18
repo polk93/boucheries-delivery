@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePanier, type PanierItem } from '@/store/panier'
 import { CRENEAUX, BOUCHERIES } from '@/lib/data'
@@ -151,13 +151,26 @@ export default function PaiementPage() {
   const boucherie = BOUCHERIES.find(b => b.id === items[0]?.boucherie_id)
   const gpsBoucherie = boucherie ? GPS_BOUCHERIES[boucherie.id] : null
 
-  // Distance calculée dynamiquement si géolocalisation disponible
+  // GPS déclenché au chargement — recalcul immédiat des frais
   const [clientGPS, setClientGPS] = useState<{ lat: number; lng: number } | null>(null)
   const [gpsLoading, setGpsLoading] = useState(false)
 
-  // Distance réelle si GPS dispo, sinon distance fixe par boucherie
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    setGpsLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setClientGPS({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setGpsLoading(false)
+      },
+      () => setGpsLoading(false),
+      { timeout: 6000, maximumAge: 60000 }
+    )
+  }, [])
+
+  // Distance et frais recalculés en temps réel dès que GPS dispo
   const distanceKm = clientGPS && gpsBoucherie
-    ? haversine(gpsBoucherie.lat, gpsBoucherie.lng, clientGPS.lat, clientGPS.lng)
+    ? Math.round(haversine(gpsBoucherie.lat, gpsBoucherie.lng, clientGPS.lat, clientGPS.lng) * 10) / 10
     : boucherie ? ({ 1:1.2, 2:3.5, 3:0.8, 4:5.2, 5:7.1, 6:2.3 } as Record<number, number>)[boucherie.id] || 2.5 : 2.5
 
   const frais = mode === 'click_collect' ? 0 : calculerFrais(distanceKm)
@@ -295,11 +308,12 @@ export default function PaiementPage() {
               <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Livré chez vous en moins de 45 min, chaîne du froid garantie.</p>
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                 <span className="text-xs font-bold text-rouge-vif bg-rouge-pale px-2 py-0.5 rounded-full">
-                  {stuartQuote ? stuartQuote.prixStuart.toFixed(2) : calculerFrais(distanceKm).toFixed(2)} €
+                  {gpsLoading ? '⏳' : `${calculerFrais(distanceKm).toFixed(2)} €`}
                 </span>
                 <span className="text-xs text-gray-400">
-                  {stuartQuote ? `🕐 ~${stuartQuote.dureeMin} min · 📍 ${stuartQuote.distanceKm} km` : '🕐 25–45 min · 🛵 Stuart'}
+                  {clientGPS ? `📍 ${distanceKm.toFixed(1)} km réel · 🛵 Stuart` : '📍 Distance estimée · 🛵 Stuart'}
                 </span>
+                {clientGPS && <span className="text-[10px] text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded-full">✓ GPS</span>}
               </div>
             </div>
             <span className="text-gray-300 text-lg">{stuartLoading ? '⏳' : '›'}</span>
@@ -331,7 +345,7 @@ export default function PaiementPage() {
       <div className={`px-4 py-2 text-center text-xs font-bold ${mode === 'click_collect' ? 'bg-green-50 text-green-700' : 'bg-or-pale text-brun-clair'}`}>
         {mode === 'click_collect'
           ? '🏪 Retrait en boutique — Livraison offerte'
-          : `🛵 Livraison ${distanceKm.toFixed(1)} km — ${frais.toFixed(2)} €`}
+          : `🛵 ${distanceKm.toFixed(1)} km — ${frais.toFixed(2)} €${clientGPS ? ' ✓ GPS' : ''}`}
       </div>
 
       {/* Steps */}
@@ -368,7 +382,7 @@ export default function PaiementPage() {
             <div className="mt-3 space-y-1.5">
               <div className="flex justify-between text-xs text-gray-400"><span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span></div>
               <div className="flex justify-between text-xs text-gray-400">
-                <span>Livraison{mode === 'livraison' ? ` (${distanceKm.toFixed(1)} km)` : ''}</span>
+                <span>Livraison{mode === 'livraison' ? ` (${distanceKm.toFixed(1)} km${clientGPS ? ' GPS' : ''})` : ''}</span>
                 <span className={frais === 0 ? 'text-green-600 font-bold' : ''}>{frais === 0 ? 'Offerte ✓' : `${frais.toFixed(2)} €`}</span>
               </div>
               {pourboireVal > 0 && (
