@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePanier, type PanierItem } from '@/store/panier'
 import { BOUCHERIES } from '@/lib/data'
+import { haversine, calculerFrais, GPS_BOUCHERIES } from '@/lib/livraison'
 
 // ── Modal édition article ─────────────────────────────────────────────────────
 function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => void }) {
@@ -110,8 +111,24 @@ function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => voi
 export default function PanierMobile({ onClose, onCommander }: { onClose: () => void; onCommander: () => void }) {
   const { items, updateQuantite, removeItem, sousTotal } = usePanier()
   const [editItem, setEditItem] = useState<PanierItem | null>(null)
+  const [clientGPS, setClientGPS] = useState<{ lat: number; lng: number } | null>(null)
 
-  const frais = items.length > 0 ? 2.90 : 0
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      pos => setClientGPS({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { timeout: 5000, maximumAge: 60000 }
+    )
+  }, [])
+
+  const boucherieId = items[0]?.boucherie_id
+  const gpsBoucherie = boucherieId ? GPS_BOUCHERIES[boucherieId] : null
+  const distanceKm = clientGPS && gpsBoucherie
+    ? Math.round(haversine(gpsBoucherie.lat, gpsBoucherie.lng, clientGPS.lat, clientGPS.lng) * 10) / 10
+    : boucherieId ? ({ 1:1.2, 2:3.5, 3:0.8, 4:5.2, 5:7.1, 6:2.3 } as Record<number,number>)[boucherieId] || 2.5 : 2.5
+
+  const frais = items.length > 0 ? calculerFrais(distanceKm) : 0
   const total = sousTotal() + frais
 
   return (
@@ -216,6 +233,7 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>Livraison</span>
                   <span>{frais === 0 ? 'Offerte' : `${frais.toFixed(2)} €`}</span>
+                  {clientGPS && frais > 0 && <span className="text-[10px] text-green-600">📍 {distanceKm} km</span>}
                 </div>
                 <div className="flex justify-between text-base font-black text-brun pt-1 border-t border-gris-bd">
                   <span>Total</span>
