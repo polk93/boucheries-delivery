@@ -19,7 +19,28 @@ function calculerFrais(km: number): number {
   return Math.min(Math.max(calcule, TARIF_MIN), TARIF_MAX)
 }
 
-// Rémunération livreur (70% des frais de livraison + 100% du pourboire)
+// ── Coordonnées GPS des boucheries ───────────────────────────────────────────
+const GPS_BOUCHERIES: Record<number, { lat: number; lng: number }> = {
+  1: { lat: 48.8534, lng: 2.3813 }, // 12 rue de la Roquette, Paris 11e
+  2: { lat: 48.8643, lng: 2.3699 }, // 34 rue Oberkampf, Paris 11e
+  3: { lat: 48.8462, lng: 2.2933 }, // 8 rue du Commerce, Paris 15e
+  4: { lat: 48.8632, lng: 2.3731 }, // 22 av de la République, Paris 11e
+  5: { lat: 48.8619, lng: 2.3596 }, // 5 rue de Bretagne, Paris 3e
+  6: { lat: 48.8866, lng: 2.3371 }, // 18 rue Lepic, Paris 18e
+}
+
+// ── Formule Haversine : distance entre 2 points GPS en km ─────────────────────
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2)
+    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+    * Math.sin(dLng/2) * Math.sin(dLng/2)
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+}
+
+// Rémunération livreur (70% des frais + 100% pourboire)
 function remunerationLivreur(frais: number, pourboire: number): number {
   return frais * 0.70 + pourboire
 }
@@ -54,11 +75,6 @@ function genererCreneaux(): { label: string; heure: string; minutes: number }[] 
     idx++
   }
   return creneaux
-}
-
-// ── Distances simulées par boucherie (en production : calcul GPS réel) ────────
-const DISTANCES_DEMO: Record<number, number> = {
-  1: 1.2, 2: 3.5, 3: 0.8, 4: 5.2, 5: 7.1, 6: 2.3
 }
 
 // ── Pourboires suggérés ───────────────────────────────────────────────────────
@@ -167,8 +183,18 @@ export default function PaiementPage() {
   const [pourboireCustom, setPourboireCustom] = useState('')
 
   const boucherie = BOUCHERIES.find(b => b.id === items[0]?.boucherie_id)
-  const distanceKm = boucherie ? (DISTANCES_DEMO[boucherie.id] || 2.5) : 2.5
-  const frais  = mode === 'click_collect' ? 0 : calculerFrais(distanceKm)
+  const gpsBoucherie = boucherie ? GPS_BOUCHERIES[boucherie.id] : null
+
+  // Distance calculée dynamiquement si géolocalisation disponible
+  const [clientGPS, setClientGPS] = useState<{ lat: number; lng: number } | null>(null)
+  const [gpsLoading, setGpsLoading] = useState(false)
+
+  // Distance réelle si GPS dispo, sinon distance fixe par boucherie
+  const distanceKm = clientGPS && gpsBoucherie
+    ? haversine(gpsBoucherie.lat, gpsBoucherie.lng, clientGPS.lat, clientGPS.lng)
+    : boucherie ? ({ 1:1.2, 2:3.5, 3:0.8, 4:5.2, 5:7.1, 6:2.3 } as Record<number, number>)[boucherie.id] || 2.5 : 2.5
+
+  const frais = mode === 'click_collect' ? 0 : calculerFrais(distanceKm)
   const pourboireVal = pourboireCustom ? parseFloat(pourboireCustom) || 0 : pourboire
   const total  = sousTotal() + frais + pourboireVal
 
@@ -281,27 +307,20 @@ export default function PaiementPage() {
         <button className="w-full bg-white rounded-2xl p-5 shadow-sm border-2 border-transparent hover:border-brun transition-all text-left active:scale-[.98]"
           onClick={async () => {
             setStuartLoading(true)
-            try {
-              // Obtenir un devis Stuart avant de choisir
-              const res = await fetch('/api/stuart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  action: 'quote',
-                  boucherieId: boucherie?.id || 1,
-                  adresseClient: '12 rue du Client, 75011 Paris', // sera remplacé par l'adresse saisie
-                }),
-              })
-              if (res.ok) {
-                const q = await res.json()
-                setStuartQuote(q)
-              }
-            } catch {
-              // Stuart non configuré → frais fixes
-            } finally {
-              setStuartLoading(false)
-              setMode('livraison')
+            // Géolocaliser le client pour calculer la vraie distance
+            if (navigator.geolocation) {
+              setGpsLoading(true)
+              navigator.geolocation.getCurrentPosition(
+                pos => {
+                  setClientGPS({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+                  setGpsLoading(false)
+                },
+                () => setGpsLoading(false),
+                { timeout: 5000 }
+              )
             }
+            setStuartLoading(false)
+            setMode('livraison')
           }}>
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-brun flex items-center justify-center text-2xl flex-shrink-0">🛵</div>
@@ -425,7 +444,28 @@ export default function PaiementPage() {
                 </div>
               ))}
             </div>
-            <button onClick={() => setStep(2)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans">Continuer →</button>
+            <button onClick={async () => {
+              // Recalculer avec l'adresse saisie via Stuart quote si possible
+              if (adresse.cp && gpsBoucherie) {
+                try {
+                  const res = await fetch('/api/stuart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      action: 'quote',
+                      isDemo: false,
+                      boucherieId: boucherie?.id || 1,
+                      adresseClient: `${adresse.adresse}, ${adresse.cp} ${adresse.ville}`,
+                    }),
+                  })
+                  if (res.ok) {
+                    const q = await res.json()
+                    setStuartQuote(q)
+                  }
+                } catch { /* Stuart non dispo */ }
+              }
+              setStep(2)
+            }} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans">Continuer →</button>
           </div>
         )}
 

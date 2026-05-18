@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth, DEMO_CLIENT, DEMO_BOUCHER, isDemoEmail } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 
@@ -9,6 +10,7 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModalProps) {
+  const router = useRouter()
   const { login } = useAuth()
   const { findBoucher } = useAccounts()
   const [tab, setTab] = useState<'login' | 'register'>('login')
@@ -109,6 +111,22 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
                 </button>
               ))}
             </div>
+            {/* Boucher inscription → redirection vers formulaire partenaire */}
+            {tab === 'register' && role === 'boucher' && (
+              <div className="mt-3 bg-or-pale border border-or/20 rounded-xl p-3 text-center">
+                <p className="text-xs text-brun font-semibold mb-2">
+                  L'inscription boucher se fait via notre formulaire partenaire.
+                </p>
+                <button
+                  className="w-full bg-brun text-white py-2.5 rounded-xl text-xs font-bold font-sans"
+                  onClick={() => {
+                    onClose()
+                    router.push('/parametres?section=partenaire')
+                  }}>
+                  🔪 Accéder au formulaire d'inscription →
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Champs */}

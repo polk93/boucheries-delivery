@@ -31,7 +31,11 @@ function PageWrapper({ title, onBack, children }: { title: string; onBack: () =>
 export default function ParametresPage() {
   const router = useRouter()
   const { user, logout, isBoucher } = useAuth()
-  const [section, setSection] = useState<Section>(null)
+  const searchParams = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search)
+    : null
+  const initSection = searchParams?.get('section') as Section || null
+  const [section, setSection] = useState<Section>(initSection)
   const [logoutConfirm, setLogoutConfirm] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
 
