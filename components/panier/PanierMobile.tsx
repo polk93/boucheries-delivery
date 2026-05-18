@@ -233,7 +233,6 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
                 <div className="flex justify-between text-xs text-gray-400">
                   <span>Livraison</span>
                   <span>{frais === 0 ? 'Offerte' : `${frais.toFixed(2)} €`}</span>
-                  {clientGPS && frais > 0 && <span className="text-[10px] text-green-600">📍 {distanceKm} km</span>}
                 </div>
                 <div className="flex justify-between text-base font-black text-brun pt-1 border-t border-gris-bd">
                   <span>Total</span>

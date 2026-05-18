@@ -311,9 +311,8 @@ export default function PaiementPage() {
                   {gpsLoading ? '⏳' : `${calculerFrais(distanceKm).toFixed(2)} €`}
                 </span>
                 <span className="text-xs text-gray-400">
-                  {clientGPS ? `📍 ${distanceKm.toFixed(1)} km réel · 🛵 Stuart` : '📍 Distance estimée · 🛵 Stuart'}
+                  '🛵 Stuart · 25–45 min'
                 </span>
-                {clientGPS && <span className="text-[10px] text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded-full">✓ GPS</span>}
               </div>
             </div>
             <span className="text-gray-300 text-lg">{stuartLoading ? '⏳' : '›'}</span>
@@ -345,7 +344,7 @@ export default function PaiementPage() {
       <div className={`px-4 py-2 text-center text-xs font-bold ${mode === 'click_collect' ? 'bg-green-50 text-green-700' : 'bg-or-pale text-brun-clair'}`}>
         {mode === 'click_collect'
           ? '🏪 Retrait en boutique — Livraison offerte'
-          : `🛵 ${distanceKm.toFixed(1)} km — ${frais.toFixed(2)} €${clientGPS ? ' ✓ GPS' : ''}`}
+          : `🛵 Livraison — ${frais.toFixed(2)} €`}
       </div>
 
       {/* Steps */}
@@ -382,7 +381,7 @@ export default function PaiementPage() {
             <div className="mt-3 space-y-1.5">
               <div className="flex justify-between text-xs text-gray-400"><span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span></div>
               <div className="flex justify-between text-xs text-gray-400">
-                <span>Livraison{mode === 'livraison' ? ` (${distanceKm.toFixed(1)} km${clientGPS ? ' GPS' : ''})` : ''}</span>
+                <span>Livraison''</span>
                 <span className={frais === 0 ? 'text-green-600 font-bold' : ''}>{frais === 0 ? 'Offerte ✓' : `${frais.toFixed(2)} €`}</span>
               </div>
               {pourboireVal > 0 && (
@@ -576,7 +575,7 @@ export default function PaiementPage() {
                   <span className="text-[10px] text-gray-400 bg-gris-bd px-2 py-0.5 rounded-full">100% au livreur</span>
                 </div>
                 <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-                  Votre livreur effectue {distanceKm.toFixed(1)} km pour vous apporter votre commande fraîche. Un pourboire est toujours bienvenu !
+                  Encouragez votre livreur avec un pourboire — il lui est intégralement reversé !
                 </p>
 
                 {/* Boutons pourboire */}
@@ -625,7 +624,7 @@ export default function PaiementPage() {
                   <p className="text-xs font-bold text-brun">
                     {mode === 'click_collect'
                       ? `Click & Collect — ${creneaux[creneauCC]?.heure || ''}`
-                      : `Livraison ${distanceKm.toFixed(1)} km — ${CRENEAUX.find(c => c.value === creneau)?.label}`}
+                      : `Livraison — ${CRENEAUX.find(c => c.value === creneau)?.label}`}
                   </p>
                 </div>
                 <span className="font-black text-rouge-vif text-sm flex-shrink-0">{total.toFixed(2)} €</span>
