@@ -3,42 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePanier, type PanierItem } from '@/store/panier'
 import { CRENEAUX, BOUCHERIES } from '@/lib/data'
+import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_BASE, TARIF_KM, TARIF_MIN, TARIF_MAX } from '@/lib/livraison'
 import toast from 'react-hot-toast'
-
-// ── Tarification livraison par km (calée sur le marché 2026) ─────────────────
-// Base : 2,50 € fixe + 0,80 €/km (légèrement au-dessus d'Uber Eats pour compenser
-// la spécificité boucherie artisanale et la chaîne du froid)
-const TARIF_BASE   = 2.50   // € fixe par commande
-const TARIF_KM     = 0.80   // €/km
-const TARIF_MIN    = 2.90   // minimum perçu
-const TARIF_MAX    = 8.90   // plafond (>8km → dégressif)
-
-function calculerFrais(km: number): number {
-  if (km === 0) return TARIF_MIN
-  const calcule = TARIF_BASE + km * TARIF_KM
-  return Math.min(Math.max(calcule, TARIF_MIN), TARIF_MAX)
-}
-
-// ── Coordonnées GPS des boucheries ───────────────────────────────────────────
-const GPS_BOUCHERIES: Record<number, { lat: number; lng: number }> = {
-  1: { lat: 48.8534, lng: 2.3813 }, // 12 rue de la Roquette, Paris 11e
-  2: { lat: 48.8643, lng: 2.3699 }, // 34 rue Oberkampf, Paris 11e
-  3: { lat: 48.8462, lng: 2.2933 }, // 8 rue du Commerce, Paris 15e
-  4: { lat: 48.8632, lng: 2.3731 }, // 22 av de la République, Paris 11e
-  5: { lat: 48.8619, lng: 2.3596 }, // 5 rue de Bretagne, Paris 3e
-  6: { lat: 48.8866, lng: 2.3371 }, // 18 rue Lepic, Paris 18e
-}
-
-// ── Formule Haversine : distance entre 2 points GPS en km ─────────────────────
-function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2)
-    + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
-    * Math.sin(dLng/2) * Math.sin(dLng/2)
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-}
 
 // Rémunération livreur (70% des frais + 100% pourboire)
 function remunerationLivreur(frais: number, pourboire: number): number {

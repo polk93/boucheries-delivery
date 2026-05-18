@@ -11,6 +11,7 @@ import PanierMobile from '@/components/panier/PanierMobile'
 import ModalBoucherie from '@/components/boucherie/ModalBoucherie'
 import ModalPersonnalisation from '@/components/boucherie/ModalPersonnalisation'
 import { BOUCHERIES, CATS_NAV, type Boucherie, type Produit } from '@/lib/data'
+import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_MIN } from '@/lib/livraison'
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -162,6 +163,22 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [cityName, setCityName] = useState('Ma position')
   const [rayonKm, setRayonKm] = useState(5)
 
+  // Calcul des frais de livraison en temps réel par boucherie
+  function getFrais(b: Boucherie): number {
+    if (!userPos) return b.frais
+    const gps = GPS_BOUCHERIES[b.id]
+    if (!gps) return b.frais
+    const km = haversine(gps.lat, gps.lng, userPos.lat, userPos.lng)
+    return calculerFrais(km)
+  }
+
+  function getDistance(b: Boucherie): number {
+    if (!userPos) return 0
+    const gps = GPS_BOUCHERIES[b.id]
+    if (!gps) return 0
+    return Math.round(haversine(gps.lat, gps.lng, userPos.lat, userPos.lng) * 10) / 10
+  }
+
   useEffect(() => { requestGeo() }, [])
 
   useEffect(() => {
@@ -294,7 +311,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
                         <p className="font-semibold text-brun text-sm truncate">{b.nom}</p>
                         <p className="text-xs text-gray-400">⭐ {b.note} · {b.livraison}</p>
                       </div>
-                      <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`}</span>
+                      <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{userPos ? `${getFrais(b).toFixed(2)} €` : (b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`)}</span>
                     </div>
                   ))}
                   {srP.map(p => (
@@ -433,7 +450,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
                       {b.tags.slice(0, 3).map(t => <span key={t} className="bg-gris-bd text-brun-clair text-[10px] font-medium px-1.5 py-0.5 rounded">{t}</span>)}
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                      <span className="text-[11px] text-gray-400">🕐 {b.livraison} · {b.frais === 0 ? '🚚 Gratuit' : `🚚 ${b.frais.toFixed(2)} €`}</span>
+                      <span className="text-[11px] text-gray-400">🕐 {b.livraison} · {userPos ? `🚚 ${getFrais(b).toFixed(2)} € · 📍 ${getDistance(b)} km` : (b.frais === 0 ? '🚚 Gratuit' : `🚚 ${b.frais.toFixed(2)} €`)}</span>
                       <button className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg active:bg-rouge-vif transition-colors"
                         onClick={e => { e.stopPropagation(); setModal(b) }}>Voir</button>
                     </div>

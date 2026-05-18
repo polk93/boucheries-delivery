@@ -111,60 +111,59 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
                 </button>
               ))}
             </div>
-            {/* Boucher inscription → redirection vers formulaire partenaire */}
-            {tab === 'register' && role === 'boucher' && (
-              <div className="mt-3 bg-or-pale border border-or/20 rounded-xl p-3 text-center">
-                <p className="text-xs text-brun font-semibold mb-2">
-                  L'inscription boucher se fait via notre formulaire partenaire.
-                </p>
-                <button
-                  className="w-full bg-brun text-white py-2.5 rounded-xl text-xs font-bold font-sans"
-                  onClick={() => {
-                    onClose()
-                    router.push('/parametres?section=partenaire')
-                  }}>
-                  🔪 Accéder au formulaire d'inscription →
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Champs */}
-          <div className="space-y-3">
-            {tab === 'register' && (
-              <div>
-                <label className="text-xs font-bold text-brun block mb-1">Prénom & Nom</label>
-                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                  placeholder="Jean Dupont"
-                  value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} />
+          {/* Inscription boucher → redirection uniquement */}
+          {tab === 'register' && role === 'boucher' ? (
+            <div className="bg-or-pale border border-or/20 rounded-xl p-4 text-center space-y-3">
+              <p className="text-sm font-bold text-brun">🔪 Vous êtes boucher artisan ?</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                L'inscription se fait via notre formulaire partenaire. Inscription 100% gratuite, aucun engagement.
+              </p>
+              <button
+                className="w-full bg-brun text-white py-3 rounded-xl text-sm font-bold font-sans"
+                onClick={() => { onClose(); router.push('/parametres?section=partenaire') }}>
+                Accéder au formulaire d'inscription →
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Champs client */}
+              <div className="space-y-3">
+                {tab === 'register' && (
+                  <div>
+                    <label className="text-xs font-bold text-brun block mb-1">Prénom & Nom</label>
+                    <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                      placeholder="Jean Dupont"
+                      value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} />
+                  </div>
+                )}
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1">Email</label>
+                  <input type="email" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                    placeholder="vous@email.fr"
+                    value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1">Mot de passe</label>
+                  <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                    placeholder="••••••••"
+                    value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
+                </div>
               </div>
-            )}
-            <div>
-              <label className="text-xs font-bold text-brun block mb-1">Email</label>
-              <input type="email" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                placeholder="vous@email.fr"
-                value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-brun block mb-1">Mot de passe</label>
-              <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                placeholder="••••••••"
-                value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
-            </div>
-          </div>
 
-          {/* Erreur */}
-          {error && (
-            <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl px-3 py-2">
-              <p className="text-rouge-vif text-xs font-semibold">⚠️ {error}</p>
-            </div>
+              {error && (
+                <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl px-3 py-2">
+                  <p className="text-rouge-vif text-xs font-semibold">⚠️ {error}</p>
+                </div>
+              )}
+
+              <button className="w-full bg-rouge-vif text-white py-3 rounded-xl font-bold text-sm font-sans hover:bg-brun transition-colors"
+                onClick={tab === 'login' ? doLogin : doRegister}>
+                {tab === 'login' ? 'Se connecter →' : 'Créer mon compte →'}
+              </button>
+            </>
           )}
-
-          {/* Bouton principal */}
-          <button className="w-full bg-rouge-vif text-white py-3 rounded-xl font-bold text-sm font-sans hover:bg-brun transition-colors"
-            onClick={tab === 'login' ? doLogin : doRegister}>
-            {tab === 'login' ? 'Se connecter →' : 'Créer mon compte →'}
-          </button>
 
           {/* Séparateur + compte démo */}
           <div className="flex items-center gap-2">
