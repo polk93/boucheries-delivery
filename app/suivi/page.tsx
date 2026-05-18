@@ -179,7 +179,7 @@ function SuiviContent() {
 
       {/* Carte */}
       <div className="relative flex-shrink-0" style={{ height: 310 }}>
-        <div ref={mapRef} className="absolute inset-0" />
+        <div ref={mapRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }} />
 
         {!mapReady && (
           <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
