@@ -370,16 +370,14 @@ export default function PanelPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 py-4 max-w-2xl mx-auto">
+      <div className="grid grid-cols-2 gap-3 px-4 py-4 max-w-2xl mx-auto">
         {[
           { ico: '📋', val: String(orders.length), label: 'En cours' },
-          { ico: '💶', val: String(historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0)) + ' €', label: 'CA total' },
-          { ico: '⭐', val: '4,9', label: 'Note moyenne' },
-          { ico: '🛍️', val: String(myProduits.length), label: 'Produits actifs' },
+          { ico: '💶', val: String(historiqueToday.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2)) + ' €', label: "CA aujourd'hui" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm">
-            <div className="text-xl mb-1">{s.ico}</div>
-            <div className="font-serif text-xl font-black text-brun">{s.val}</div>
+          <div key={s.label} className="bg-white rounded-2xl p-4 shadow-sm">
+            <div className="text-2xl mb-1">{s.ico}</div>
+            <div className="font-serif text-2xl font-black text-brun">{s.val}</div>
             <div className="text-xs text-gray-400">{s.label}</div>
           </div>
         ))}
@@ -423,35 +421,19 @@ export default function PanelPage() {
                         </div>
                         <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + SC[o.status]}>{SL[o.status]}</span>
                       </div>
-                      <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
+                      <div className="px-4 py-3 flex justify-between items-start">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
                           <p className="text-xs text-gray-400">📍 {o.adresse}</p>
                           <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
-                        </div>
+                        <p className="text-base font-black text-rouge-vif">{total.toFixed(2)} €</p>
                       </div>
-                      <div className="px-4 py-2">
-                        {o.lignes.map((l, i) => (
-                          <div key={i} className={'flex items-start gap-2 py-2 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
-                            <span className="text-base flex-shrink-0">{l.icon}</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
-                              <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
-                              {l.note ? <p className="text-[11px] text-gray-400 italic">📝 {l.note}</p> : null}
-                            </div>
-                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
-                        <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => setViewOrder(o)}>🧾 Récap</button>
-                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans">📞</a>
+                      <div className="px-4 pb-4 flex gap-2">
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-sm font-bold px-4 py-3 rounded-xl font-sans flex-shrink-0">📞</a>
                         {o.status !== 'done' && (
-                          <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                          <button className="flex-1 bg-brun text-white text-sm font-bold py-3 rounded-xl font-sans"
                             onClick={() => progress(o.id)}>{BL[o.status]} →</button>
                         )}
                       </div>
@@ -553,11 +535,11 @@ export default function PanelPage() {
                 <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-serif text-sm font-bold text-brun">{boutique.nom || 'Nom de votre boutique'}</span>
-                    <span className="text-xs text-or">⭐ —</span>
+                    <span className="text-xs text-or">⭐ 4,9</span>
                   </div>
                   <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
                   <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🏪 Click &amp; Collect</span>
+                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🛍️ {myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</span>
                     <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
                   </div>
                 </div>
