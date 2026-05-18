@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
@@ -1111,3 +1111,4 @@ function MdpSection({ email, onBack }: { email: string; onBack: () => void }) {
     </div>
   )
 }
+
