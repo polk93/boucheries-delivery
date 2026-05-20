@@ -213,12 +213,20 @@ export default function PanelPage() {
 
   const myBoucherieId = user?.boucherieId || 1
   const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
+  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
+  const cats = ['tous', ...Array.from(new Set(myProduits.map(p => String(p.cat))))]
+  const filtresProds = myProduits.filter(p => {
+    const matchR = p.nom.toLowerCase().includes(rechercheProds.toLowerCase()) || p.desc.toLowerCase().includes(rechercheProds.toLowerCase())
+    const matchC = filtreCat === 'tous' || String(p.cat) === filtreCat
+    return matchR && matchC
+  })
   const bRef = user?.isDemo ? myBoucherie : undefined
 
   const [boutique, setBoutique] = useState(() => makeInitBoutique(bRef))
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
-  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
+  const [rechercheProds, setRechercheProds] = useState('')
+  const [filtreCat, setFiltreCat]           = useState('tous')
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
@@ -489,90 +497,78 @@ export default function PanelPage() {
         )}
 
         {/* ══ PRODUITS ══ */}
-        {tab === 'produits' && (() => {
-          const [recherche, setRecherche] = React.useState('')
-          const [filtreCat, setFiltreCat] = React.useState('tous')
-          const cats = ['tous', ...Array.from(new Set(myProduits.map(p => p.cat)))]
-          const filtres = myProduits.filter(p => {
-            const matchRecherche = p.nom.toLowerCase().includes(recherche.toLowerCase()) || p.desc.toLowerCase().includes(recherche.toLowerCase())
-            const matchCat = filtreCat === 'tous' || p.cat === filtreCat
-            return matchRecherche && matchCat
-          })
-          return (
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              {/* Header */}
-              <div className="px-4 py-3 border-b border-gris-bd bg-or-pale flex justify-between items-center">
-                <div>
-                  <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
-                  <p className="text-xs text-gray-400">{myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</p>
-                </div>
-                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
+        {tab === 'produits' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-gris-bd bg-or-pale flex justify-between items-center">
+              <div>
+                <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
+                <p className="text-xs text-gray-400">{myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</p>
               </div>
-
-              {/* Recherche */}
-              <div className="px-3 pt-3 pb-1">
-                <input
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun"
-                  placeholder="🔍 Rechercher un produit…"
-                  value={recherche}
-                  onChange={e => setRecherche(e.target.value)}
-                />
-              </div>
-
-              {/* Filtres catégorie */}
-              {cats.length > 2 && (
-                <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-none">
-                  {cats.map(c => (
-                    <button key={c}
-                      className={'px-3 py-1 rounded-full text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 border transition-all ' + (filtreCat === c ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
-                      onClick={() => setFiltreCat(c)}>
-                      {c === 'tous' ? '🛒 Tout' : c}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Liste */}
-              {filtres.length === 0
-                ? <div className="text-center py-8 text-gray-400 text-sm px-4">
-                    {myProduits.length === 0
-                      ? <><span className="block mb-2">🥩</span>Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></>
-                      : <><span className="block mb-2">🔍</span>Aucun résultat pour "{recherche}"</>
-                    }
-                  </div>
-                : filtres.map((p, i) => (
-                  <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < filtres.length - 1 ? 'border-b border-gris-bd' : '')}>
-                    {p.photoUrl
-                      ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
-                      : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
-                    }
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
-                      <p className="text-xs text-gray-400 truncate">{p.desc}</p>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-xs font-bold text-rouge-vif">
-                          {p.venteType === 'poids'
-                            ? `${p.prix.toFixed(2)} €/kg`
-                            : `${p.prix.toFixed(2)} €/pièce`}
-                        </span>
-                        <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
-                          {p.stock === 0 ? 'Rupture' : String(p.stock)}
-                        </span>
-                        <span className="text-[10px] bg-gris-bd text-gray-500 px-1.5 py-0.5 rounded-full">
-                          {p.venteType === 'poids' ? '⚖️ Au poids' : '🔢 À la pièce'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
-                    </div>
-                  </div>
-                ))
-              }
+              <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
             </div>
-          )
-        })()}
+
+            {/* Recherche */}
+            <div className="px-3 pt-3 pb-1">
+              <input
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun"
+                placeholder="🔍 Rechercher un produit…"
+                value={rechercheProds}
+                onChange={e => setRechercheProds(e.target.value)}
+              />
+            </div>
+
+            {/* Filtres catégorie */}
+            {cats.length > 2 && (
+              <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-none">
+                {cats.map(c => (
+                  <button key={c}
+                    className={'px-3 py-1 rounded-full text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 border transition-all ' + (filtreCat === c ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
+                    onClick={() => setFiltreCat(c)}>
+                    {c === 'tous' ? '🛒 Tout' : c}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Liste */}
+            {filtresProds.length === 0
+              ? <div className="text-center py-8 text-gray-400 text-sm px-4">
+                  {myProduits.length === 0
+                    ? <><span className="block mb-2">🥩</span>Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></>
+                    : <><span className="block mb-2">🔍</span>Aucun résultat pour "{rechercheProds}"</>
+                  }
+                </div>
+              : filtresProds.map((p, i) => (
+                <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < filtresProds.length - 1 ? 'border-b border-gris-bd' : '')}>
+                  {p.photoUrl
+                    ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
+                    : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
+                  }
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
+                    <p className="text-xs text-gray-400 truncate">{p.desc}</p>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-xs font-bold text-rouge-vif">
+                        {p.venteType === 'poids' ? `${p.prix.toFixed(2)} €/kg` : `${p.prix.toFixed(2)} €/pièce`}
+                      </span>
+                      <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
+                        {p.stock === 0 ? 'Rupture' : String(p.stock)}
+                      </span>
+                      <span className="text-[10px] bg-gris-bd text-gray-500 px-1.5 py-0.5 rounded-full">
+                        {p.venteType === 'poids' ? '⚖️ Au poids' : '🔢 À la pièce'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
+                    <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        )}
 
         {/* ══ BOUTIQUE ══ */}
         {tab === 'boutique' && (
