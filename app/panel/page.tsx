@@ -1158,6 +1158,33 @@ export default function PanelPage() {
                   </div>
                 ))}
               </div>
+              {/* Catégorie + Vente type */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1.5">Catégorie</label>
+                  <select
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
+                    value={modalProd.cat}
+                    onChange={e => setModalProd(f => f ? { ...f, cat: e.target.value } : f)}>
+                    {['Bœuf','Veau','Agneau','Volaille','Entrée'].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1.5">Vendu</label>
+                  <div className="flex flex-col gap-1.5">
+                    {[['pièce','🔢 À la pièce'],['poids','⚖️ Au poids (kg)']].map(([v,l]) => (
+                      <button key={v}
+                        className={'flex-1 py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                        onClick={() => setModalProd(f => f ? { ...f, venteType: v } : f)}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', '🌿 Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
