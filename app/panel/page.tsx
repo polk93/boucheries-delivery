@@ -214,12 +214,6 @@ export default function PanelPage() {
   const myBoucherieId = user?.boucherieId || 1
   const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
-  const cats = ['tous', ...Array.from(new Set(myProduits.map(p => String(p.cat))))]
-  const filtresProds = myProduits.filter(p => {
-    const matchR = p.nom.toLowerCase().includes(rechercheProds.toLowerCase()) || p.desc.toLowerCase().includes(rechercheProds.toLowerCase())
-    const matchC = filtreCat === 'tous' || String(p.cat) === filtreCat
-    return matchR && matchC
-  })
   const bRef = user?.isDemo ? myBoucherie : undefined
 
   const [boutique, setBoutique] = useState(() => makeInitBoutique(bRef))
@@ -227,6 +221,14 @@ export default function PanelPage() {
 
   const [rechercheProds, setRechercheProds] = useState('')
   const [filtreCat, setFiltreCat]           = useState('tous')
+
+  // Dérivées — après tous les useState
+  const cats = ['tous', ...Array.from(new Set(myProduits.map(p => String(p.cat))))]
+  const filtresProds = myProduits.filter(p => {
+    const matchR = rechercheProds === '' || p.nom.toLowerCase().includes(rechercheProds.toLowerCase()) || p.desc.toLowerCase().includes(rechercheProds.toLowerCase())
+    const matchC = filtreCat === 'tous' || String(p.cat) === filtreCat
+    return matchR && matchC
+  })
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
