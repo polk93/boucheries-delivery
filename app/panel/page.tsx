@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
 import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
@@ -178,6 +178,9 @@ interface Promo {
   dateDebut: string
   dateFin: string
   active: boolean
+  produitId?: string
+  xVal?: string
+  yVal?: string
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -370,20 +373,6 @@ export default function PanelPage() {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 px-4 py-4 max-w-2xl mx-auto">
-        {[
-          { ico: '📋', val: String(orders.length), label: 'En cours' },
-          { ico: '💶', val: String(historiqueToday.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2)) + ' €', label: "CA aujourd'hui" },
-        ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="text-2xl mb-1">{s.ico}</div>
-            <div className="font-serif text-2xl font-black text-brun">{s.val}</div>
-            <div className="text-xs text-gray-400">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
       <div className="px-4 max-w-2xl mx-auto">
 
         {/* ══ COMMANDES ══ */}
@@ -500,42 +489,90 @@ export default function PanelPage() {
         )}
 
         {/* ══ PRODUITS ══ */}
-        {tab === 'produits' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
-              <div>
-                <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
-                <p className="text-xs text-gray-400">{myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</p>
+        {tab === 'produits' && (() => {
+          const [recherche, setRecherche] = React.useState('')
+          const [filtreCat, setFiltreCat] = React.useState('tous')
+          const cats = ['tous', ...Array.from(new Set(myProduits.map(p => p.cat)))]
+          const filtres = myProduits.filter(p => {
+            const matchRecherche = p.nom.toLowerCase().includes(recherche.toLowerCase()) || p.desc.toLowerCase().includes(recherche.toLowerCase())
+            const matchCat = filtreCat === 'tous' || p.cat === filtreCat
+            return matchRecherche && matchCat
+          })
+          return (
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-gris-bd bg-or-pale flex justify-between items-center">
+                <div>
+                  <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
+                  <p className="text-xs text-gray-400">{myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</p>
+                </div>
+                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
               </div>
-              <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
-            </div>
-            {myProduits.length === 0
-              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
-              : myProduits.map((p, i) => (
-                <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '')}>
-                  {p.photoUrl
-                    ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
-                    : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
-                  }
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
-                    <p className="text-xs text-gray-400 truncate">{p.desc}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
-                      <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
-                        {p.stock === 0 ? 'Rupture' : String(p.stock)}
-                      </span>
+
+              {/* Recherche */}
+              <div className="px-3 pt-3 pb-1">
+                <input
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun"
+                  placeholder="🔍 Rechercher un produit…"
+                  value={recherche}
+                  onChange={e => setRecherche(e.target.value)}
+                />
+              </div>
+
+              {/* Filtres catégorie */}
+              {cats.length > 2 && (
+                <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-none">
+                  {cats.map(c => (
+                    <button key={c}
+                      className={'px-3 py-1 rounded-full text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 border transition-all ' + (filtreCat === c ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
+                      onClick={() => setFiltreCat(c)}>
+                      {c === 'tous' ? '🛒 Tout' : c}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Liste */}
+              {filtres.length === 0
+                ? <div className="text-center py-8 text-gray-400 text-sm px-4">
+                    {myProduits.length === 0
+                      ? <><span className="block mb-2">🥩</span>Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></>
+                      : <><span className="block mb-2">🔍</span>Aucun résultat pour "{recherche}"</>
+                    }
+                  </div>
+                : filtres.map((p, i) => (
+                  <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < filtres.length - 1 ? 'border-b border-gris-bd' : '')}>
+                    {p.photoUrl
+                      ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
+                      : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
+                    }
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
+                      <p className="text-xs text-gray-400 truncate">{p.desc}</p>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-xs font-bold text-rouge-vif">
+                          {p.venteType === 'poids'
+                            ? `${p.prix.toFixed(2)} €/kg`
+                            : `${p.prix.toFixed(2)} €/pièce`}
+                        </span>
+                        <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
+                          {p.stock === 0 ? 'Rupture' : String(p.stock)}
+                        </span>
+                        <span className="text-[10px] bg-gris-bd text-gray-500 px-1.5 py-0.5 rounded-full">
+                          {p.venteType === 'poids' ? '⚖️ Au poids' : '🔢 À la pièce'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
+                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
                     </div>
                   </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                    <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        )}
+                ))
+              }
+            </div>
+          )
+        })()}
 
         {/* ══ BOUTIQUE ══ */}
         {tab === 'boutique' && (
@@ -660,40 +697,128 @@ export default function PanelPage() {
               {boutique.promotions.length === 0
                 ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">🏷️</span><p className="text-sm">Aucune promotion active.</p></div>
                 : <div className="divide-y divide-gris-bd">
-                    {boutique.promotions.map((promo, idx) => (
-                      <div key={promo.id} className="p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <button className={'w-10 h-5 rounded-full relative transition-colors ' + (promo.active ? 'bg-green-400' : 'bg-gray-200')}
-                              onClick={() => updatePromo(idx, 'active', !promo.active)}>
-                              <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
-                            </button>
-                            <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
+                    {boutique.promotions.map((promo, idx) => {
+                      const produitCible = myProduits.find(p => p.id === promo.produitId)
+                      return (
+                        <div key={promo.id} className="p-4 space-y-3">
+                          {/* Toggle + supprimer */}
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <button className={'w-10 h-5 rounded-full relative transition-colors ' + (promo.active ? 'bg-green-400' : 'bg-gray-200')}
+                                onClick={() => updatePromo(idx, 'active', !promo.active)}>
+                                <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
+                              </button>
+                              <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
+                            </div>
+                            <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
+                              onClick={() => removePromo(idx)}>🗑️</button>
                           </div>
-                          <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
-                            onClick={() => removePromo(idx)}>🗑️</button>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {['message', 'reduction', 'livraison', 'offre'].map(val => (
-                            <button key={val} className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                              onClick={() => updatePromo(idx, 'type', val)}>{val}</button>
-                          ))}
-                        </div>
-                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder="Titre affiché…" value={promo.titre}
-                          onChange={e => updatePromo(idx, 'titre', e.target.value)} />
-                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder="Description…" value={promo.description}
-                          onChange={e => updatePromo(idx, 'description', e.target.value)} />
-                        {promo.titre ? (
-                          <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
-                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
-                            <p className="text-xs text-rouge-vif font-bold">{promo.titre}</p>
-                            {promo.description ? <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p> : null}
+
+                          {/* Sélection produit */}
+                          <div>
+                            <label className="text-xs font-bold text-brun block mb-1">Produit concerné</label>
+                            <select
+                              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
+                              value={promo.produitId || ''}
+                              onChange={e => updatePromo(idx, 'produitId' as any, e.target.value)}>
+                              <option value="">— Tous les produits —</option>
+                              {myProduits.map(p => (
+                                <option key={p.id} value={p.id}>{p.icon} {p.nom}</option>
+                              ))}
+                            </select>
+                            {produitCible && (
+                              <p className="text-[11px] text-or font-semibold mt-1">
+                                Prix actuel : {produitCible.prix.toFixed(2)} € {produitCible.venteType === 'poids' ? '/kg' : '/pièce'}
+                              </p>
+                            )}
                           </div>
-                        ) : null}
-                      </div>
-                    ))}
+
+                          {/* Type de promotion */}
+                          <div>
+                            <label className="text-xs font-bold text-brun block mb-1.5">Type de promotion</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                ['reduction', '% Réduction'],
+                                ['xplusy',    'X acheté + Y offert'],
+                              ].map(([val, lbl]) => (
+                                <button key={val}
+                                  className={'py-2.5 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                                  onClick={() => updatePromo(idx, 'type', val)}>
+                                  {lbl}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Paramètres selon type */}
+                          {promo.type === 'reduction' && (
+                            <div>
+                              <label className="text-xs font-bold text-brun block mb-1">Réduction</label>
+                              <div className="flex items-center gap-2">
+                                <input type="number" min="1" max="100"
+                                  className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun text-center font-bold"
+                                  placeholder="20"
+                                  value={promo.valeur || ''}
+                                  onChange={e => updatePromo(idx, 'valeur', e.target.value)} />
+                                <span className="text-sm font-bold text-brun">%</span>
+                                {produitCible && promo.valeur && (
+                                  <span className="text-xs text-green-600 font-bold">
+                                    → {(produitCible.prix * (1 - parseInt(promo.valeur) / 100)).toFixed(2)} €
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {promo.type === 'xplusy' && (
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-brun block">Règle X acheté + Y offert</label>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1">
+                                  <p className="text-[10px] text-gray-400 mb-0.5">Acheté</p>
+                                  <input type="number" min="1"
+                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun text-center font-bold"
+                                    placeholder="2"
+                                    value={promo.xVal || ''}
+                                    onChange={e => updatePromo(idx, 'xVal' as any, e.target.value)} />
+                                </div>
+                                <span className="text-lg font-bold text-gray-300 mt-4">+</span>
+                                <div className="flex-1">
+                                  <p className="text-[10px] text-gray-400 mb-0.5">Offert</p>
+                                  <input type="number" min="1"
+                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun text-center font-bold"
+                                    placeholder="1"
+                                    value={promo.yVal || ''}
+                                    onChange={e => updatePromo(idx, 'yVal' as any, e.target.value)} />
+                                </div>
+                              </div>
+                              {promo.xVal && promo.yVal && (
+                                <p className="text-xs text-green-600 font-bold bg-green-50 px-3 py-1.5 rounded-lg">
+                                  {promo.xVal} acheté{parseInt(promo.xVal)>1?'s':''} = {promo.yVal} offert{parseInt(promo.yVal)>1?'s':''}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Aperçu */}
+                          {(promo.valeur || promo.xVal) && (
+                            <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
+                              <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
+                              {promo.type === 'reduction' && promo.valeur && (
+                                <p className="text-xs text-rouge-vif font-bold">
+                                  🏷️ -{promo.valeur}% {produitCible ? `sur ${produitCible.nom}` : 'sur ce produit'}
+                                </p>
+                              )}
+                              {promo.type === 'xplusy' && promo.xVal && promo.yVal && (
+                                <p className="text-xs text-rouge-vif font-bold">
+                                  🎁 {promo.xVal} acheté{parseInt(promo.xVal)>1?'s':''} → {promo.yVal} offert{parseInt(promo.yVal)>1?'s':''} {produitCible ? `(${produitCible.nom})` : ''}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
               }
             </div>
