@@ -987,32 +987,57 @@ export default function PanelPage() {
                   </div>
                 </div>
 
-                {([
-                  { titre: 'Mon compte', items: [
-                    { ico: '👤', label: 'Mon profil',    sub: 'Nom, email, téléphone',       action: null as null | (() => void) },
-                    { ico: '🔒', label: 'Mot de passe',  sub: 'Modifier mon mot de passe',   action: (() => setParamsSection('mdp')) as null | (() => void) },
-                    { ico: '🔔', label: 'Notifications', sub: 'Alertes commandes',            action: null as null | (() => void) },
-                  ]},
-                  { titre: 'Application', items: [
-                    { ico: '🆘', label: 'Support', sub: 'FAQ et contact',            action: null as null | (() => void) },
-                    { ico: '📋', label: 'CGU',     sub: "Conditions d'utilisation", action: null as null | (() => void) },
-                  ]},
-                ] as { titre: string; items: { ico: string; label: string; sub: string; action: null | (() => void) }[] }[]).map(sec => (
-                  <div key={sec.titre}>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">{sec.titre}</p>
-                    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                      {sec.items.map((item, i) => (
-                        <div key={item.label}
-                          className={'flex items-center gap-3 px-4 py-3.5 ' + (i < sec.items.length - 1 ? 'border-b border-gris-bd' : '') + (item.action ? ' cursor-pointer active:bg-creme' : '')}
-                          onClick={item.action ?? undefined}>
-                          <span className="text-xl flex-shrink-0">{item.ico}</span>
-                          <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
-                          <span className="text-gray-300">›</span>
-                        </div>
-                      ))}
+                {/* Profil boucher modifiable */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Mon compte</p>
+                  <BoucherProfilForm user={user} showToast={showToast} />
+                </div>
+
+                {/* Notifications */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Alertes</p>
+                  <BoucherNotifsForm />
+                </div>
+
+                {/* Mot de passe */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Sécurité</p>
+                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div className="flex items-center gap-3 px-4 py-3.5 cursor-pointer active:bg-creme"
+                      onClick={() => setParamsSection('mdp')}>
+                      <span className="text-xl flex-shrink-0">🔒</span>
+                      <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-xs text-gray-400">Modifier mon mot de passe</p></div>
+                      <span className="text-gray-300">›</span>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Stripe Connect status */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Paiements</p>
+                  <div className="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3">
+                    <span className="text-xl">💳</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-brun">Stripe Connect</p>
+                      <p className="text-xs text-gray-400">Virements chaque lundi</p>
+                    </div>
+                    <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✓ Actif</span>
+                  </div>
+                </div>
+
+                {/* Application */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Application</p>
+                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    {[{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }].map((item, i) => (
+                      <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i === 0 ? 'border-b border-gris-bd' : '')}>
+                        <span className="text-xl flex-shrink-0">{item.ico}</span>
+                        <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
+                        <span className="text-gray-300">›</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
                   onClick={() => { logout(); router.push('/') }}>
@@ -1213,6 +1238,84 @@ export default function PanelPage() {
       )}
 
       <BottomNavBoucher currentTab={tab} onTabChange={t => { setTab(t); setParamsSection('main') }} />
+    </div>
+  )
+}
+
+// ── Formulaire profil boucher ─────────────────────────────────────────────────
+function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
+  const [form, setForm] = useState({
+    prenom: user?.nom?.split(' ')[0] || '',
+    nom:    user?.nom?.split(' ').slice(1).join(' ') || '',
+    email:  user?.email || '',
+    tel:    '',
+    boutique: user?.boucherieNom || '',
+  })
+  const [saved, setSaved] = useState(false)
+
+  function save() {
+    setSaved(true)
+    showToast('✅ Profil mis à jour !')
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+        <p className="text-xs font-bold text-brun">Informations personnelles</p>
+      </div>
+      <div className="p-4 space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                value={(form as any)[k]}
+                onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+        </div>
+        {[['email','Email','votre@email.fr'],['tel','Téléphone','06 00 00 00 00'],['boutique','Nom de la boutique','Maison Dupont']].map(([k,l,ph]) => (
+          <div key={k}>
+            <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+              placeholder={ph} value={(form as any)[k]}
+              onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+          </div>
+        ))}
+        {saved && <p className="text-green-600 text-xs font-semibold">✅ Modifications enregistrées !</p>}
+        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={save}>
+          💾 Enregistrer
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Notifications boucher ─────────────────────────────────────────────────────
+function BoucherNotifsForm() {
+  const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, rapport: false, paiement: true })
+  const items = [
+    { key: 'nouvelle_cmd', label: 'Nouvelle commande',   sub: 'Son + notification push instantanée' },
+    { key: 'stock_faible', label: 'Stock faible',         sub: 'Alerte quand un produit est à ≤ 3' },
+    { key: 'paiement',     label: 'Virement reçu',        sub: 'Confirmation chaque lundi' },
+    { key: 'rapport',      label: 'Rapport quotidien',    sub: 'CA et commandes chaque soir' },
+  ]
+  return (
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {items.map((item, i) => (
+        <div key={item.key} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-brun">{item.label}</p>
+            <p className="text-xs text-gray-400">{item.sub}</p>
+          </div>
+          <button
+            className={'w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ' + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
+            onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
+            <span className={'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ' + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
+          </button>
+        </div>
+      ))}
     </div>
   )
 }

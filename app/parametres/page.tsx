@@ -493,29 +493,58 @@ function EditAdresseForm({ adresse, labels, onSave, onCancel }: {
 // NOTIFICATIONS
 // ══════════════════════════════════════════════════════════════════════════════
 function NotifsSection({ onBack }: { onBack: () => void }) {
-  const [prefs, setPrefs] = useState({ livraison: true, promos: true, nouveaux: false, rappels: true })
+  const [prefs, setPrefs] = useState({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
   const items = [
-    { key: 'livraison', label: 'Suivi de livraison', sub: 'Statut en temps réel' },
-    { key: 'promos', label: 'Promotions & offres', sub: 'Bons plans des boucheries' },
-    { key: 'nouveaux', label: 'Nouvelles boucheries', sub: 'Nouveaux partenaires' },
-    { key: 'rappels', label: 'Rappels', sub: 'Re-commander facilement' },
+    { key: 'livraison', label: 'Suivi de livraison',    sub: 'Statut en temps réel de vos commandes' },
+    { key: 'promos',    label: 'Promotions & offres',   sub: 'Bons plans des boucheries partenaires' },
+    { key: 'nouveaux',  label: 'Nouvelles boucheries',  sub: 'Nouveaux partenaires dans votre quartier' },
+    { key: 'rappels',   label: 'Rappels de panier',     sub: 'Panier non finalisé' },
+    { key: 'rapport',   label: 'Rapport hebdomadaire',  sub: 'Résumé de vos achats chaque semaine' },
+  ]
+  const NOTIFS_DEMO = [
+    { ico: '🛵', titre: 'Votre livreur est en route !', sub: 'Commande #1042 · Arrivée dans ~8 min', time: 'Il y a 5 min', lu: false },
+    { ico: '✅', titre: 'Commande #1041 prête !',       sub: 'Comptoir du Veau · Présentez-vous en caisse', time: 'Il y a 2h', lu: false },
+    { ico: '🏷️', titre: '-20% sur le Wagyu ce weekend', sub: 'Bœuf & Tradition · Offre limitée', time: 'Hier', lu: true },
+    { ico: '⭐', titre: 'Merci pour votre avis !',       sub: 'Votre avis sur Maison Dupont a été publié', time: 'Il y a 2 jours', lu: true },
   ]
   return (
     <PageWrapper title="🔔 Notifications" onBack={onBack}>
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        {items.map((item, i) => (
-          <div key={item.key} className={`flex items-center gap-3 px-4 py-3.5 ${i < items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-brun">{item.label}</p>
-              <p className="text-xs text-gray-400">{item.sub}</p>
-            </div>
-            <button
-              className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
-              onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${(prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
-            </button>
+      <div className="space-y-4">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+            <p className="text-xs font-bold text-brun">Préférences</p>
           </div>
-        ))}
+          {items.map((item, i) => (
+            <div key={item.key} className={`flex items-center gap-3 px-4 py-3.5 ${i < items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-brun">{item.label}</p>
+                <p className="text-xs text-gray-400">{item.sub}</p>
+              </div>
+              <button
+                className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
+                onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${(prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+            <p className="text-xs font-bold text-brun">Récentes</p>
+          </div>
+          {NOTIFS_DEMO.map((n, i) => (
+            <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+              <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
+                <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
+              </div>
+              {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
+            </div>
+          ))}
+        </div>
       </div>
     </PageWrapper>
   )
@@ -561,33 +590,69 @@ function FavorisSection({ onBack }: { onBack: () => void }) {
 // HISTORIQUE COMMANDES
 // ══════════════════════════════════════════════════════════════════════════════
 const COMMANDES_DATA = [
-  { id: '#1038', boucherie: 'Maison Dupont', date: '2026-05-08', total: 46.30, frais: 2.90, creneau: 'Dès que possible',
+  { id: '#1042', boucherie: 'Maison Dupont', date: new Date().toISOString().split('T')[0], total: 46.30, frais: 2.90, creneau: 'Dès que possible', status: 'delivery', mode: 'livraison',
     items: [{ nom: 'Entrecôte Charolais', icon: '🥩', qty: 2, decoupe: 'Épaisse (2cm) · Marinée herbes' }, { nom: 'Merguez Maison', icon: '🌶️', qty: 1, decoupe: 'Extra-épicées' }] },
-  { id: '#1025', boucherie: 'Bœuf & Tradition', date: '2026-04-30', total: 97.40, frais: 3.50, creneau: 'Aujourd\'hui 19h–20h',
+  { id: '#1041', boucherie: 'Comptoir du Veau', date: new Date().toISOString().split('T')[0], total: 24.50, frais: 0, creneau: 'Aujourd\'hui 12h30', status: 'ready', mode: 'click_collect',
+    items: [{ nom: 'Filet de Bœuf', icon: '🍖', qty: 1, decoupe: 'En médaillons · Nature' }] },
+  { id: '#1038', boucherie: 'Maison Dupont', date: '2026-05-08', total: 44.80, frais: 2.90, creneau: 'Dès que possible', status: 'done', mode: 'livraison',
+    items: [{ nom: 'Côtes de Porc', icon: '🍖', qty: 4, decoupe: 'Avec os · Nature' }] },
+  { id: '#1025', boucherie: 'Bœuf & Tradition', date: '2026-04-30', total: 97.40, frais: 3.50, creneau: 'Aujourd\'hui 19h–20h', status: 'done', mode: 'livraison',
     items: [{ nom: 'Wagyu A5 – 200g', icon: '⭐', qty: 1, decoupe: 'Fine (4mm)' }, { nom: 'T-Bone Maturé 60j', icon: '🥩', qty: 1, decoupe: 'Entier' }] },
 ]
 
 function CommandesSection({ onBack }: { onBack: () => void }) {
   const router = useRouter()
   const { isDemo } = useAuth()
+  const [filtre, setFiltre] = useState<'toutes'|'encours'|'livrees'>('toutes')
   const data = isDemo() ? COMMANDES_DATA : []
+
+  const filtered = filtre === 'encours'
+    ? data.filter(o => o.status !== 'done')
+    : filtre === 'livrees'
+    ? data.filter(o => o.status === 'done')
+    : data
+
   return (
     <PageWrapper title="📦 Mes commandes" onBack={onBack}>
-      {data.length === 0
-        ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">📦</span><p className="text-sm">Aucune commande pour l'instant.</p><button className="mt-4 bg-brun text-white px-5 py-2 rounded-xl text-sm font-bold font-sans" onClick={() => router.push('/')}>Découvrir les boucheries</button></div>
-        : <div className="space-y-4">
-            {data.map(o => (
-              <div key={o.id} className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-bold text-brun text-sm">{o.id}</p>
-                    <p className="text-xs text-gray-400">{new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                  </div>
-                  <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">✅ Livrée</span>
+      <div className="space-y-4">
+        {/* Filtres */}
+        {data.length > 0 && (
+          <div className="flex gap-2">
+            {([['toutes', 'Toutes'], ['encours', 'En cours'], ['livrees', 'Livrées']] as const).map(([v, l]) => (
+              <button key={v}
+                className={'flex-1 py-2 rounded-xl text-xs font-bold font-sans border transition-all ' + (filtre === v ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gris-bd')}
+                onClick={() => setFiltre(v)}>{l}</button>
+            ))}
+          </div>
+        )}
+
+        {filtered.length === 0
+          ? <div className="text-center py-12 text-gray-400">
+              <span className="text-4xl block mb-3">📦</span>
+              <p className="text-sm">Aucune commande pour l'instant.</p>
+              <button className="mt-4 bg-brun text-white px-5 py-2 rounded-xl text-sm font-bold font-sans"
+                onClick={() => router.push('/')}>Découvrir les boucheries</button>
+            </div>
+          : filtered.map(o => (
+            <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-center">
+                <div>
+                  <span className="font-black text-brun text-sm">{o.id}</span>
+                  <span className="text-gray-400 text-xs ml-2">{new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span>
                 </div>
-                <p className="text-xs font-semibold text-brun-clair mb-1">🔪 {o.boucherie}</p>
+                <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + (
+                  o.status === 'done' ? 'bg-gray-100 text-gray-500' :
+                  o.status === 'delivery' ? 'bg-orange-100 text-orange-600' :
+                  o.status === 'ready' ? 'bg-green-100 text-green-600' :
+                  'bg-blue-100 text-blue-600'
+                )}>
+                  {o.status === 'done' ? '✅ Livrée' : o.status === 'delivery' ? '🛵 En livraison' : o.status === 'ready' ? '📦 Prête' : '🔪 En préparation'}
+                </span>
+              </div>
+              <div className="px-4 py-3 border-b border-gris-bd">
+                <p className="text-xs font-semibold text-brun-clair mb-1">🔪 {o.boucherie} · {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}</p>
                 <p className="text-xs text-or mb-2">🕐 {o.creneau}</p>
-                <div className="flex flex-wrap gap-1.5 mb-3">
+                <div className="flex flex-wrap gap-1.5">
                   {o.items.map((it, i) => (
                     <span key={i} className="bg-creme text-brun text-xs px-2.5 py-1 rounded-lg flex items-center gap-1">
                       {it.icon} {it.nom} ×{it.qty}
@@ -595,18 +660,48 @@ function CommandesSection({ onBack }: { onBack: () => void }) {
                     </span>
                   ))}
                 </div>
-                <div className="flex justify-between items-center pt-3 border-t border-gris-bd">
-                  <div>
-                    <p className="font-bold text-brun text-sm">{o.total.toFixed(2)} €</p>
-                    <p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
+                {/* Mini suivi si en livraison */}
+                {o.status === 'delivery' && (
+                  <div className="bg-or-pale border border-or/20 rounded-xl p-2.5 mt-2 flex items-center gap-2">
+                    <span className="text-lg">🛵</span>
+                    <div>
+                      <p className="text-xs font-bold text-brun">Votre livreur est en route</p>
+                      <p className="text-[10px] text-gray-400">Arrivée estimée dans ~8 min</p>
+                    </div>
                   </div>
-                  <button className="bg-rouge-vif text-white text-xs font-bold px-4 py-2 rounded-xl font-sans"
+                )}
+                {o.status === 'ready' && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 mt-2 flex items-center gap-2">
+                    <span className="text-lg">✅</span>
+                    <div>
+                      <p className="text-xs font-bold text-green-700">Votre commande est prête !</p>
+                      <p className="text-[10px] text-gray-400">Présentez le {o.id} en caisse</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-3 flex justify-between items-center">
+                <div>
+                  <p className="font-bold text-brun text-sm">{o.total.toFixed(2)} €</p>
+                  <p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
+                </div>
+                <div className="flex gap-2">
+                  {o.status === 'delivery' && (
+                    <button className="bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                      onClick={() => router.push(`/suivi?numero=${o.id}`)}>🗺️ Suivre</button>
+                  )}
+                  {o.status === 'ready' && (
+                    <button className="bg-green-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                      onClick={() => router.push(`/confirmation?numero=${o.id}&bid=1`)}>🗺️ Y aller</button>
+                  )}
+                  <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans"
                     onClick={() => router.push('/')}>🔄 Re-commander</button>
                 </div>
               </div>
-            ))}
-          </div>
-      }
+            </div>
+          ))
+        }
+      </div>
     </PageWrapper>
   )
 }
