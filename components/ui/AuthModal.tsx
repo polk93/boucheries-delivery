@@ -22,24 +22,21 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
     setError('')
     const email = form.email.toLowerCase().trim()
 
-    // Compte démo
     if (isDemoEmail(email)) {
       const demoUser = email === DEMO_BOUCHER.email ? DEMO_BOUCHER : DEMO_CLIENT
       login(demoUser)
       onClose()
+      router.refresh()
+      if (demoUser.role === 'boucher') router.push('/panel')
       return
     }
 
     if (!form.email.trim()) { setError('Veuillez saisir votre email.'); return }
     if (!form.password.trim()) { setError('Veuillez saisir votre mot de passe.'); return }
 
-    // Vérifier si c'est un compte boucher créé via le formulaire d'inscription
     const boucherAccount = findBoucher(email)
     if (boucherAccount) {
-      if (boucherAccount.password !== form.password) {
-        setError('Mot de passe incorrect.')
-        return
-      }
+      if (boucherAccount.password !== form.password) { setError('Mot de passe incorrect.'); return }
       login({
         id: boucherAccount.id,
         nom: boucherAccount.nom,
@@ -49,10 +46,11 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
         boucherieNom: boucherAccount.nom_boutique,
       })
       onClose()
+      router.refresh()
+      router.push('/panel')
       return
     }
 
-    // Compte client standard
     login({
       id: 'user_' + Date.now(),
       nom: form.nom || form.email.split('@')[0],
@@ -61,6 +59,7 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
       isDemo: false,
     })
     onClose()
+    router.refresh()
   }
 
   function doRegister() {
@@ -175,13 +174,13 @@ export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModal
           <div className="grid grid-cols-2 gap-2">
             <button
               className="flex flex-col items-center gap-1 py-3 bg-or-pale border border-or/30 rounded-xl text-xs font-bold text-brun-clair font-sans hover:bg-or hover:text-white transition-all"
-              onClick={() => { login(DEMO_CLIENT); onClose() }}>
+              onClick={() => { login(DEMO_CLIENT); onClose(); router.refresh() }}>
               <span className="text-base">🛒</span>
               Démo Client
             </button>
             <button
               className="flex flex-col items-center gap-1 py-3 bg-brun/5 border border-brun/20 rounded-xl text-xs font-bold text-brun font-sans hover:bg-brun hover:text-white transition-all"
-              onClick={() => { login(DEMO_BOUCHER); onClose() }}>
+              onClick={() => { login(DEMO_BOUCHER); onClose(); router.refresh(); router.push('/panel') }}>
               <span className="text-base">🔪</span>
               Démo Boucher
             </button>
