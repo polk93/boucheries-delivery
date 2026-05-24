@@ -339,6 +339,29 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
         </div>
       )}
 
+      {/* ── BANDEAU PRÉSENTATION (non connectés uniquement) ── */}
+      {!user && (
+        <div className="bg-gradient-to-br from-brun via-brun-clair to-rouge px-4 py-6 relative overflow-hidden">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-8xl opacity-10 pointer-events-none select-none">🥩</div>
+          <div className="max-w-2xl mx-auto">
+            <h1 className="font-serif font-black text-white leading-tight mb-2" style={{ fontSize: 'clamp(1.3rem, 5vw, 1.8rem)' }}>
+              La meilleure viande,<br /><span className="text-or">livrée chez vous</span>
+            </h1>
+            <p className="text-white/70 text-sm mb-3">Les boucheries artisanales de votre quartier, livrées en moins de 45 min.</p>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {['🏆 Artisans', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Sur mesure'].map(t => (
+                <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
+              ))}
+            </div>
+            <button
+              className="bg-or text-brun font-bold text-sm px-5 py-2.5 rounded-xl font-sans"
+              onClick={() => setAuthOpen(true)}>
+              Créer un compte gratuit →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── CATÉGORIES ── */}
       <div className="bg-white border-b border-gris-bd px-4 py-3">
         <div className="max-w-2xl mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-none">
