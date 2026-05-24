@@ -509,5 +509,5 @@ export default function HomePage() {
   // Tous les visiteurs voient le catalogue — connectés ou non
   // Non connecté → boutiques visibles en démo, panier désactivé
   // Compte démo / vrai compte → catalogue complet
-  return <PageCatalogue showBoutiques={true} />
+  return <PageCatalogue showBoutiques={!user || isDemo()} />
 }

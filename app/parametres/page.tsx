@@ -61,7 +61,7 @@ export default function ParametresPage() {
         { ico: '👤', label: 'Mon profil', sub: user?.nom || 'Modifier mes informations', action: () => setSection('profil') },
         { ico: '📍', label: 'Mes adresses', sub: '1 adresse enregistrée', action: () => setSection('adresses') },
         { ico: '🔔', label: 'Notifications', sub: 'Gérer mes préférences', action: () => setSection('notifs') },
-        { ico: '❤️', label: 'Boucheries favorites', sub: '2 boucheries sauvegardées', action: () => setSection('favoris') },
+        { ico: '❤️', label: 'Boucheries favorites', sub: 'Vos boucheries sauvegardées', action: () => setSection('favoris') },
       ],
     },
     {
@@ -555,10 +555,7 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function FavorisSection({ onBack }: { onBack: () => void }) {
   const router = useRouter()
-  const [favoris, setFavoris] = useState([
-    { id: 1, nom: 'Maison Dupont', note: 4.9, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&q=60' },
-    { id: 5, nom: 'Bœuf & Tradition', note: 4.9, img: 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=200&q=60' },
-  ])
+  const [favoris, setFavoris] = useState<{ id: number; nom: string; note: number; img: string }[]>([])
   return (
     <PageWrapper title="❤️ Boucheries favorites" onBack={onBack}>
       {favoris.length === 0

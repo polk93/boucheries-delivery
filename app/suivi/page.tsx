@@ -316,13 +316,43 @@ export default function SuiviPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-creme flex items-center justify-center">
-        <div className="text-center">
-          <span className="text-4xl block mb-3">🛵</span>
-          <p className="text-brun font-semibold">Chargement du suivi…</p>
-        </div>
+        <div className="text-center"><span className="text-4xl block mb-3">🛵</span><p className="text-brun font-semibold">Chargement…</p></div>
       </div>
     }>
-      <SuiviContent />
+      <SuiviGate />
     </Suspense>
   )
+}
+
+function SuiviGate() {
+  const params = useSearchParams()
+  const router = useRouter()
+  const numero = params.get('numero')
+
+  // Pas connecté → écran d'invitation
+  // Pas de numéro de commande → pas de livraison en cours
+  if (!numero) {
+    return (
+      <div className="min-h-screen bg-creme flex flex-col" style={{ paddingBottom: 72 }}>
+        <div className="bg-brun px-4 py-3.5">
+          <h1 className="font-serif text-base font-bold text-or">🛵 Suivi de livraison</h1>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
+          <span className="text-6xl">📦</span>
+          <h2 className="font-serif text-xl font-black text-brun">Aucune livraison en cours</h2>
+          <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+            Le suivi en temps réel s'active automatiquement dès qu'une commande en livraison est en cours.
+          </p>
+          <button
+            className="bg-brun text-white font-bold px-6 py-3 rounded-xl text-sm font-sans"
+            onClick={() => router.push('/')}>
+            Commander maintenant →
+          </button>
+        </div>
+        <BottomNavClient currentPage="tracking" />
+      </div>
+    )
+  }
+
+  return <SuiviContent />
 }
