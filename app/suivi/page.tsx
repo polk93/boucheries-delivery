@@ -110,6 +110,40 @@ function SuiviContent() {
       .addTo(mapboxRef.current)
   }, [mapReady, clientPos])
 
+  // Dessiner l'itinéraire sur la carte
+  const drawRoute = useCallback(async (livreurLat: number, livreurLng: number, clientLat: number, clientLng: number) => {
+    if (!mapboxRef.current || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return
+    try {
+      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+      // Itinéraire : livreur → client
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${livreurLng},${livreurLat};${clientLng},${clientLat}?geometries=geojson&access_token=${token}`
+      const res = await fetch(url)
+      if (!res.ok) return
+      const data = await res.json()
+      const route = data.routes?.[0]?.geometry
+      if (!route) return
+
+      const map = mapboxRef.current
+      // Supprimer l'ancien itinéraire si existant
+      if (map.getLayer('route')) map.removeLayer('route')
+      if (map.getSource('route')) map.removeSource('route')
+
+      map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: route, properties: {} } })
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': '#C0392B',
+          'line-width': 4,
+          'line-opacity': 0.85,
+          'line-dasharray': [2, 1],
+        },
+      })
+    } catch {}
+  }, [])
+
   // Polling livreur toutes les 5s
   const pollPosition = useCallback(async () => {
     try {
@@ -135,9 +169,13 @@ function SuiviContent() {
           markersRef.current.livreur.setLngLat([data.lng, data.lat])
         }
         mapboxRef.current.easeTo({ center: [data.lng, data.lat], duration: 1000 })
+        // Dessiner l'itinéraire livreur → client
+        if (clientPos) {
+          drawRoute(data.lat, data.lng, clientPos.lat, clientPos.lng)
+        }
       }
     } catch {}
-  }, [numero, mapReady])
+  }, [numero, mapReady, clientPos, drawRoute])
 
   useEffect(() => {
     pollPosition()

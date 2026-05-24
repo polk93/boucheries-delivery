@@ -483,10 +483,8 @@ export default function HomePage() {
 
   if (isBoucher()) return null
 
-  // Non connecté → page de bienvenue SANS boutiques
-  if (!user) return <PageNonConnecte />
-
-  // Compte démo → catalogue avec boutiques fictives
-  // Vrai compte → catalogue vide (boucheries réelles à venir via Supabase)
-  return <PageCatalogue showBoutiques={isDemo()} />
+  // Tous les visiteurs voient le catalogue — connectés ou non
+  // Non connecté → boutiques visibles en démo, panier désactivé
+  // Compte démo / vrai compte → catalogue complet
+  return <PageCatalogue showBoutiques={true} />
 }
