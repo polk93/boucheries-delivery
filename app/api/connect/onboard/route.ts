@@ -3,18 +3,26 @@ import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-04-10' })
 
-// Commission plateforme : 15% du montant produits (hors livraison)
-const COMMISSION_RATE = 0.15
-
 export async function POST(req: NextRequest) {
   try {
-    const { email, nom_boutique, ville } = await req.json()
+    const { email, nom_boutique, ville, type = 'boucher', refresh, accountId } = await req.json()
 
-    if (!email || !nom_boutique) {
-      return NextResponse.json({ error: 'email et nom_boutique requis' }, { status: 400 })
+    // Regénérer un lien si le précédent a expiré
+    if (refresh && accountId) {
+      const accountLink = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: `${process.env.NEXT_PUBLIC_URL}/connect/refresh?account=${accountId}`,
+        return_url:  `${process.env.NEXT_PUBLIC_URL}/connect/return?account=${accountId}`,
+        type: 'account_onboarding',
+      })
+      return NextResponse.json({ onboardingUrl: accountLink.url })
     }
 
-    // Créer le compte Stripe Express pour le boucher
+    if (!email) return NextResponse.json({ error: 'email requis' }, { status: 400 })
+
+    const isBoucher = type === 'boucher'
+
+    // Créer le compte Stripe Express
     const account = await stripe.accounts.create({
       type: 'express',
       country: 'FR',
@@ -23,31 +31,39 @@ export async function POST(req: NextRequest) {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
-      business_type: 'individual',
+      business_type: isBoucher ? 'individual' : 'individual',
       business_profile: {
-        name: nom_boutique,
-        url: `https://boucheries-delivery.vercel.app`,
-        mcc: '5411', // Épiceries / boucheries
-        product_description: `Boucherie artisanale — ${nom_boutique}, ${ville}`,
+        name: nom_boutique || email,
+        url: `${process.env.NEXT_PUBLIC_URL}`,
+        mcc: isBoucher ? '5411' : '4215', // Boucherie ou Livraison
+        product_description: isBoucher
+          ? `Boucherie artisanale — ${nom_boutique}, ${ville}`
+          : `Livreur indépendant BoucheriesDelivery — ${ville}`,
       },
       metadata: {
-        nom_boutique,
-        ville,
+        type,
+        nom_boutique: nom_boutique || '',
+        ville: ville || '',
         plateforme: 'BoucheriesDelivery',
+        // Lié automatiquement à votre compte Stripe plateforme via les transfers
       },
       settings: {
         payouts: {
+          // Virements automatiques chaque lundi vers le compte bancaire du boucher/livreur
           schedule: { interval: 'weekly', weekly_anchor: 'monday' },
-          statement_descriptor: nom_boutique.slice(0, 22).toUpperCase(),
+          statement_descriptor: isBoucher
+            ? (nom_boutique || 'BOUCHERIE').slice(0, 22).toUpperCase()
+            : 'BOUCHERIES DELIVERY',
         },
       },
     })
 
     // Générer le lien d'onboarding Stripe
+    // Stripe collecte lui-même : identité, IBAN, SIRET → plus besoin de ces champs dans le formulaire
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
       refresh_url: `${process.env.NEXT_PUBLIC_URL}/connect/refresh?account=${account.id}`,
-      return_url: `${process.env.NEXT_PUBLIC_URL}/connect/return?account=${account.id}`,
+      return_url:  `${process.env.NEXT_PUBLIC_URL}/connect/return?account=${account.id}&type=${type}`,
       type: 'account_onboarding',
     })
 
