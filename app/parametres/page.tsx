@@ -1243,7 +1243,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
       })
 
       const { default: emailjs } = await import('@emailjs/browser')
-      await emailjs.send('service_uq712ai', 'template_0rdwq8', {
+      await emailjs.send('service_uq712ai', 'template_0rdvwq8', {
         subject: `🔪 Nouveau partenaire : ${form.nom_boutique} (${form.ville})`,
         message: `CANDIDATURE PARTENAIRE\nBoucherie : ${form.nom_boutique}\nAdresse : ${form.adresse}, ${form.ville}\nSIRET : ${form.siret} ${siretOk ? '✅' : '⚠️'}\nSpécialités : ${form.specialites || '—'}\nContact : ${form.prenom} ${form.nom}\nEmail : ${form.email}\nTéléphone : ${form.tel}\nMessage : ${form.message || '—'}\nKbis : ${docs.siret_doc?.name || '—'}\nMot de passe généré : ${createData.password}`.trim(),
       }, 'LbqBSABkR-S5wg9PR')
