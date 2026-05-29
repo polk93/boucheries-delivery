@@ -5,6 +5,7 @@ import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
+import { useClientStore } from '@/store/userStore'
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
@@ -173,11 +174,13 @@ export default function ParametresPage() {
 // ══════════════════════════════════════════════════════════════════════════════
 function ProfilSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
+  const { getProfil, saveProfil } = useClientStore()
+  const saved_profil = user?.email ? getProfil(user.email) : null
   const [form, setForm] = useState({
-    prenom: user?.nom?.split(' ')[0] || '',
-    nom: user?.nom?.split(' ').slice(1).join(' ') || '',
-    email: user?.email || '',
-    tel: '',
+    prenom: saved_profil?.prenom || user?.nom?.split(' ')[0] || '',
+    nom:    saved_profil?.nom    || user?.nom?.split(' ').slice(1).join(' ') || '',
+    email:  saved_profil?.email  || user?.email || '',
+    tel:    saved_profil?.tel    || '',
   })
   const [saved, setSaved] = useState(false)
 
@@ -198,7 +201,10 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
         ))}
         {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
-          onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500) }}>Enregistrer</button>
+          onClick={() => {
+            if (user?.email) saveProfil(user.email, form)
+            setSaved(true); setTimeout(() => setSaved(false), 2500)
+          }}>Enregistrer</button>
       </div>
     </PageWrapper>
   )
@@ -210,7 +216,9 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
 function AdressesSection({ onBack }: { onBack: () => void }) {
   type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
 
-  const [adresses, setAdresses] = useState<Adresse[]>([])
+  const { user } = useAuth()
+  const { getAdresses, saveAdresses } = useClientStore()
+  const [adresses, setAdresses] = useState<Adresse[]>(() => user?.email ? getAdresses(user.email) : [])
   const [editId, setEditId] = useState<string | null>(null)
   const [ajoutOpen, setAjoutOpen] = useState(false)
   const [geoLoading, setGeoLoading] = useState(false)
@@ -218,6 +226,13 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
   const [form, setForm] = useState({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2500) }
+  function updateAdresses(fn: (prev: Adresse[]) => Adresse[]) {
+    setAdresses(prev => {
+      const next = fn(prev)
+      if (user?.email) saveAdresses(user.email, next)
+      return next
+    })
+  }
 
   async function detecterPosition() {
     if (!navigator.geolocation) { showToast('❌ Géolocalisation non disponible'); return }
@@ -235,7 +250,7 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
           if (existingIdx >= 0) {
             setAdresses(prev => prev.map((a, i) => i === existingIdx ? { ...a, rue, cp, ville } : a))
           } else {
-            setAdresses(prev => [...prev, { id: Date.now().toString(), label: '🏠 Domicile', rue, cp, ville, complement: '', defaut: prev.length === 0 }])
+            updateAdresses(prev => [...prev, { id: Date.now().toString(), label: '🏠 Domicile', rue, cp, ville, complement: '', defaut: prev.length === 0 }])
           }
           showToast('📍 Adresse mise à jour !')
         } catch { showToast('❌ Impossible de récupérer l\'adresse') }
@@ -248,27 +263,27 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
 
   function ajouterAdresse() {
     if (!form.rue.trim() || !form.ville.trim()) { showToast('⚠️ Rue et ville sont requises'); return }
-    setAdresses(prev => [...prev, { id: Date.now().toString(), label: form.label, rue: form.rue, cp: form.cp, ville: form.ville, complement: form.complement, defaut: prev.length === 0 }])
+    updateAdresses(prev => [...prev, { id: Date.now().toString(), label: form.label, rue: form.rue, cp: form.cp, ville: form.ville, complement: form.complement, defaut: prev.length === 0 }])
     setForm({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
     setAjoutOpen(false)
     showToast('✅ Adresse ajoutée !')
   }
 
   function sauvegarderEdit(id: string, updated: Partial<Adresse>) {
-    setAdresses(prev => prev.map(a => a.id === id ? { ...a, ...updated } : a))
+    updateAdresses(prev => prev.map(a => a.id === id ? { ...a, ...updated } : a))
     setEditId(null)
     showToast('✅ Adresse mise à jour !')
   }
 
   function supprimerAdresse(id: string) {
-    setAdresses(prev => {
+    updateAdresses(prev => {
       const next = prev.filter(a => a.id !== id)
       if (next.length > 0 && !next.some(a => a.defaut)) next[0].defaut = true
       return next
     })
   }
 
-  function setDefaut(id: string) { setAdresses(prev => prev.map(a => ({ ...a, defaut: a.id === id }))) }
+  function setDefaut(id: string) { updateAdresses(prev => prev.map(a => ({ ...a, defaut: a.id === id }))) }
 
   const LABELS = ['🏠 Domicile', '💼 Bureau', '❤️ Proche', '📍 Autre']
 
@@ -411,7 +426,9 @@ function EditAdresseForm({ adresse, labels, onSave, onCancel }: {
 // NOTIFICATIONS
 // ══════════════════════════════════════════════════════════════════════════════
 function NotifsSection({ onBack }: { onBack: () => void }) {
-  const [prefs, setPrefs] = useState({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
+  const { user } = useAuth()
+  const { getNotifPrefs, saveNotifPrefs } = useClientStore()
+  const [prefs, setPrefs] = useState(() => user?.email ? getNotifPrefs(user.email) : { livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
   const items = [
     { key: 'livraison', label: 'Suivi de livraison',    sub: 'Statut en temps réel de vos commandes' },
     { key: 'promos',    label: 'Promotions & offres',   sub: 'Bons plans des boucheries partenaires' },
@@ -438,7 +455,11 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
               </div>
               <button
                 className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
-                onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
+                onClick={() => setPrefs(p => {
+                  const next = { ...p, [item.key]: !(p as any)[item.key] }
+                  if (user?.email) saveNotifPrefs(user.email, next)
+                  return next
+                })}>
                 <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${(prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
               </button>
             </div>
@@ -597,8 +618,16 @@ const AVIS_DEMO = [
 ]
 
 function AvisSection({ onBack }: { onBack: () => void }) {
-  const { isDemo } = useAuth()
-  const [avis, setAvis] = useState(isDemo() ? AVIS_DEMO : [])
+  const { user, isDemo } = useAuth()
+  const { getAvis, saveAvis } = useClientStore()
+  const [avis, setAvis] = useState(() => {
+    if (!user?.email) return isDemo() ? AVIS_DEMO : []
+    const stored = getAvis(user.email)
+    return stored.length > 0 ? stored : (isDemo() ? AVIS_DEMO : [])
+  })
+  function updateAvis(fn: (prev: typeof avis) => typeof avis) {
+    setAvis(prev => { const next = fn(prev); if (user?.email) saveAvis(user.email, next); return next })
+  }
   const [editId, setEditId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
 
@@ -616,7 +645,7 @@ function AvisSection({ onBack }: { onBack: () => void }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-or text-sm">{'⭐'.repeat(a.note)}</span>
-                    <button className="text-gray-300 text-xs" onClick={() => setAvis(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
+                    <button className="text-gray-300 text-xs" onClick={() => updateAvis(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
                   </div>
                 </div>
                 {editId === a.id
@@ -626,7 +655,7 @@ function AvisSection({ onBack }: { onBack: () => void }) {
                       <div className="flex gap-2 mt-2">
                         <button className="flex-1 bg-gris-bd text-brun text-xs font-semibold py-2 rounded-xl font-sans" onClick={() => setEditId(null)}>Annuler</button>
                         <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => { setAvis(prev => prev.map(x => x.id === a.id ? { ...x, texte: editText } : x)); setEditId(null) }}>Enregistrer</button>
+                          onClick={() => { updateAvis(prev => prev.map(x => x.id === a.id ? { ...x, texte: editText } : x)); setEditId(null) }}>Enregistrer</button>
                       </div>
                     </div>
                   : <>
@@ -649,7 +678,9 @@ function AvisSection({ onBack }: { onBack: () => void }) {
 // MOYENS DE PAIEMENT
 // ══════════════════════════════════════════════════════════════════════════════
 function PaiementSection({ onBack }: { onBack: () => void }) {
-  const [cartes, setCartes] = useState<{ id: string; last4: string; expiry: string; type: string; defaut: boolean }[]>([])
+  const { user } = useAuth()
+  const { getCartes, saveCartes } = useClientStore()
+  const [cartes, setCartes] = useState<{ id: string; last4: string; expiry: string; type: string; defaut: boolean }[]>(() => user?.email ? getCartes(user.email) : [])
   const [ajoutOpen, setAjoutOpen] = useState(false)
   const [form, setForm] = useState({ numero: '', titulaire: '', expiry: '', cvv: '' })
   const [saved, setSaved] = useState(false)
@@ -669,7 +700,11 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
     if (!validate()) return
     const last4 = form.numero.replace(/\s/g, '').slice(-4)
     const type = form.numero.startsWith('4') ? 'Visa' : form.numero.startsWith('5') ? 'Mastercard' : 'Carte'
-    setCartes(prev => [...prev, { id: Date.now().toString(), last4, expiry: form.expiry, type, defaut: prev.length === 0 }])
+    setCartes(prev => {
+      const next = [...prev, { id: Date.now().toString(), last4, expiry: form.expiry, type, defaut: prev.length === 0 }]
+      if (user?.email) saveCartes(user.email, next)
+      return next
+    })
     setForm({ numero: '', titulaire: '', expiry: '', cvv: '' })
     setAjoutOpen(false)
     setSaved(true)
@@ -698,8 +733,8 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className="flex items-center gap-2">
                   {c.defaut ? <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Défaut</span>
-                    : <button className="text-xs text-or font-semibold" onClick={() => setCartes(prev => prev.map(x => ({ ...x, defaut: x.id === c.id })))}>Définir</button>}
-                  <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => prev.filter(x => x.id !== c.id))}>🗑️</button>
+                    : <button className="text-xs text-or font-semibold" onClick={() => setCartes(prev => { const n = prev.map(x => ({ ...x, defaut: x.id === c.id })); if (user?.email) saveCartes(user.email, n); return n })}>Définir</button>}
+                  <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => { const n = prev.filter(x => x.id !== c.id); if (user?.email) saveCartes(user.email, n); return n })}>🗑️</button>
                 </div>
               </div>
             </div>
