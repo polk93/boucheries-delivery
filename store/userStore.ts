@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 export interface Adresse {
   id: string
   label: string
@@ -20,16 +20,14 @@ export interface Carte {
   defaut: boolean
 }
 
-export interface Avis {
-  id: string
-  boucherie: string
-  produit: string
-  note: number
-  texte: string
-  date: string
+export interface ProfilData {
+  prenom: string
+  nom: string
+  email: string
+  tel: string
 }
 
-export interface NotifPrefs {
+export interface NotifsPrefs {
   livraison: boolean
   promos: boolean
   nouveaux: boolean
@@ -37,144 +35,126 @@ export interface NotifPrefs {
   rapport: boolean
 }
 
-export interface ProfilClient {
-  prenom: string
-  nom: string
-  email: string
-  tel: string
+export interface UserData {
+  profil: ProfilData
+  adresses: Adresse[]
+  cartes: Carte[]
+  notifs: NotifsPrefs
+  favoris: number[]
 }
 
-// ── Store client persistant ───────────────────────────────────────────────────
-interface ClientStore {
-  // Profil
-  profils: Record<string, ProfilClient>
-  saveProfil: (email: string, profil: ProfilClient) => void
-  getProfil: (email: string) => ProfilClient | null
-
-  // Adresses
-  adresses: Record<string, Adresse[]>
-  saveAdresses: (email: string, adresses: Adresse[]) => void
-  getAdresses: (email: string) => Adresse[]
-
-  // Cartes bancaires
-  cartes: Record<string, Carte[]>
-  saveCartes: (email: string, cartes: Carte[]) => void
-  getCartes: (email: string) => Carte[]
-
-  // Avis
-  avis: Record<string, Avis[]>
-  saveAvis: (email: string, avis: Avis[]) => void
-  getAvis: (email: string) => Avis[]
-
-  // Notifs
-  notifPrefs: Record<string, NotifPrefs>
-  saveNotifPrefs: (email: string, prefs: NotifPrefs) => void
-  getNotifPrefs: (email: string) => NotifPrefs
-
-  // Favoris (IDs de boucheries)
-  favoris: Record<string, number[]>
-  saveFavoris: (email: string, ids: number[]) => void
-  getFavoris: (email: string) => number[]
+// Données par défaut
+function defaultUserData(email = '', nom = ''): UserData {
+  const parts = nom.trim().split(' ')
+  return {
+    profil: {
+      prenom: parts[0] || '',
+      nom: parts.slice(1).join(' ') || '',
+      email,
+      tel: '',
+    },
+    adresses: [],
+    cartes: [],
+    notifs: { livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false },
+    favoris: [],
+  }
 }
 
-const DEFAULT_NOTIFS: NotifPrefs = { livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false }
+// ── Store ─────────────────────────────────────────────────────────────────────
+// Clé = email utilisateur → données isolées par compte
+interface UserStore {
+  users: Record<string, UserData>
 
-export const useClientStore = create<ClientStore>()(
+  // Getters
+  getData: (email: string, nom?: string) => UserData
+
+  // Setters
+  setProfil:   (email: string, profil: ProfilData) => void
+  setAdresses: (email: string, adresses: Adresse[]) => void
+  setCartes:   (email: string, cartes: Carte[]) => void
+  setNotifs:   (email: string, notifs: NotifsPrefs) => void
+  setFavoris:  (email: string, favoris: number[]) => void
+
+  // Helpers
+  addAdresse:     (email: string, a: Adresse) => void
+  updateAdresse:  (email: string, id: string, updates: Partial<Adresse>) => void
+  removeAdresse:  (email: string, id: string) => void
+  addCarte:       (email: string, c: Carte) => void
+  removeCarte:    (email: string, id: string) => void
+  toggleFavori:   (email: string, boucherieId: number) => void
+}
+
+export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
-      profils: {},
-      saveProfil: (email, profil) => set(s => ({ profils: { ...s.profils, [email]: profil } })),
-      getProfil: (email) => get().profils[email] || null,
+      users: {},
 
-      adresses: {},
-      saveAdresses: (email, adresses) => set(s => ({ adresses: { ...s.adresses, [email]: adresses } })),
-      getAdresses: (email) => get().adresses[email] || [],
+      getData: (email, nom = '') => {
+        return get().users[email] || defaultUserData(email, nom)
+      },
 
-      cartes: {},
-      saveCartes: (email, cartes) => set(s => ({ cartes: { ...s.cartes, [email]: cartes } })),
-      getCartes: (email) => get().cartes[email] || [],
+      setProfil: (email, profil) => set(s => ({
+        users: { ...s.users, [email]: { ...get().getData(email), profil } }
+      })),
 
-      avis: {},
-      saveAvis: (email, avis) => set(s => ({ avis: { ...s.avis, [email]: avis } })),
-      getAvis: (email) => get().avis[email] || [],
+      setAdresses: (email, adresses) => set(s => ({
+        users: { ...s.users, [email]: { ...get().getData(email), adresses } }
+      })),
 
-      notifPrefs: {},
-      saveNotifPrefs: (email, prefs) => set(s => ({ notifPrefs: { ...s.notifPrefs, [email]: prefs } })),
-      getNotifPrefs: (email) => get().notifPrefs[email] || DEFAULT_NOTIFS,
+      setCartes: (email, cartes) => set(s => ({
+        users: { ...s.users, [email]: { ...get().getData(email), cartes } }
+      })),
 
-      favoris: {},
-      saveFavoris: (email, ids) => set(s => ({ favoris: { ...s.favoris, [email]: ids } })),
-      getFavoris: (email) => get().favoris[email] || [],
+      setNotifs: (email, notifs) => set(s => ({
+        users: { ...s.users, [email]: { ...get().getData(email), notifs } }
+      })),
+
+      setFavoris: (email, favoris) => set(s => ({
+        users: { ...s.users, [email]: { ...get().getData(email), favoris } }
+      })),
+
+      addAdresse: (email, a) => {
+        const data = get().getData(email)
+        const adresses = [...data.adresses, a]
+        set(s => ({ users: { ...s.users, [email]: { ...data, adresses } } }))
+      },
+
+      updateAdresse: (email, id, updates) => {
+        const data = get().getData(email)
+        const adresses = data.adresses.map(a => a.id === id ? { ...a, ...updates } : a)
+        set(s => ({ users: { ...s.users, [email]: { ...data, adresses } } }))
+      },
+
+      removeAdresse: (email, id) => {
+        const data = get().getData(email)
+        let adresses = data.adresses.filter(a => a.id !== id)
+        if (adresses.length > 0 && !adresses.some(a => a.defaut)) adresses[0].defaut = true
+        set(s => ({ users: { ...s.users, [email]: { ...data, adresses } } }))
+      },
+
+      addCarte: (email, c) => {
+        const data = get().getData(email)
+        const cartes = [...data.cartes, c]
+        set(s => ({ users: { ...s.users, [email]: { ...data, cartes } } }))
+      },
+
+      removeCarte: (email, id) => {
+        const data = get().getData(email)
+        const cartes = data.cartes.filter(c => c.id !== id)
+        set(s => ({ users: { ...s.users, [email]: { ...data, cartes } } }))
+      },
+
+      toggleFavori: (email, boucherieId) => {
+        const data = get().getData(email)
+        const favoris = data.favoris.includes(boucherieId)
+          ? data.favoris.filter(id => id !== boucherieId)
+          : [...data.favoris, boucherieId]
+        set(s => ({ users: { ...s.users, [email]: { ...data, favoris } } }))
+      },
     }),
     {
-      name: 'boucherie-client-data',
-      // Stockage par email — les données de chaque utilisateur sont isolées
+      name: 'boucherie-user-data',
+      version: 1,
     }
-  )
-)
-
-// ── Store boucher persistant ───────────────────────────────────────────────────
-export interface ProfilBoucher {
-  prenom: string
-  nom: string
-  email: string
-  tel: string
-  boutique: string
-}
-
-export interface NotifBoucherPrefs {
-  nouvelle_cmd: boolean
-  stock_faible: boolean
-  paiement: boolean
-  rapport: boolean
-}
-
-export interface BoutiqueData {
-  nom: string
-  desc: string
-  tel: string
-  email: string
-  adresse: string
-  frais: string
-  minCommande: string
-  rayon: string
-  promo: boolean
-  promoTexte: string
-  horaires: Record<string, any>
-  promotions: any[]
-}
-
-interface BoucherStore {
-  profils: Record<string, ProfilBoucher>
-  saveProfil: (email: string, profil: ProfilBoucher) => void
-  getProfil: (email: string) => ProfilBoucher | null
-
-  notifPrefs: Record<string, NotifBoucherPrefs>
-  saveNotifPrefs: (email: string, prefs: NotifBoucherPrefs) => void
-  getNotifPrefs: (email: string) => NotifBoucherPrefs
-
-  boutiques: Record<string, Partial<BoutiqueData>>
-  saveBoutique: (email: string, data: Partial<BoutiqueData>) => void
-  getBoutique: (email: string) => Partial<BoutiqueData>
-}
-
-const DEFAULT_NOTIFS_BOUCHER: NotifBoucherPrefs = { nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false }
-
-export const useBoucherStore = create<BoucherStore>()(
-  persist(
-    (set, get) => ({
-      profils: {},
-      saveProfil: (email, profil) => set(s => ({ profils: { ...s.profils, [email]: profil } })),
-      getProfil: (email) => get().profils[email] || null,
-
-      notifPrefs: {},
-      saveNotifPrefs: (email, prefs) => set(s => ({ notifPrefs: { ...s.notifPrefs, [email]: prefs } })),
-      getNotifPrefs: (email) => get().notifPrefs[email] || DEFAULT_NOTIFS_BOUCHER,
-
-      boutiques: {},
-      saveBoutique: (email, data) => set(s => ({ boutiques: { ...s.boutiques, [email]: { ...s.boutiques[email], ...data } } })),
-      getBoutique: (email) => get().boutiques[email] || {},
-    }),
-    { name: 'boucherie-boucher-data' }
   )
 )
