@@ -247,8 +247,8 @@ export default function PanelPage() {
   function setIsOpenPersist(val: boolean) {
     setIsOpen(val); boucherStore.setIsOpen(bid, val)
   }
-  function setBoutiquePersist(val: any) {
-    setBoutiquePersist(val); boucherStore.setBoutiquePersist(myBoucherieId, val)
+ function setBoutiquePersist(val: any) {
+    setBoutique(val); boucherStore.setBoutique(myBoucherieId, val)
   }
 
   function progress(id: string) {
