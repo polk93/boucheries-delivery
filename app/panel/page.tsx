@@ -6,7 +6,7 @@ import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
 import AuthModal from '@/components/ui/AuthModal'
 import { useAccounts } from '@/store/accounts'
 import { BOUCHERIES, type Produit } from '@/lib/data'
-import { useBoucherStore } from '@/store/userStore'
+import { useBoucherStore } from '@/store/boucherStore'
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ProduitEtendu extends Produit {
   boucherieId: number
