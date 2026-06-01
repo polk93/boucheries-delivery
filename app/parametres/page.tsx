@@ -175,8 +175,8 @@ export default function ParametresPage() {
 // ══════════════════════════════════════════════════════════════════════════════
 function ProfilSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
-  const { getProfil, saveProfil } = useUserStore()
-  const saved_profil = user?.email ? getProfil(user.email) : null
+  const store = useUserStore()
+const saved_profil = user?.email ? store.getData(user.email, user.nom).profil : null
   const [form, setForm] = useState({
     prenom: saved_profil?.prenom || user?.nom?.split(' ')[0] || '',
     nom:    saved_profil?.nom    || user?.nom?.split(' ').slice(1).join(' ') || '',
@@ -203,7 +203,7 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
         {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
           onClick={() => {
-            if (user?.email) saveProfil(user.email, form)
+            if (user?.email) store.setProfil(user?.email || '',user.email, form)
             setSaved(true); setTimeout(() => setSaved(false), 2500)
           }}>Enregistrer</button>
       </div>
