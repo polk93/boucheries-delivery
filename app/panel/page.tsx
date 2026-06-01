@@ -247,8 +247,12 @@ export default function PanelPage() {
   function setIsOpenPersist(val: boolean) {
     setIsOpen(val); boucherStore.setIsOpen(bid, val)
   }
- function setBoutiquePersist(val: any) {
-    setBoutique(val); boucherStore.setBoutique(myBoucherieId, val)
+  function setBoutiquePersist(updater: any) {
+    setBoutique(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      boucherStore.setBoutique(myBoucherieId, next)
+      return next
+    })
   }
 
   function progress(id: string) {
@@ -282,7 +286,7 @@ export default function PanelPage() {
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '' })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce') })
     setIsNew(false)
   }
 
@@ -349,7 +353,7 @@ export default function PanelPage() {
   }
 
   function updateHoraire(key: string, field: keyof HoraireJour, value: string | boolean) {
-    setBoutiquePersist((b: typeof boutique) => ({
+    setBoutiquePersist(b => ({
       ...b,
       horaires: {
         ...b.horaires,
@@ -361,12 +365,12 @@ export default function PanelPage() {
 
   function addPromo() {
     const newPromo: Promo = { id: Date.now().toString(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
-    setBoutiquePersist((b: typeof boutique) => ({ ...b, promotions: [...b.promotions, newPromo] }))
+    setBoutiquePersist(b => ({ ...b, promotions: [...b.promotions, newPromo] }))
     setBoutiqueEdited(true)
   }
 
   function updatePromo(idx: number, field: keyof Promo, value: string | boolean) {
-    setBoutiquePersist((b: typeof boutique)  {
+    setBoutiquePersist(b => {
       const p = [...b.promotions]
       p[idx] = { ...p[idx], [field]: value }
       return { ...b, promotions: p }
@@ -375,7 +379,7 @@ export default function PanelPage() {
   }
 
   function removePromo(idx: number) {
-    setBoutiquePersist((b: typeof boutique) => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
+    setBoutiquePersist(b => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
     setBoutiqueEdited(true)
   }
 
@@ -635,7 +639,7 @@ export default function PanelPage() {
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                       placeholder={ph}
                       value={boutique[k] as string}
-                      onChange={e => { setBoutiquePersist((b: typeof boutique) => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
+                      onChange={e => { setBoutiquePersist(b => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
                   </div>
                 ))}
                 <div>
@@ -643,7 +647,7 @@ export default function PanelPage() {
                   <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
                     placeholder="Vos spécialités, votre histoire…"
                     value={boutique.desc}
-                    onChange={e => { setBoutiquePersist((b: typeof boutique) => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
+                    onChange={e => { setBoutiquePersist(b => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
                 </div>
               </div>
             </div>
