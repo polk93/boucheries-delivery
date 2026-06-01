@@ -361,7 +361,7 @@ export default function PanelPage() {
 
   function addPromo() {
     const newPromo: Promo = { id: Date.now().toString(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
-    setBoutiquePersist((b: typeof boutique)  ({ ...b, promotions: [...b.promotions, newPromo] }))
+    setBoutiquePersist((b: typeof boutique) => ({ ...b, promotions: [...b.promotions, newPromo] }))
     setBoutiqueEdited(true)
   }
 
@@ -375,7 +375,7 @@ export default function PanelPage() {
   }
 
   function removePromo(idx: number) {
-    setBoutiquePersist((b: typeof boutique)  ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
+    setBoutiquePersist((b: typeof boutique) => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
     setBoutiqueEdited(true)
   }
 
@@ -635,7 +635,7 @@ export default function PanelPage() {
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                       placeholder={ph}
                       value={boutique[k] as string}
-                      onChange={e => { setBoutiquePersist((b: typeof boutique)  ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
+                      onChange={e => { setBoutiquePersist((b: typeof boutique) => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
                   </div>
                 ))}
                 <div>
@@ -643,7 +643,7 @@ export default function PanelPage() {
                   <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
                     placeholder="Vos spécialités, votre histoire…"
                     value={boutique.desc}
-                    onChange={e => { setBoutiquePersist((b: typeof boutique)  ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
+                    onChange={e => { setBoutiquePersist((b: typeof boutique) => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
                 </div>
               </div>
             </div>
