@@ -203,7 +203,7 @@ const saved_profil = user?.email ? store.getData(user.email, user.nom).profil : 
         {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
           onClick={() => {
-            if (user?.email) store.setProfil(user?.email || '',user.email, form)
+            if (user?.email) store.setProfil(user.email, form)
             setSaved(true); setTimeout(() => setSaved(false), 2500)
           }}>Enregistrer</button>
       </div>
