@@ -1,12 +1,12 @@
 'use client'
-import React, { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
 import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
 import AuthModal from '@/components/ui/AuthModal'
-import { useAccounts } from '@/store/accounts'
 import { BOUCHERIES, type Produit } from '@/lib/data'
 import { useBoucherStore } from '@/store/boucherStore'
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ProduitEtendu extends Produit {
   boucherieId: number
@@ -27,6 +27,7 @@ interface ProduitForm {
   boucherieId: number
   cat: string
   venteType: string
+  allergenes: string
 }
 
 interface LigneCommande {
@@ -52,7 +53,6 @@ interface Commande {
   status: string
   modePaiement: string
   stripeId: string
-  mode?: 'livraison' | 'click_collect'
 }
 
 interface HoraireJour {
@@ -71,37 +71,37 @@ const ORDERS_INIT: Commande[] = [
     id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
     adresse: '8 rue Léon Frot, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:42',
-    frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001', mode: 'livraison' as const,
+    frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001',
     lignes: [
-      { produit: 'Entrecôte Charolais', icon: '🥩', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
-      { produit: 'Merguez Maison', icon: '🌶️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ' },
+      { produit: 'Entrecôte Charolais', icon: '', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
+      { produit: 'Merguez Maison', icon: '️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ' },
     ],
   },
   {
     id: '#1041', client: 'Théo B.', tel: '07 89 01 23 45',
     adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13h–14h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:24',
-    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002', mode: 'click_collect' as const,
+    frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002',
     lignes: [
-      { produit: 'Filet de Bœuf', icon: '🍖', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée' },
+      { produit: 'Filet de Bœuf', icon: '', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée' },
     ],
   },
   {
     id: '#1040', client: 'Marie L.', tel: '06 55 44 33 22',
     adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12h–13h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:06',
-    frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003', mode: 'click_collect' as const,
+    frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003',
     lignes: [
-      { produit: "Bavette d'Aloyau", icon: '🥩', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
+      { produit: "Bavette d'Aloyau", icon: '', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
     ],
   },
   {
     id: '#1039', client: 'Jules R.', tel: '07 11 22 33 44',
     adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'Dès que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:48',
-    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004', mode: 'livraison' as const,
+    frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004',
     lignes: [
-      { produit: 'Merguez Maison', icon: '🌶️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
+      { produit: 'Merguez Maison', icon: '️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
     ],
   },
 ]
@@ -111,9 +111,9 @@ const HISTORIQUE_INIT: Commande[] = [
     id: '#1038', client: 'Anna K.', tel: '06 98 76 54 32',
     adresse: '31 rue de la Folie Méricourt, 75011 Paris', creneau: "Aujourd'hui 11h–12h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:21',
-    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005', mode: 'livraison' as const,
+    frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005',
     lignes: [
-      { produit: 'Côtes de Porc', icon: '🍖', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
+      { produit: 'Côtes de Porc', icon: '', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
     ],
   },
   {
@@ -122,7 +122,7 @@ const HISTORIQUE_INIT: Commande[] = [
     date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '18:30',
     frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_histo001',
     lignes: [
-      { produit: 'Entrecôte Charolais', icon: '🥩', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
+      { produit: 'Entrecôte Charolais', icon: '', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
     ],
   },
 ]
@@ -134,7 +134,7 @@ const SC: Record<string, string> = {
 }
 const SF = ['new', 'prep', 'ready', 'delivery', 'done']
 const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'Livrer', delivery: 'Confirmer' }
-const ICONS = ['🥩', '🍖', '🌶️', '🥓', '🌭', '🫙', '🦴', '🐓', '🐇', '🦆', '🔥', '⭐']
+const ICONS = ['', '', '️', '', '', '', '', '', '', '', '', '⭐']
 const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
 
 const HORAIRE_DEFAULT: HoraireJour = { ouvert: true, matin: true, matinDebut: '08:00', matinFin: '13:00', am: true, amDebut: '15:00', amFin: '19:30' }
@@ -149,7 +149,7 @@ const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
 }
 
 function emptyForm(boucherieId: number): ProduitForm {
-  return { id: '', nom: '', desc: '', prix: '', icon: '🥩', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce' }
+  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '' }
 }
 
 function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
@@ -178,9 +178,6 @@ interface Promo {
   dateDebut: string
   dateFin: string
   active: boolean
-  produitId?: string
-  xVal?: string
-  yVal?: string
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -193,46 +190,45 @@ export default function PanelPage() {
   const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
   const [showHistorique, setShowHistorique] = useState(false)
-  const [paramsSection, setParamsSection] = useState<'main'|'hist_cmd'|'hist_pay'|'mdp'>('main')
-
-  // Historique du jour uniquement dans l'onglet commandes
-  const todayStr = new Date().toLocaleDateString('fr-FR')
-  const historiqueToday = historique.filter(o => o.date === todayStr)
-  // Historique des autres jours → onglet paramètres
-  const historiqueOld = historique.filter(o => o.date !== todayStr)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [produits, setProduits] = useState<ProduitEtendu[]>(
-    user?.isDemo
-      ? BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
-      : []
-  )
+  const boucherStore = useBoucherStore()
+  const [isOpen, setIsOpen] = useState(true)
+  const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
+    const saved = boucherStore.getProduits(myBoucherieId)
+    if (saved.length > 0) return saved
+    if (user?.isDemo) return BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
+    return []
+  })
   const [modalProd, setModalProd] = useState<ProduitForm | null>(null)
   const [isNew, setIsNew] = useState(false)
 
   const myBoucherieId = user?.boucherieId || 1
   const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
-  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
   const bRef = user?.isDemo ? myBoucherie : undefined
 
   const [boutique, setBoutique] = useState(() => makeInitBoutique(bRef))
   const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
-  const [rechercheProds, setRechercheProds] = useState('')
-  const [filtreCat, setFiltreCat]           = useState('tous')
-
-  // Dérivées — après tous les useState
-  const cats = ['tous', ...Array.from(new Set(myProduits.map(p => String(p.cat))))]
-  const filtresProds = myProduits.filter(p => {
-    const matchR = rechercheProds === '' || p.nom.toLowerCase().includes(rechercheProds.toLowerCase()) || p.desc.toLowerCase().includes(rechercheProds.toLowerCase())
-    const matchC = filtreCat === 'tous' || String(p.cat) === filtreCat
-    return matchR && matchC
-  })
+  const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
   function progress(id: string) {
+    const order = orders.find(o => o.id === id)
+    if (order?.status === 'new') {
+      // Décrémenter stock automatiquement à l'acceptation
+      setProduits(prev => {
+        const next = prev.map(p => {
+          const ligne = order.lignes.find(l => l.produit === p.nom)
+          if (!ligne) return p
+          return { ...p, stock: Math.max(0, p.stock - ligne.qty) }
+        })
+        boucherStore.setProduits(myBoucherieId, next)
+        return next
+      })
+    }
     setOrders(prev => {
       const updated = prev.map(o => {
         if (o.id !== id) return o
@@ -279,7 +275,7 @@ export default function PanelPage() {
         cat: modalProd.cat as any,
         venteType: modalProd.venteType as any,
       }
-      setProduits(prev => [...prev, newProd])
+      setProduits(prev => { const next = [...prev, newProd]; boucherStore.setProduits(myBoucherieId, next); return next })
       showToast('✅ Produit créé !')
     } else {
       setProduits(prev => prev.map(p => {
@@ -304,15 +300,15 @@ export default function PanelPage() {
 
   function deleteProd(id: string) {
     if (!confirm('Supprimer ce produit ?')) return
-    setProduits(prev => prev.filter(p => p.id !== id))
-    showToast('🗑️ Produit supprimé')
+    setProduits(prev => { const next = prev.filter(p => p.id !== id); boucherStore.setProduits(myBoucherieId, next); return next })
+    showToast('️ Produit supprimé')
   }
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !modalProd) return
     setModalProd(f => f ? { ...f, photoUrl: URL.createObjectURL(file) } : f)
-    showToast('📸 Photo ajoutée !')
+    showToast(' Photo ajoutée !')
     e.target.value = ''
   }
 
@@ -352,11 +348,11 @@ export default function PanelPage() {
     return (
       <div className="min-h-screen bg-creme flex flex-col items-center justify-center px-5 pb-10">
         <div className="text-center max-w-sm">
-          <span className="text-6xl block mb-4">🔪</span>
+          <span className="text-6xl block mb-4"></span>
           <h1 className="font-serif text-2xl font-black text-brun mb-2">Espace Boucher</h1>
           <p className="text-gray-400 text-sm mb-6">Connectez-vous avec votre compte boucher pour accéder à votre tableau de bord.</p>
           <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans hover:bg-rouge-vif transition-colors"
-            onClick={() => setAuthOpen(true)}>🔪 Connexion Boucher</button>
+            onClick={() => setAuthOpen(true)}> Connexion Boucher</button>
           <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
             onClick={() => router.push('/')}>← Retour à l'accueil</button>
         </div>
@@ -372,7 +368,7 @@ export default function PanelPage() {
       {/* Header */}
       <div className="bg-brun px-4 py-3.5 flex justify-between items-center sticky top-0 z-10">
         <div>
-          <span className="font-serif text-base font-black text-or">🔪 {myBoucherie?.nom || 'Votre boucherie'}</span>
+          <span className="font-serif text-base font-black text-or"> {myBoucherie?.nom || 'Votre boucherie'}</span>
           <p className="text-white/55 text-xs mt-0.5">
             {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · {user.nom}
           </p>
@@ -381,6 +377,22 @@ export default function PanelPage() {
           onClick={() => { logout(); router.push('/') }}>
           Déconnexion
         </button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 py-4 max-w-2xl mx-auto">
+        {[
+          { ico: '', val: String(orders.length), label: 'En cours' },
+          { ico: '', val: String(historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0)) + ' €', label: 'CA total' },
+          { ico: '⭐', val: '4,9', label: 'Note moyenne' },
+          { ico: '️', val: String(myProduits.length), label: 'Produits actifs' },
+        ].map(s => (
+          <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm">
+            <div className="text-xl mb-1">{s.ico}</div>
+            <div className="font-serif text-xl font-black text-brun">{s.val}</div>
+            <div className="text-xs text-gray-400">{s.label}</div>
+          </div>
+        ))}
       </div>
 
       <div className="px-4 max-w-2xl mx-auto">
@@ -392,12 +404,12 @@ export default function PanelPage() {
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(false)}>
-                📋 En cours ({orders.length})
+                 En cours ({orders.length})
               </button>
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(true)}>
-                🗂️ Aujourd'hui ({historiqueToday.length})
+                ️ Historique ({historique.length})
               </button>
             </div>
 
@@ -424,36 +436,45 @@ export default function PanelPage() {
                       <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
-                          <p className="text-xs text-gray-400">📍 {o.adresse}</p>
-                          <p className="text-xs text-or font-semibold mt-0.5">🕐 {o.creneau}</p>
+                          <p className="text-xs text-gray-400"> {o.adresse}</p>
+                          <p className="text-xs text-or font-semibold mt-0.5"> {o.creneau}</p>
                         </div>
-                        <div className="text-right flex flex-col items-end gap-1">
-                          <p className="text-base font-black text-rouge-vif">{total.toFixed(2)} €</p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${o.mode === 'livraison' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-700'}`}>
-                            {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}
-                          </span>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
                         </div>
                       </div>
-                      {/* Récapitulatif articles */}
                       <div className="px-4 py-2">
                         {o.lignes.map((l, i) => (
-                          <div key={i} className={'flex items-center gap-2 py-1.5 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
-                            <span className="text-sm flex-shrink-0">{l.icon}</span>
+                          <div key={i} className={'flex items-start gap-2 py-2 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
+                            <span className="text-base flex-shrink-0">{l.icon}</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-brun truncate">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
-                              {l.decoupe && <p className="text-[10px] text-or">✂️ {l.decoupe}{l.preparation ? ` · ${l.preparation}` : ''}</p>}
-                              {l.note ? <p className="text-[10px] text-gray-400 italic">📝 {l.note}</p> : null}
+                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
+                              <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
+                              {l.note ? <p className="text-[11px] text-gray-400 italic"> {l.note}</p> : null}
                             </div>
                             <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
                           </div>
                         ))}
                       </div>
-                      <div className="px-4 pb-4 pt-2 flex gap-2 border-t border-gris-bd">
-                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-sm font-bold px-4 py-3 rounded-xl font-sans flex-shrink-0">📞</a>
-                        {o.status !== 'done' && (
-                          <button className="flex-1 bg-brun text-white text-sm font-bold py-3 rounded-xl font-sans"
+                      <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
+                        <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                          onClick={() => setViewOrder(o)}> Récap</button>
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans"></a>
+                        {o.status === 'new' ? (
+                          <>
+                            <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
+                              onClick={() => { setOrders(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
+                              Refuser
+                            </button>
+                            <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                              onClick={() => progress(o.id)}>
+                              ✅ Accepter
+                            </button>
+                          </>
+                        ) : o.status !== 'done' ? (
+                          <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
                             onClick={() => progress(o.id)}>{BL[o.status]} →</button>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   )
@@ -461,22 +482,21 @@ export default function PanelPage() {
             )}
 
             {showHistorique && (
-              historiqueToday.length === 0
+              historique.length === 0
                 ? (
                   <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
-                    <span className="text-4xl block mb-2">🗂️</span>
-                    <p className="text-sm">Aucune commande livrée aujourd'hui</p>
-                    <p className="text-xs mt-1 text-gray-300">L'historique complet est dans Paramètres → Historique</p>
+                    <span className="text-4xl block mb-2">️</span>
+                    <p className="text-sm">Aucune commande archivée</p>
                   </div>
                 )
-                : historiqueToday.map(o => {
+                : historique.map(o => {
                   const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
                   return (
                     <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
                       <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
                         <div>
                           <span className="font-black text-brun text-sm">{o.id}</span>
-                          <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
+                          <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
                         </div>
                         <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
                       </div>
@@ -489,7 +509,7 @@ export default function PanelPage() {
                       </div>
                       <div className="px-4 py-3">
                         <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => setViewOrder(o)}>🧾 Voir le récapitulatif</button>
+                          onClick={() => setViewOrder(o)}> Voir le récapitulatif</button>
                       </div>
                     </div>
                   )
@@ -501,48 +521,17 @@ export default function PanelPage() {
         {/* ══ PRODUITS ══ */}
         {tab === 'produits' && (
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-gris-bd bg-or-pale flex justify-between items-center">
+            <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
               <div>
                 <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
                 <p className="text-xs text-gray-400">{myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</p>
               </div>
               <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
             </div>
-
-            {/* Recherche */}
-            <div className="px-3 pt-3 pb-1">
-              <input
-                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun"
-                placeholder="🔍 Rechercher un produit…"
-                value={rechercheProds}
-                onChange={e => setRechercheProds(e.target.value)}
-              />
-            </div>
-
-            {/* Filtres catégorie */}
-            {cats.length > 2 && (
-              <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-none">
-                {cats.map(c => (
-                  <button key={c}
-                    className={'px-3 py-1 rounded-full text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 border transition-all ' + (filtreCat === c ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
-                    onClick={() => setFiltreCat(c)}>
-                    {c === 'tous' ? '🛒 Tout' : c}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Liste */}
-            {filtresProds.length === 0
-              ? <div className="text-center py-8 text-gray-400 text-sm px-4">
-                  {myProduits.length === 0
-                    ? <><span className="block mb-2">🥩</span>Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></>
-                    : <><span className="block mb-2">🔍</span>Aucun résultat pour "{rechercheProds}"</>
-                  }
-                </div>
-              : filtresProds.map((p, i) => (
-                <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < filtresProds.length - 1 ? 'border-b border-gris-bd' : '')}>
+            {myProduits.length === 0
+              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
+              : myProduits.map((p, i) => (
+                <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '')}>
                   {p.photoUrl
                     ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
                     : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
@@ -550,21 +539,19 @@ export default function PanelPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
                     <p className="text-xs text-gray-400 truncate">{p.desc}</p>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-xs font-bold text-rouge-vif">
-                        {p.venteType === 'poids' ? `${p.prix.toFixed(2)} €/kg` : `${p.prix.toFixed(2)} €/pièce`}
-                      </span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
                       <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
                         {p.stock === 0 ? 'Rupture' : String(p.stock)}
                       </span>
-                      <span className="text-[10px] bg-gris-bd text-gray-500 px-1.5 py-0.5 rounded-full">
-                        {p.venteType === 'poids' ? '⚖️ Au poids' : '🔢 À la pièce'}
-                      </span>
+                      {!p.photoUrl && (
+                        <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷 Photo</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-1.5 flex-shrink-0">
                     <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                    <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                    <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>️</button>
                   </div>
                 </div>
               ))
@@ -581,19 +568,19 @@ export default function PanelPage() {
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
                 <div className="w-full h-28 bg-gradient-to-br from-brun to-brun-clair flex items-center justify-center relative">
-                  <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom ? boutique.nom[0] : '🔪'}</span>
+                  <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom ? boutique.nom[0] : ''}</span>
                   <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                    {boutique.promo ? '🏷️ Promo' : '🔪 Artisan'}
+                    {boutique.promo ? '️ Promo' : ' Artisan'}
                   </span>
                 </div>
                 <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-serif text-sm font-bold text-brun">{boutique.nom || 'Nom de votre boutique'}</span>
-                    <span className="text-xs text-or">⭐ 4,9</span>
+                    <span className="text-xs text-or">⭐ —</span>
                   </div>
                   <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
                   <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                    <span className="text-[11px] text-gray-400">🕐 ~30 min · 🛍️ {myProduits.length} produit{myProduits.length > 1 ? 's' : ''}</span>
+                    <span className="text-[11px] text-gray-400"> ~30 min ·  Click &amp; Collect</span>
                     <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
                   </div>
                 </div>
@@ -603,7 +590,7 @@ export default function PanelPage() {
             {/* Infos */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🏪 Informations</p>
+                <p className="font-bold text-brun text-sm"> Informations</p>
               </div>
               <div className="p-4 space-y-3">
                 {([['nom', 'Nom de la boutique', 'Boucherie Dupont'], ['tel', 'Téléphone', '01 23 45 67 89'], ['email', 'Email', 'contact@maboucherie.fr'], ['adresse', 'Adresse', '12 rue du Marché']] as const).map(([k, l, ph]) => (
@@ -628,7 +615,7 @@ export default function PanelPage() {
             {/* Horaires */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🕐 Horaires d'ouverture</p>
+                <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
               </div>
               <div className="p-4 space-y-4">
                 {JOURS.map(([key, label]) => {
@@ -689,134 +676,46 @@ export default function PanelPage() {
             {/* Promotions */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
-                <p className="font-bold text-brun text-sm">🏷️ Promotions</p>
+                <p className="font-bold text-brun text-sm">️ Promotions</p>
                 <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={addPromo}>+ Ajouter</button>
               </div>
               {boutique.promotions.length === 0
-                ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">🏷️</span><p className="text-sm">Aucune promotion active.</p></div>
+                ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">️</span><p className="text-sm">Aucune promotion active.</p></div>
                 : <div className="divide-y divide-gris-bd">
-                    {boutique.promotions.map((promo, idx) => {
-                      const produitCible = myProduits.find(p => p.id === promo.produitId)
-                      return (
-                        <div key={promo.id} className="p-4 space-y-3">
-                          {/* Toggle + supprimer */}
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <button className={'w-10 h-5 rounded-full relative transition-colors ' + (promo.active ? 'bg-green-400' : 'bg-gray-200')}
-                                onClick={() => updatePromo(idx, 'active', !promo.active)}>
-                                <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
-                              </button>
-                              <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
-                            </div>
-                            <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
-                              onClick={() => removePromo(idx)}>🗑️</button>
+                    {boutique.promotions.map((promo, idx) => (
+                      <div key={promo.id} className="p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <button className={'w-10 h-5 rounded-full relative transition-colors ' + (promo.active ? 'bg-green-400' : 'bg-gray-200')}
+                              onClick={() => updatePromo(idx, 'active', !promo.active)}>
+                              <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
+                            </button>
+                            <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
                           </div>
-
-                          {/* Sélection produit */}
-                          <div>
-                            <label className="text-xs font-bold text-brun block mb-1">Produit concerné</label>
-                            <select
-                              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
-                              value={promo.produitId || ''}
-                              onChange={e => updatePromo(idx, 'produitId' as any, e.target.value)}>
-                              <option value="">— Tous les produits —</option>
-                              {myProduits.map(p => (
-                                <option key={p.id} value={p.id}>{p.icon} {p.nom}</option>
-                              ))}
-                            </select>
-                            {produitCible && (
-                              <p className="text-[11px] text-or font-semibold mt-1">
-                                Prix actuel : {produitCible.prix.toFixed(2)} € {produitCible.venteType === 'poids' ? '/kg' : '/pièce'}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Type de promotion */}
-                          <div>
-                            <label className="text-xs font-bold text-brun block mb-1.5">Type de promotion</label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                ['reduction', '% Réduction'],
-                                ['xplusy',    'X acheté + Y offert'],
-                              ].map(([val, lbl]) => (
-                                <button key={val}
-                                  className={'py-2.5 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                                  onClick={() => updatePromo(idx, 'type', val)}>
-                                  {lbl}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Paramètres selon type */}
-                          {promo.type === 'reduction' && (
-                            <div>
-                              <label className="text-xs font-bold text-brun block mb-1">Réduction</label>
-                              <div className="flex items-center gap-2">
-                                <input type="number" min="1" max="100"
-                                  className="w-24 border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun text-center font-bold"
-                                  placeholder="20"
-                                  value={promo.valeur || ''}
-                                  onChange={e => updatePromo(idx, 'valeur', e.target.value)} />
-                                <span className="text-sm font-bold text-brun">%</span>
-                                {produitCible && promo.valeur && (
-                                  <span className="text-xs text-green-600 font-bold">
-                                    → {(produitCible.prix * (1 - parseInt(promo.valeur) / 100)).toFixed(2)} €
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                          {promo.type === 'xplusy' && (
-                            <div className="space-y-2">
-                              <label className="text-xs font-bold text-brun block">Règle X acheté + Y offert</label>
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1">
-                                  <p className="text-[10px] text-gray-400 mb-0.5">Acheté</p>
-                                  <input type="number" min="1"
-                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun text-center font-bold"
-                                    placeholder="2"
-                                    value={promo.xVal || ''}
-                                    onChange={e => updatePromo(idx, 'xVal' as any, e.target.value)} />
-                                </div>
-                                <span className="text-lg font-bold text-gray-300 mt-4">+</span>
-                                <div className="flex-1">
-                                  <p className="text-[10px] text-gray-400 mb-0.5">Offert</p>
-                                  <input type="number" min="1"
-                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun text-center font-bold"
-                                    placeholder="1"
-                                    value={promo.yVal || ''}
-                                    onChange={e => updatePromo(idx, 'yVal' as any, e.target.value)} />
-                                </div>
-                              </div>
-                              {promo.xVal && promo.yVal && (
-                                <p className="text-xs text-green-600 font-bold bg-green-50 px-3 py-1.5 rounded-lg">
-                                  {promo.xVal} acheté{parseInt(promo.xVal)>1?'s':''} = {promo.yVal} offert{parseInt(promo.yVal)>1?'s':''}
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Aperçu */}
-                          {(promo.valeur || promo.xVal) && (
-                            <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
-                              <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
-                              {promo.type === 'reduction' && promo.valeur && (
-                                <p className="text-xs text-rouge-vif font-bold">
-                                  🏷️ -{promo.valeur}% {produitCible ? `sur ${produitCible.nom}` : 'sur ce produit'}
-                                </p>
-                              )}
-                              {promo.type === 'xplusy' && promo.xVal && promo.yVal && (
-                                <p className="text-xs text-rouge-vif font-bold">
-                                  🎁 {promo.xVal} acheté{parseInt(promo.xVal)>1?'s':''} → {promo.yVal} offert{parseInt(promo.yVal)>1?'s':''} {produitCible ? `(${produitCible.nom})` : ''}
-                                </p>
-                              )}
-                            </div>
-                          )}
+                          <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
+                            onClick={() => removePromo(idx)}>️</button>
                         </div>
-                      )
-                    })}
+                        <div className="flex flex-wrap gap-1.5">
+                          {['message', 'reduction', 'livraison', 'offre'].map(val => (
+                            <button key={val} className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                              onClick={() => updatePromo(idx, 'type', val)}>{val}</button>
+                          ))}
+                        </div>
+                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder="Titre affiché…" value={promo.titre}
+                          onChange={e => updatePromo(idx, 'titre', e.target.value)} />
+                        <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                          placeholder="Description…" value={promo.description}
+                          onChange={e => updatePromo(idx, 'description', e.target.value)} />
+                        {promo.titre ? (
+                          <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
+                            <p className="text-xs text-rouge-vif font-bold">{promo.titre}</p>
+                            {promo.description ? <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p> : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
                   </div>
               }
             </div>
@@ -824,13 +723,13 @@ export default function PanelPage() {
             {/* Apparence */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🎨 Apparence</p>
+                <p className="font-bold text-brun text-sm"> Apparence</p>
               </div>
               <div className="p-4 space-y-3">
                 <div>
                   <label className="text-xs font-bold text-brun block mb-2">Badge sur la carte</label>
                   <div className="flex flex-wrap gap-2">
-                    {[['Aucun', '—'], ['Promo', '🏷️'], ['Nouveau', '✨'], ['Populaire', '🔥'], ['Premium', '⭐']].map(([b, ico]) => (
+                    {[['Aucun', '—'], ['Promo', '️'], ['Nouveau', '✨'], ['Populaire', ''], ['Premium', '⭐']].map(([b, ico]) => (
                       <button key={b}
                         className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + ((b === 'Aucun' && !boutique.promo) || (b === 'Promo' && boutique.promo) ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                         onClick={() => { setBoutique(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
@@ -841,7 +740,7 @@ export default function PanelPage() {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1">Photo de couverture</label>
-                  <button className="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 text-sm text-gray-400 font-sans">📷 Changer la photo</button>
+                  <button className="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 text-sm text-gray-400 font-sans"> Changer la photo</button>
                 </div>
               </div>
             </div>
@@ -849,7 +748,7 @@ export default function PanelPage() {
             {boutiqueEdited && (
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
                 onClick={() => { setBoutiqueEdited(false); showToast('✅ Boutique mise à jour !') }}>
-                💾 Enregistrer les modifications
+                 Enregistrer les modifications
               </button>
             )}
           </div>
@@ -858,194 +757,58 @@ export default function PanelPage() {
         {/* ══ PARAMÈTRES GÉNÉRAUX ══ */}
         {tab === 'parametres' && (
           <div className="space-y-4">
-
-            {/* Sous-page mot de passe */}
-            {paramsSection === 'mdp' && (
-              <MdpSection email={user.email} onBack={() => setParamsSection('main')} />
-            )}
-            {paramsSection === 'hist_cmd' && (
-              <div className="space-y-3">
-                <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={() => setParamsSection('main')}>
-                  ← Historique des commandes
-                </button>
-                {historiqueOld.length === 0 && historiqueToday.length === 0
-                  ? <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm"><span className="text-4xl block mb-2">📦</span><p className="text-sm">Aucun historique disponible</p></div>
-                  : [...historiqueOld, ...historiqueToday].sort((a, b) => b.date.localeCompare(a.date)).map(o => {
-                      const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
-                      return (
-                        <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                          <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
-                            <div>
-                              <span className="font-black text-brun text-sm">{o.id}</span>
-                              <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
-                            </div>
-                            <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
-                          </div>
-                          <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
-                            <div>
-                              <p className="text-sm font-bold text-brun">{o.client}</p>
-                              <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''} · {o.creneau}</p>
-                            </div>
-                            <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
-                          </div>
-                          <div className="px-4 py-3">
-                            <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                              onClick={() => setViewOrder(o)}>🧾 Voir le récapitulatif</button>
-                          </div>
-                        </div>
-                      )
-                    })
-                }
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0"></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
               </div>
-            )}
+              {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
+            </div>
 
-            {/* Sous-page historique paiements */}
-            {paramsSection === 'hist_pay' && (
-              <div className="space-y-3">
-                <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={() => setParamsSection('main')}>
-                  ← Historique des paiements
-                </button>
+            {/* Profil boucher modifiable */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Mon compte</p>
+              <BoucherProfilForm user={user} showToast={showToast} />
+            </div>
 
-                {/* Résumé */}
-                <div className="bg-brun rounded-2xl p-4 grid grid-cols-2 gap-3">
-                  {[
-                    { label: 'Total encaissé', val: [...historique].reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(2) + ' €' },
-                    { label: 'Commandes', val: String(historique.length) },
-                    { label: 'Panier moyen', val: historique.length ? (historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0) / historique.length).toFixed(2) + ' €' : '—' },
-                    { label: "Frais de livraison", val: historique.reduce((s, o) => s + o.frais, 0).toFixed(2) + ' €' },
-                  ].map(s => (
-                    <div key={s.label} className="bg-white/10 rounded-xl p-3 text-center">
-                      <p className="text-white font-black text-base">{s.val}</p>
-                      <p className="text-white/60 text-[10px]">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
+            {/* Notifications toggles */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Alertes</p>
+              <BoucherNotifsForm />
+            </div>
 
-                {/* Liste transactions */}
-                {historique.length === 0
-                  ? <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm"><span className="text-4xl block mb-2">💳</span><p className="text-sm">Aucun paiement enregistré</p></div>
-                  : <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                      <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between">
-                        <p className="text-xs font-bold text-brun">Transactions</p>
-                        <p className="text-xs text-gray-400">{historique.length} entrée{historique.length > 1 ? 's' : ''}</p>
-                      </div>
-                      {historique.map((o, i) => {
-                        const total = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
-                        return (
-                          <div key={o.id} className={'px-4 py-3 flex items-center justify-between ' + (i < historique.length - 1 ? 'border-b border-gris-bd' : '')}>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-brun">{o.id}</p>
-                              <p className="text-xs text-gray-400">{o.date} · {o.client}</p>
-                              {o.frais > 0 && <p className="text-[10px] text-gray-300">dont {o.frais.toFixed(2)} € livraison</p>}
-                            </div>
-                            <div className="text-right flex-shrink-0 ml-3">
-                              <p className="text-sm font-black text-green-600">+{total.toFixed(2)} €</p>
-                              <p className="text-[10px] text-gray-400">✅ Encaissé</p>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                }
+            {/* Stripe Connect */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Paiements</p>
+              <StripePaiementSection email={user?.email || ''} showToast={showToast} />
+            </div>
+
+            {/* CA sélecteur */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
+              <CaSelector historique={historique} />
+            </div>
+
+            {/* Application */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Application</p>
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                {[{ico:'🆘',label:'Support',sub:'FAQ et contact'},{ico:'📋',label:'CGU',sub:"Conditions d'utilisation"}].map((item,i) => (
+                  <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i === 0 ? 'border-b border-gris-bd' : '')}>
+                    <span className="text-xl">{item.ico}</span>
+                    <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
+                    <span className="text-gray-300">›</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* Page principale paramètres */}
-            {paramsSection === 'main' && (
-              <>
-                <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-                    <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
-                  </div>
-                  {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
-                </div>
-
-                {/* Historique */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Historique</p>
-                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-gris-bd text-left"
-                      onClick={() => setParamsSection('hist_cmd')}>
-                      <span className="text-xl flex-shrink-0">📦</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-brun">Historique des commandes</p>
-                        <p className="text-xs text-gray-400">Toutes les commandes livrées · {historique.length} au total</p>
-                      </div>
-                      <span className="text-gray-300">›</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
-                      onClick={() => setParamsSection('hist_pay')}>
-                      <span className="text-xl flex-shrink-0">💳</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-brun">Historique des paiements</p>
-                        <p className="text-xs text-gray-400">Transactions et encaissements</p>
-                      </div>
-                      <span className="text-gray-300">›</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Profil boucher modifiable */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Mon compte</p>
-                  <BoucherProfilForm user={user} showToast={showToast} />
-                </div>
-
-                {/* Notifications */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Alertes</p>
-                  <BoucherNotifsForm />
-                </div>
-
-                {/* Mot de passe */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Sécurité</p>
-                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div className="flex items-center gap-3 px-4 py-3.5 cursor-pointer active:bg-creme"
-                      onClick={() => setParamsSection('mdp')}>
-                      <span className="text-xl flex-shrink-0">🔒</span>
-                      <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-xs text-gray-400">Modifier mon mot de passe</p></div>
-                      <span className="text-gray-300">›</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stripe Connect status */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Paiements</p>
-                  <div className="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-3">
-                    <span className="text-xl">💳</span>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-brun">Stripe Connect</p>
-                      <p className="text-xs text-gray-400">Virements chaque lundi</p>
-                    </div>
-                    <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✓ Actif</span>
-                  </div>
-                </div>
-
-                {/* Application */}
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Application</p>
-                  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    {[{ ico: '🆘', label: 'Support', sub: 'FAQ et contact' }, { ico: '📋', label: 'CGU', sub: "Conditions d'utilisation" }].map((item, i) => (
-                      <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i === 0 ? 'border-b border-gris-bd' : '')}>
-                        <span className="text-xl flex-shrink-0">{item.ico}</span>
-                        <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
-                        <span className="text-gray-300">›</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
-                  onClick={() => { logout(); router.push('/') }}>
-                  🚪 Se déconnecter
-                </button>
-                <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
-              </>
-            )}
+            <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
+              onClick={() => { logout(); router.push('/') }}>
+               Se déconnecter
+            </button>
+            <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
           </div>
         )}
       </div>
@@ -1060,7 +823,7 @@ export default function PanelPage() {
             <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
                 <div>
-                  <h2 className="font-serif text-lg font-black text-brun">🧾 Récap {o.id}</h2>
+                  <h2 className="font-serif text-lg font-black text-brun"> Récap {o.id}</h2>
                   <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
                 </div>
                 <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setViewOrder(null)}>✕</button>
@@ -1078,8 +841,8 @@ export default function PanelPage() {
                 <div className="bg-creme rounded-2xl p-4">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
                   <p className="text-sm font-bold text-brun">{o.client}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">📞 {o.tel}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">📍 {o.adresse}</p>
+                  <p className="text-xs text-gray-500 mt-0.5"> {o.tel}</p>
+                  <p className="text-xs text-gray-500 mt-0.5"> {o.adresse}</p>
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
@@ -1090,7 +853,7 @@ export default function PanelPage() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-brun">{l.icon} {l.produit}</p>
                             <p className="text-[11px] text-or font-semibold mt-0.5">✂️ {l.decoupe} · {l.preparation}</p>
-                            {l.note ? <p className="text-[11px] text-gray-400 italic mt-0.5">📝 {l.note}</p> : null}
+                            {l.note ? <p className="text-[11px] text-gray-400 italic mt-0.5"> {l.note}</p> : null}
                           </div>
                           <div className="text-right flex-shrink-0 ml-3">
                             <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
@@ -1134,7 +897,7 @@ export default function PanelPage() {
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="text-xs font-bold text-brun block mb-2">📸 Photo</label>
+                <label className="text-xs font-bold text-brun block mb-2"> Photo</label>
                 <div className="flex items-center gap-3">
                   {modalProd.photoUrl
                     ? <img src={modalProd.photoUrl} alt="Photo" className="w-20 h-20 rounded-xl object-cover border border-gris-bd" />
@@ -1142,11 +905,11 @@ export default function PanelPage() {
                   }
                   <div className="flex flex-col gap-2">
                     <button className="bg-brun text-white text-xs font-bold px-4 py-2 rounded-xl font-sans" onClick={() => fileRef.current?.click()}>
-                      {modalProd.photoUrl ? '📷 Changer' : '📷 Ajouter'}
+                      {modalProd.photoUrl ? ' Changer' : ' Ajouter'}
                     </button>
                     {modalProd.photoUrl && (
                       <button className="bg-red-50 text-red-400 text-xs font-bold px-4 py-2 rounded-xl font-sans border border-red-200"
-                        onClick={() => setModalProd(f => f ? { ...f, photoUrl: null } : f)}>🗑️ Supprimer</button>
+                        onClick={() => setModalProd(f => f ? { ...f, photoUrl: null } : f)}>️ Supprimer</button>
                     )}
                   </div>
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
@@ -1183,34 +946,7 @@ export default function PanelPage() {
                   </div>
                 ))}
               </div>
-              {/* Catégorie + Vente type */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-brun block mb-1.5">Catégorie</label>
-                  <select
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
-                    value={modalProd.cat}
-                    onChange={e => setModalProd(f => f ? { ...f, cat: e.target.value } : f)}>
-                    {['Bœuf','Veau','Agneau','Volaille','Entrée'].map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-brun block mb-1.5">Vendu</label>
-                  <div className="flex flex-col gap-1.5">
-                    {[['pièce','🔢 À la pièce'],['poids','⚖️ Au poids (kg)']].map(([v,l]) => (
-                      <button key={v}
-                        className={'flex-1 py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                        onClick={() => setModalProd(f => f ? { ...f, venteType: v } : f)}>
-                        {l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', '🌿 Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
+              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
@@ -1219,6 +955,31 @@ export default function PanelPage() {
                     onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
                 </div>
               ))}
+              {/* Allergènes obligatoires */}
+              <div>
+                <label className="text-xs font-bold text-brun block mb-1.5">
+                  ⚠️ Allergènes <span className="text-rouge-vif">*</span>
+                  <span className="text-gray-400 font-normal ml-1">(obligation légale)</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {['Gluten','Crustacés','Œufs','Poisson','Arachides','Soja','Lait','Fruits à coque','Céleri','Moutarde','Sésame','Sulfites','Lupin','Mollusques','Aucun'].map(a => {
+                    const selected = (modalProd.allergenes || '').split(',').map(s => s.trim()).filter(Boolean).includes(a)
+                    return (
+                      <button key={a}
+                        className={'px-2 py-1 rounded-full text-[10px] font-semibold border transition-all font-sans ' + (selected ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                        onClick={() => {
+                          const current = (modalProd.allergenes || '').split(',').map(s => s.trim()).filter(Boolean)
+                          const next = selected ? current.filter(x => x !== a) : a === 'Aucun' ? ['Aucun'] : [...current.filter(x => x !== 'Aucun'), a]
+                          setModalProd(f => f ? { ...f, allergenes: next.join(', ') } : f)
+                        }}>
+                        {a}
+                      </button>
+                    )
+                  })}
+                </div>
+                {!(modalProd.allergenes) && <p className="text-[10px] text-rouge-vif mt-1">⚠️ Sélectionnez au moins "Aucun"</p>}
+              </div>
+
               <div className="flex gap-3 pt-2 pb-4">
                 <button className="flex-1 bg-gris-bd text-brun rounded-xl py-3 text-sm font-semibold font-sans" onClick={() => setModalProd(null)}>Annuler</button>
                 <button className="flex-[2] bg-brun text-white rounded-xl py-3 text-sm font-bold font-sans" onClick={saveProduit}>
@@ -1237,23 +998,29 @@ export default function PanelPage() {
         </div>
       )}
 
-      <BottomNavBoucher currentTab={tab} onTabChange={t => { setTab(t); setParamsSection('main') }} />
+      <BottomNavBoucher currentTab={tab} onTabChange={setTab} />
     </div>
   )
-}
 
 // ── Formulaire profil boucher ─────────────────────────────────────────────────
 function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
+  const boucherStore = useBoucherStore()
+  const email = user?.email || ''
+
+  // Charger depuis localStorage via le store
+  const saved_profil = boucherStore.getBoucherProfil(email)
+
   const [form, setForm] = useState({
-    prenom: user?.nom?.split(' ')[0] || '',
-    nom:    user?.nom?.split(' ').slice(1).join(' ') || '',
-    email:  user?.email || '',
-    tel:    '',
-    boutique: user?.boucherieNom || '',
+    prenom:   saved_profil?.prenom   || user?.nom?.split(' ')[0] || '',
+    nom:      saved_profil?.nom      || user?.nom?.split(' ').slice(1).join(' ') || '',
+    email:    saved_profil?.email    || email,
+    tel:      saved_profil?.tel      || '',
+    boutique: saved_profil?.boutique || user?.boucherieNom || '',
   })
   const [saved, setSaved] = useState(false)
 
-  function save() {
+  function enregistrer() {
+    boucherStore.setBoucherProfil(email, form)
     setSaved(true)
     showToast('✅ Profil mis à jour !')
     setTimeout(() => setSaved(false), 2500)
@@ -1270,21 +1037,19 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
             <div key={k}>
               <label className="text-xs font-bold text-brun block mb-1">{l}</label>
               <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                value={(form as any)[k]}
-                onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+                value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
             </div>
           ))}
         </div>
-        {[['email','Email','votre@email.fr'],['tel','Téléphone','06 00 00 00 00'],['boutique','Nom de la boutique','Maison Dupont']].map(([k,l,ph]) => (
+        {[['email','Email'],['tel','Téléphone'],['boutique','Nom de la boutique']].map(([k,l]) => (
           <div key={k}>
             <label className="text-xs font-bold text-brun block mb-1">{l}</label>
             <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-              placeholder={ph} value={(form as any)[k]}
-              onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+              value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
           </div>
         ))}
-        {saved && <p className="text-green-600 text-xs font-semibold">✅ Modifications enregistrées !</p>}
-        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={save}>
+        {saved && <p className="text-green-600 text-xs font-semibold">✅ Enregistré !</p>}
+        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={enregistrer}>
           💾 Enregistrer
         </button>
       </div>
@@ -1294,25 +1059,25 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
 
 // ── Notifications boucher ─────────────────────────────────────────────────────
 function BoucherNotifsForm() {
-  const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, rapport: false, paiement: true })
+  const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
   const items = [
-    { key: 'nouvelle_cmd', label: 'Nouvelle commande',   sub: 'Son + notification push instantanée' },
-    { key: 'stock_faible', label: 'Stock faible',         sub: 'Alerte quand un produit est à ≤ 3' },
-    { key: 'paiement',     label: 'Virement reçu',        sub: 'Confirmation chaque lundi' },
-    { key: 'rapport',      label: 'Rapport quotidien',    sub: 'CA et commandes chaque soir' },
+    { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Son + notification push instantanée' },
+    { key: 'stock_faible', label: 'Stock faible',        sub: 'Alerte quand stock ≤ 3' },
+    { key: 'paiement',     label: 'Virement reçu',       sub: 'Confirmation chaque lundi' },
+    { key: 'rapport',      label: 'Rapport quotidien',   sub: 'CA et commandes chaque soir' },
   ]
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       {items.map((item, i) => (
-        <div key={item.key} className={'flex items-center gap-3 px-4 py-3.5 ' + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
+        <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
           <div className="flex-1">
             <p className="text-sm font-semibold text-brun">{item.label}</p>
             <p className="text-xs text-gray-400">{item.sub}</p>
           </div>
           <button
-            className={'w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ' + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
+            className={"w-11 h-6 rounded-full relative transition-colors flex-shrink-0 " + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
             onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-            <span className={'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ' + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
+            <span className={"absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
           </button>
         </div>
       ))}
@@ -1320,66 +1085,160 @@ function BoucherNotifsForm() {
   )
 }
 
-// ── Composant changement de mot de passe ─────────────────────────────────────
-function MdpSection({ email, onBack }: { email: string; onBack: () => void }) {
-  const { updatePassword } = useAccounts()
-  const [form, setForm] = useState({ ancien: '', nouveau: '', confirm: '' })
-  const [error, setError] = useState('')
-  const [done, setDone] = useState(false)
+// ── Stripe paiement section ───────────────────────────────────────────────────
+function StripePaiementSection({ email, showToast }: { email: string; showToast: (msg: string) => void }) {
+  const boucherStore = useBoucherStore()
+  const account = boucherStore.getStripeAccount(email)
+  const [confirming, setConfirming] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  function save() {
-    setError('')
-    if (!form.ancien) { setError('Saisissez votre mot de passe actuel.'); return }
-    if (form.nouveau.length < 6) { setError('Le nouveau mot de passe doit faire au moins 6 caractères.'); return }
-    if (form.nouveau !== form.confirm) { setError('Les mots de passe ne correspondent pas.'); return }
-    updatePassword(email, form.nouveau)
-    setDone(true)
+  async function connecterNouveauCompte() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/connect/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, nom_boutique: 'Boucherie', ville: '', type: 'boucher' }),
+      })
+      const data = await res.json()
+      if (data.onboardingUrl) { boucherStore.clearStripeAccount(email); window.location.href = data.onboardingUrl }
+      else showToast('❌ Erreur Stripe')
+    } catch { showToast('❌ Erreur réseau') }
+    finally { setLoading(false) }
   }
 
-  if (done) return (
-    <div className="space-y-4">
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={onBack}>← Paramètres</button>
-      <div className="bg-white rounded-2xl p-8 text-center shadow-sm space-y-3">
-        <span className="text-5xl block">✅</span>
-        <p className="font-serif text-lg font-bold text-brun">Mot de passe modifié !</p>
-        <p className="text-sm text-gray-400">Votre nouveau mot de passe est actif.</p>
-        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={onBack}>Retour</button>
-      </div>
+  if (!account) return (
+    <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3 text-center">
+      <span className="text-3xl block">💳</span>
+      <p className="text-sm font-semibold text-brun">Aucun compte Stripe lié</p>
+      <p className="text-xs text-gray-400">Configurez votre compte pour recevoir vos paiements chaque lundi.</p>
+      <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={connecterNouveauCompte} disabled={loading}>
+        {loading ? '⏳ Chargement…' : '🔗 Connecter mon compte Stripe'}
+      </button>
     </div>
   )
 
   return (
-    <div className="space-y-4">
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans" onClick={onBack}>← Modifier mon mot de passe</button>
-      <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-        <h2 className="font-serif text-base font-bold text-brun">🔒 Nouveau mot de passe</h2>
-        <div>
-          <label className="text-xs font-bold text-brun block mb-1">Mot de passe actuel</label>
-          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-            value={form.ancien} onChange={e => setForm(f => ({ ...f, ancien: e.target.value }))} />
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="p-4 space-y-3">
+        <div className={"rounded-xl p-3 flex items-start gap-3 " + (account.chargesEnabled && account.payoutsEnabled ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20')}>
+          <span className="text-xl">{account.chargesEnabled && account.payoutsEnabled ? '✅' : '⏳'}</span>
+          <div>
+            <p className={"text-sm font-bold " + (account.chargesEnabled && account.payoutsEnabled ? 'text-green-700' : 'text-brun')}>
+              {account.chargesEnabled && account.payoutsEnabled ? 'Compte actif' : 'Vérification en cours'}
+            </p>
+            <p className="text-xs text-gray-400">{account.email} · Virements chaque lundi</p>
+          </div>
         </div>
-        <div>
-          <label className="text-xs font-bold text-brun block mb-1">Nouveau mot de passe</label>
-          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-            placeholder="6 caractères minimum"
-            value={form.nouveau} onChange={e => setForm(f => ({ ...f, nouveau: e.target.value }))} />
-        </div>
-        <div>
-          <label className="text-xs font-bold text-brun block mb-1">Confirmer le mot de passe</label>
-          <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-            value={form.confirm} onChange={e => setForm(f => ({ ...f, confirm: e.target.value }))} />
-        </div>
-        {error && <p className="text-xs text-rouge-vif font-semibold">{error}</p>}
-        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
-          disabled={!form.ancien || !form.nouveau || !form.confirm}
-          onClick={save}>
-          💾 Enregistrer
-        </button>
-      </div>
-      <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-        <p className="text-xs text-brun font-semibold mb-1">💡 Conseils</p>
-        <p className="text-xs text-gray-500">Utilisez au moins 8 caractères avec des chiffres et des symboles pour sécuriser votre compte.</p>
+        {!confirming ? (
+          <button className="w-full bg-rouge-pale text-rouge-vif border border-rouge-vif/20 py-2.5 rounded-xl text-xs font-bold font-sans" onClick={() => setConfirming(true)}>
+            🔄 Changer de compte Stripe
+          </button>
+        ) : (
+          <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-3 space-y-2">
+            <p className="text-xs font-bold text-rouge-vif">⚠️ Confirmer le changement ?</p>
+            <p className="text-xs text-gray-500">L'ancien compte sera dissocié. Les virements en attente ne seront pas affectés.</p>
+            <div className="flex gap-2">
+              <button className="flex-1 bg-white border border-gray-200 text-brun text-xs font-bold py-2 rounded-xl font-sans" onClick={() => setConfirming(false)}>Annuler</button>
+              <button className="flex-1 bg-rouge-vif text-white text-xs font-bold py-2 rounded-xl font-sans" onClick={connecterNouveauCompte} disabled={loading}>
+                {loading ? '⏳' : 'Confirmer'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
+}
+
+// ── CA Sélecteur ──────────────────────────────────────────────────────────────
+function CaSelector({ historique }: { historique: any[] }) {
+  const [periode, setPeriode] = useState<'jour'|'semaine'|'mois'|'annee'>('jour')
+
+  function getDebut(p: typeof periode): Date {
+    const d = new Date()
+    if (p === 'jour')    { d.setHours(0,0,0,0); return d }
+    if (p === 'semaine') { const day = d.getDay(); d.setDate(d.getDate() - (day === 0 ? 6 : day - 1)); d.setHours(0,0,0,0); return d }
+    if (p === 'mois')    { return new Date(d.getFullYear(), d.getMonth(), 1) }
+    return new Date(d.getFullYear(), 0, 1)
+  }
+
+  const debut = getDebut(periode)
+  const filtered = historique.filter(o => {
+    try {
+      const parts = o.date.split('/')
+      const date = new Date(+parts[2], +parts[1]-1, +parts[0])
+      return date >= debut
+    } catch { return false }
+  })
+
+  const ca = filtered.reduce((s, o) => s + o.lignes.reduce((a: number, l: any) => a + l.prix * l.qty, 0) + o.frais, 0)
+  const nbCmd = filtered.length
+  const panierMoy = nbCmd > 0 ? ca / nbCmd : 0
+  const fraisTotal = filtered.reduce((s, o) => s + o.frais, 0)
+
+  const PERIODES = [{ key: 'jour', label: "Aujourd'hui" },{ key: 'semaine', label: 'Semaine' },{ key: 'mois', label: 'Mois' },{ key: 'annee', label: 'Année' }]
+
+  return (
+    <div className="space-y-3">
+      {/* Sélecteur */}
+      <div className="grid grid-cols-4 gap-1.5 bg-white rounded-2xl p-2 shadow-sm">
+        {PERIODES.map(p => (
+          <button key={p.key}
+            className={"py-2 rounded-xl text-[11px] font-bold font-sans transition-all " + (periode === p.key ? 'bg-brun text-white' : 'text-gray-400')}
+            onClick={() => setPeriode(p.key as any)}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* CA principal */}
+      <div className="bg-brun rounded-2xl p-5 text-center">
+        <p className="text-white/60 text-xs mb-1">Chiffre d'affaires · {PERIODES.find(p => p.key === periode)?.label}</p>
+        <p className="text-white font-black text-4xl">{ca.toFixed(2)} €</p>
+        {nbCmd === 0 && <p className="text-white/40 text-xs mt-2">Aucune commande sur cette période</p>}
+      </div>
+
+      {/* Stats */}
+      {nbCmd > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { ico:'📋', val: String(nbCmd),               label:'Commandes' },
+            { ico:'🧺', val: panierMoy.toFixed(2) + ' €', label:'Panier moyen' },
+            { ico:'🛵', val: fraisTotal.toFixed(2) + ' €',label:'Livraisons' },
+          ].map(s => (
+            <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm text-center">
+              <div className="text-lg mb-0.5">{s.ico}</div>
+              <div className="font-black text-brun text-sm">{s.val}</div>
+              <div className="text-[10px] text-gray-400">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Transactions */}
+      {nbCmd > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between">
+            <p className="text-xs font-bold text-brun">Transactions</p>
+            <p className="text-xs text-gray-400">{nbCmd} commande{nbCmd > 1 ? 's' : ''}</p>
+          </div>
+          {filtered.map((o, i) => {
+            const total = o.lignes.reduce((s: number, l: any) => s + l.prix * l.qty, 0) + o.frais
+            return (
+              <div key={o.id} className={"px-4 py-3 flex items-center justify-between " + (i < filtered.length - 1 ? 'border-b border-gris-bd' : '')}>
+                <div>
+                  <p className="text-sm font-bold text-brun">{o.id}</p>
+                  <p className="text-xs text-gray-400">{o.date} · {o.client}</p>
+                </div>
+                <p className="text-sm font-black text-green-600">+{total.toFixed(2)} €</p>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 }

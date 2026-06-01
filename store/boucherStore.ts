@@ -17,9 +17,18 @@ export interface StripeAccountInfo {
   linkedAt: string
 }
 
+export interface BoucherProfil {
+  prenom: string
+  nom: string
+  email: string
+  tel: string
+  boutique: string
+}
+
 interface BoucherStore {
   produits:       Record<string, ProduitSave[]>
-  stripeAccounts: Record<string, StripeAccountInfo> // clé = email du boucher
+  stripeAccounts: Record<string, StripeAccountInfo>
+  profils:        Record<string, BoucherProfil>  // clé = email boucher
 
   // Produits
   getProduits:   (bid: number) => ProduitSave[]
@@ -32,6 +41,10 @@ interface BoucherStore {
   getStripeAccount:   (email: string) => StripeAccountInfo | null
   setStripeAccount:   (email: string, info: StripeAccountInfo) => void
   clearStripeAccount: (email: string) => void
+
+  // Profil boucher
+  getBoucherProfil: (email: string) => BoucherProfil | null
+  setBoucherProfil: (email: string, profil: BoucherProfil) => void
 }
 
 export const useBoucherStore = create<BoucherStore>()(
@@ -39,7 +52,9 @@ export const useBoucherStore = create<BoucherStore>()(
     (set, get) => ({
       produits:       {},
       stripeAccounts: {},
+      profils:        {},
 
+      // ── Produits ──────────────────────────────────────────────────────────
       getProduits: (bid) => get().produits[String(bid)] || [],
       setProduits: (bid, p) => set(s => ({ produits: { ...s.produits, [String(bid)]: p } })),
       addProduit: (bid, p) => {
@@ -55,6 +70,7 @@ export const useBoucherStore = create<BoucherStore>()(
         set(s => ({ produits: { ...s.produits, [String(bid)]: next } }))
       },
 
+      // ── Stripe Connect ────────────────────────────────────────────────────
       getStripeAccount: (email) => get().stripeAccounts[email] || null,
       setStripeAccount: (email, info) =>
         set(s => ({ stripeAccounts: { ...s.stripeAccounts, [email]: info } })),
@@ -64,7 +80,12 @@ export const useBoucherStore = create<BoucherStore>()(
           delete next[email]
           return { stripeAccounts: next }
         }),
+
+      // ── Profil boucher persistant ─────────────────────────────────────────
+      getBoucherProfil: (email) => get().profils[email] || null,
+      setBoucherProfil: (email, profil) =>
+        set(s => ({ profils: { ...s.profils, [email]: profil } })),
     }),
-    { name: 'boucherie-boucher-data', version: 1 }
+    { name: 'boucherie-boucher-data', version: 2 }
   )
 )

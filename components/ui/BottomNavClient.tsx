@@ -8,7 +8,6 @@ export default function BottomNavClient({ currentPage }: { currentPage: string }
 
   const tabs = [
     { id: 'home',      ico: '🏠', label: 'Accueil',    href: '/' },
-    { id: 'search',    ico: '🔍', label: 'Recherche',  href: '/recherche' },
     { id: 'commandes', ico: '📦', label: 'Commandes',  href: '/commandes' },
     { id: 'tracking',  ico: '🛵', label: 'Suivi',      href: '/suivi' },
     { id: 'settings',  ico: '⚙️', label: 'Paramètres', href: '/parametres' },
