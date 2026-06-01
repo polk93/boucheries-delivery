@@ -5,7 +5,6 @@ import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
-import { useUserStore } from '@/store/userStore'
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
   | 'commandes' | 'avis' | 'paiement'
@@ -175,8 +174,8 @@ export default function ParametresPage() {
 // ══════════════════════════════════════════════════════════════════════════════
 function ProfilSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
-  const store = useUserStore()
-const saved_profil = user?.email ? store.getData(user.email, user.nom).profil : null
+  const { getProfil, saveProfil } = useUserStore()
+  // no store
   const [form, setForm] = useState({
     prenom: saved_profil?.prenom || user?.nom?.split(' ')[0] || '',
     nom:    saved_profil?.nom    || user?.nom?.split(' ').slice(1).join(' ') || '',
@@ -203,7 +202,6 @@ const saved_profil = user?.email ? store.getData(user.email, user.nom).profil : 
         {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
           onClick={() => {
-            if (user?.email) store.setProfil(user.email, form)
             setSaved(true); setTimeout(() => setSaved(false), 2500)
           }}>Enregistrer</button>
       </div>
@@ -230,7 +228,6 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
   function updateAdresses(fn: (prev: Adresse[]) => Adresse[]) {
     setAdresses(prev => {
       const next = fn(prev)
-      if (user?.email) saveAdresses(user.email, next)
       return next
     })
   }
@@ -703,7 +700,6 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
     const type = form.numero.startsWith('4') ? 'Visa' : form.numero.startsWith('5') ? 'Mastercard' : 'Carte'
     setCartes(prev => {
       const next = [...prev, { id: Date.now().toString(), last4, expiry: form.expiry, type, defaut: prev.length === 0 }]
-      if (user?.email) saveCartes(user.email, next)
       return next
     })
     setForm({ numero: '', titulaire: '', expiry: '', cvv: '' })
@@ -734,8 +730,8 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className="flex items-center gap-2">
                   {c.defaut ? <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Défaut</span>
-                    : <button className="text-xs text-or font-semibold" onClick={() => setCartes(prev => { const n = prev.map(x => ({ ...x, defaut: x.id === c.id })); if (user?.email) saveCartes(user.email, n); return n })}>Définir</button>}
-                  <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => { const n = prev.filter(x => x.id !== c.id); if (user?.email) saveCartes(user.email, n); return n })}>🗑️</button>
+                    : <button className="text-xs text-or font-semibold" onClick={() => setCartes(prev => { const n = prev.map(x => ({ ...x, defaut: x.id === c.id })); return n })}>Définir</button>}
+                  <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => { const n = prev.filter(x => x.id !== c.id); return n })}>🗑️</button>
                 </div>
               </div>
             </div>
