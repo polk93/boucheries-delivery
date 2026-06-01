@@ -186,34 +186,70 @@ export default function PanelPage() {
   const { user, logout, isBoucher } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
   const [tab, setTab] = useState('commandes')
-  const [orders, setOrders] = useState<Commande[]>(user?.isDemo ? ORDERS_INIT : [])
-  const [historique, setHistorique] = useState<Commande[]>(user?.isDemo ? HISTORIQUE_INIT : [])
   const [viewOrder, setViewOrder] = useState<Commande | null>(null)
   const [showHistorique, setShowHistorique] = useState(false)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const boucherStore = useBoucherStore()
-  const [isOpen, setIsOpen] = useState(true)
+  // ── IDs et store ─────────────────────────────────────────────────────────────
+  const myBoucherieId = user?.boucherieId || 1
+  const myBoucherie   = BOUCHERIES.find(b => b.id === myBoucherieId)
+  const bRef          = user?.isDemo ? myBoucherie : undefined
+  const boucherStore  = useBoucherStore()
+  const bid           = String(myBoucherieId)
+
+  // ── États persistants via boucherStore ───────────────────────────────────────
+  const [isOpen, setIsOpen] = useState<boolean>(() =>
+    boucherStore.getIsOpen(bid) ?? true
+  )
+
   const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
     const saved = boucherStore.getProduits(myBoucherieId)
-    if (saved.length > 0) return saved
-    if (user?.isDemo) return BOUCHERIES.flatMap(b => b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo })))
+    if (saved.length > 0) return saved as unknown as ProduitEtendu[]
+    if (user?.isDemo) return BOUCHERIES.flatMap(b =>
+      b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
+    )
     return []
   })
+
+  const [orders, setOrders] = useState<Commande[]>(() => {
+    const saved = boucherStore.getOrders(bid)
+    if (saved.length > 0) return saved as Commande[]
+    return user?.isDemo ? ORDERS_INIT : []
+  })
+
+  const [historique, setHistorique] = useState<Commande[]>(() => {
+    const saved = boucherStore.getHistorique(bid)
+    if (saved.length > 0) return saved as Commande[]
+    return user?.isDemo ? HISTORIQUE_INIT : []
+  })
+
+  const [boutique, setBoutique] = useState(() => {
+    const saved = boucherStore.getBoutique(myBoucherieId)
+    return saved ? { ...makeInitBoutique(bRef), ...saved } : makeInitBoutique(bRef)
+  })
+  const [boutiqueEdited, setBoutiqueEdited] = useState(false)
+
   const [modalProd, setModalProd] = useState<ProduitForm | null>(null)
   const [isNew, setIsNew] = useState(false)
-
-  const myBoucherieId = user?.boucherieId || 1
-  const myBoucherie = BOUCHERIES.find(b => b.id === myBoucherieId)
-  const bRef = user?.isDemo ? myBoucherie : undefined
-
-  const [boutique, setBoutique] = useState(() => makeInitBoutique(bRef))
-  const [boutiqueEdited, setBoutiqueEdited] = useState(false)
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
+
+  // ── Wrappers de mise à jour avec persistence ──────────────────────────────────
+  function setOrdersPersist(fn: (prev: Commande[]) => Commande[]) {
+    setOrders(prev => { const next = fn(prev); boucherStore.setOrders(bid, next); return next })
+  }
+  function setHistoriquePersist(fn: (prev: Commande[]) => Commande[]) {
+    setHistorique(prev => { const next = fn(prev); boucherStore.setHistorique(bid, next); return next })
+  }
+  function setIsOpenPersist(val: boolean) {
+    setIsOpen(val); boucherStore.setIsOpen(bid, val)
+  }
+  function setBoutiquePersist(val: any) {
+    setBoutiquePersist(val); boucherStore.setBoutiquePersist(myBoucherieId, val)
+  }
 
   function progress(id: string) {
     const order = orders.find(o => o.id === id)
@@ -229,7 +265,7 @@ export default function PanelPage() {
         return next
       })
     }
-    setOrders(prev => {
+    setOrdersPersist(prev => {
       const updated = prev.map(o => {
         if (o.id !== id) return o
         const i = SF.indexOf(o.status)
@@ -237,7 +273,7 @@ export default function PanelPage() {
       })
       const justDone = updated.find(o => o.id === id && o.status === 'done')
       if (justDone) {
-        setHistorique(h => [justDone, ...h])
+        setHistoriquePersist(h => [justDone, ...h])
         showToast('✅ Commande archivée')
         return updated.filter(o => o.id !== id)
       }
@@ -313,7 +349,7 @@ export default function PanelPage() {
   }
 
   function updateHoraire(key: string, field: keyof HoraireJour, value: string | boolean) {
-    setBoutique(b => ({
+    setBoutiquePersist(b => ({
       ...b,
       horaires: {
         ...b.horaires,
@@ -325,12 +361,12 @@ export default function PanelPage() {
 
   function addPromo() {
     const newPromo: Promo = { id: Date.now().toString(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
-    setBoutique(b => ({ ...b, promotions: [...b.promotions, newPromo] }))
+    setBoutiquePersist(b => ({ ...b, promotions: [...b.promotions, newPromo] }))
     setBoutiqueEdited(true)
   }
 
   function updatePromo(idx: number, field: keyof Promo, value: string | boolean) {
-    setBoutique(b => {
+    setBoutiquePersist(b => {
       const p = [...b.promotions]
       p[idx] = { ...p[idx], [field]: value }
       return { ...b, promotions: p }
@@ -339,7 +375,7 @@ export default function PanelPage() {
   }
 
   function removePromo(idx: number) {
-    setBoutique(b => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
+    setBoutiquePersist(b => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
     setBoutiqueEdited(true)
   }
 
@@ -463,7 +499,7 @@ export default function PanelPage() {
                         {o.status === 'new' ? (
                           <>
                             <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
-                              onClick={() => { setOrders(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
+                              onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
                               Refuser
                             </button>
                             <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
@@ -599,7 +635,7 @@ export default function PanelPage() {
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                       placeholder={ph}
                       value={boutique[k] as string}
-                      onChange={e => { setBoutique(b => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
+                      onChange={e => { setBoutiquePersist(b => ({ ...b, [k]: e.target.value })); setBoutiqueEdited(true) }} />
                   </div>
                 ))}
                 <div>
@@ -607,7 +643,7 @@ export default function PanelPage() {
                   <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
                     placeholder="Vos spécialités, votre histoire…"
                     value={boutique.desc}
-                    onChange={e => { setBoutique(b => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
+                    onChange={e => { setBoutiquePersist(b => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
                 </div>
               </div>
             </div>
@@ -732,7 +768,7 @@ export default function PanelPage() {
                     {[['Aucun', '—'], ['Promo', '️'], ['Nouveau', '✨'], ['Populaire', ''], ['Premium', '⭐']].map(([b, ico]) => (
                       <button key={b}
                         className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + ((b === 'Aucun' && !boutique.promo) || (b === 'Promo' && boutique.promo) ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                        onClick={() => { setBoutique(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
+                        onClick={() => { setBoutiquePersist(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
                         {ico} {b}
                       </button>
                     ))}
