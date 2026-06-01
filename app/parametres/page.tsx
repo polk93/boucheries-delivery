@@ -175,7 +175,7 @@ export default function ParametresPage() {
 // ══════════════════════════════════════════════════════════════════════════════
 function ProfilSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
-  const { getProfil, saveProfil } = useClientStore()
+  const { getProfil, saveProfil } = useUserStore()
   const saved_profil = user?.email ? getProfil(user.email) : null
   const [form, setForm] = useState({
     prenom: saved_profil?.prenom || user?.nom?.split(' ')[0] || '',
@@ -218,7 +218,7 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
   type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
 
   const { user } = useAuth()
-  const { getAdresses, saveAdresses } = useClientStore()
+  const { getAdresses, saveAdresses } = useUserStore()
   const [adresses, setAdresses] = useState<Adresse[]>(() => user?.email ? getAdresses(user.email) : [])
   const [editId, setEditId] = useState<string | null>(null)
   const [ajoutOpen, setAjoutOpen] = useState(false)
@@ -428,7 +428,7 @@ function EditAdresseForm({ adresse, labels, onSave, onCancel }: {
 // ══════════════════════════════════════════════════════════════════════════════
 function NotifsSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
-  const { getNotifPrefs, saveNotifPrefs } = useClientStore()
+  const { getNotifPrefs, saveNotifPrefs } = useUserStore()
   const [prefs, setPrefs] = useState(() => user?.email ? getNotifPrefs(user.email) : { livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
   const items = [
     { key: 'livraison', label: 'Suivi de livraison',    sub: 'Statut en temps réel de vos commandes' },
@@ -620,7 +620,7 @@ const AVIS_DEMO = [
 
 function AvisSection({ onBack }: { onBack: () => void }) {
   const { user, isDemo } = useAuth()
-  const { getAvis, saveAvis } = useClientStore()
+  const { getAvis, saveAvis } = useUserStore()
   const [avis, setAvis] = useState(() => {
     if (!user?.email) return isDemo() ? AVIS_DEMO : []
     const stored = getAvis(user.email)
@@ -680,7 +680,7 @@ function AvisSection({ onBack }: { onBack: () => void }) {
 // ══════════════════════════════════════════════════════════════════════════════
 function PaiementSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
-  const { getCartes, saveCartes } = useClientStore()
+  const { getCartes, saveCartes } = useUserStore()
   const [cartes, setCartes] = useState<{ id: string; last4: string; expiry: string; type: string; defaut: boolean }[]>(() => user?.email ? getCartes(user.email) : [])
   const [ajoutOpen, setAjoutOpen] = useState(false)
   const [form, setForm] = useState({ numero: '', titulaire: '', expiry: '', cvv: '' })
