@@ -224,7 +224,7 @@ export default function PanelPage() {
     return user?.isDemo ? HISTORIQUE_INIT : []
   })
 
-  const [boutique, setBoutique] = useState(() => {
+  const [boutique, setBoutique] = useState<ReturnType<typeof makeInitBoutique>>(() => {
     const saved = boucherStore.getBoutique(myBoucherieId)
     return saved ? { ...makeInitBoutique(bRef), ...saved } : makeInitBoutique(bRef)
   })
@@ -247,7 +247,7 @@ export default function PanelPage() {
   function setIsOpenPersist(val: boolean) {
     setIsOpen(val); boucherStore.setIsOpen(bid, val)
   }
-  function setBoutiquePersist(updater: any) {
+  function setBoutiquePersist(updater: ReturnType<typeof makeInitBoutique> | ((prev: ReturnType<typeof makeInitBoutique>) => ReturnType<typeof makeInitBoutique>)) {
     setBoutique(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater
       boucherStore.setBoutique(myBoucherieId, next)
