@@ -349,7 +349,7 @@ export default function PanelPage() {
   }
 
   function updateHoraire(key: string, field: keyof HoraireJour, value: string | boolean) {
-    setBoutiquePersist(b => ({
+    setBoutiquePersist((b: typeof boutique) => ({
       ...b,
       horaires: {
         ...b.horaires,
