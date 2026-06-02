@@ -12,7 +12,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ onClose, defaultRole = 'client' }: AuthModalProps) {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, updateUser } = useAuth()
   const { findBoucher } = useAccounts()
   const [tab,  setTab]  = useState<'login' | 'register'>('login')
   const [role, setRole] = useState<'client' | 'boucher'>(defaultRole)

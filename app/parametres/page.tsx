@@ -157,7 +157,7 @@ export default function ParametresPage() {
 }
 
 function ProfilSection({ onBack }: { onBack: () => void }) {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [form, setForm] = useState({
     prenom: user?.nom?.split(' ')[0] || '',
     nom: user?.nom?.split(' ').slice(1).join(' ') || '',
@@ -165,6 +165,17 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
     tel: '',
   })
   const [saved, setSaved] = useState(false)
+
+  function enregistrer() {
+    // Met à jour le store auth — re-render automatique partout
+    updateUser({
+      nom: `${form.prenom} ${form.nom}`.trim(),
+      email: form.email.trim() || user?.email || '',
+    })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
   return (
     <PageWrapper title="👤 Mon profil" onBack={onBack}>
       <div className="text-center mb-5">
@@ -181,7 +192,7 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
         ))}
         {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
-          onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500) }}>Enregistrer</button>
+          onClick={enregistrer}>Enregistrer</button>
       </div>
     </PageWrapper>
   )

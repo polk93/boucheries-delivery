@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
 import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
@@ -236,6 +236,21 @@ export default function PanelPage() {
   const [isNew, setIsNew] = useState(false)
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
+
+  // Synchroniser automatiquement quand user change (reconnexion)
+  useEffect(() => {
+    if (!user) return
+    const savedProd = boucherStore.getProduits(myBoucherieId)
+    if (savedProd.length > 0) setProduits(savedProd as unknown as ProduitEtendu[])
+    const savedBoutique = boucherStore.getBoutique(myBoucherieId)
+    if (savedBoutique) setBoutique({ ...makeInitBoutique(bRef), ...savedBoutique })
+    const savedOrders = boucherStore.getOrders(bid)
+    if (savedOrders.length > 0) setOrders(savedOrders as Commande[])
+    const savedHist = boucherStore.getHistorique(bid)
+    if (savedHist.length > 0) setHistorique(savedHist as Commande[])
+    const savedIsOpen = boucherStore.getIsOpen(bid)
+    if (savedIsOpen !== null) setIsOpen(savedIsOpen)
+  }, [user?.email])
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
@@ -1169,7 +1184,7 @@ function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
 // ── Formulaire profil boucher ─────────────────────────────────────────────────
 function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
   const boucherStore = useBoucherStore()
-  const { login } = useAuth()
+  const { updateUser } = useAuth()
   const email = user?.email || ''
 
   const saved_profil = boucherStore.getBoucherProfil(email)
@@ -1191,12 +1206,12 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
       boucherStore.migrateEmail(email, newEmail)
     }
 
-    // Sauvegarder le profil
+    // Sauvegarder dans le store boucher
     boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
 
-    // Mettre à jour le compte connecté pour que tout l'UI reflète les changements
-    login({
-      ...user,
+    // Mettre à jour le store auth — déclenche un re-render de TOUS les composants
+    // qui utilisent useAuth() sans rechargement de page
+    updateUser({
       nom: `${form.prenom} ${form.nom}`.trim(),
       email: newEmail,
       boucherieNom: form.boutique,
