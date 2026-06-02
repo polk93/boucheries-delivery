@@ -242,7 +242,7 @@ const boutiquesReelles = useMemo(() =>
     if (!searchQuery.trim()) return { boucheries: [], produits: [] }
     const q = searchQuery.toLowerCase()
     return {
-      boucheries: boucheriesToShow.filter(b => b.nom.toLowerCase().includes(q) || b.tags.some(t => t.toLowerCase().includes(q))).slice(0, 3),
+      boucheries: boucheriesToShow.filter(b => b.nom.toLowerCase().includes(q) || b.tags.some((t: string) => t.toLowerCase().includes(q))).slice(0, 3),
       produits: BOUCHERIES.flatMap(b => b.produits.filter(p => p.nom.toLowerCase().includes(q)).map(p => ({ ...p, boucherie: b }))).slice(0, 5),
     }
   }, [searchQuery])
