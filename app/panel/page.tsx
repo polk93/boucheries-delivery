@@ -419,21 +419,7 @@ export default function PanelPage() {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 py-4 max-w-2xl mx-auto">
-        {[
-          { ico: '', val: String(orders.length), label: 'En cours' },
-          { ico: '', val: String(historique.reduce((s, o) => s + o.lignes.reduce((a, l) => a + l.prix * l.qty, 0) + o.frais, 0).toFixed(0)) + ' €', label: 'CA total' },
-          { ico: '⭐', val: '4,9', label: 'Note moyenne' },
-          { ico: '️', val: String(myProduits.length), label: 'Produits actifs' },
-        ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm">
-            <div className="text-xl mb-1">{s.ico}</div>
-            <div className="font-serif text-xl font-black text-brun">{s.val}</div>
-            <div className="text-xs text-gray-400">{s.label}</div>
-          </div>
-        ))}
-      </div>
+
 
       <div className="px-4 max-w-2xl mx-auto">
 
@@ -652,67 +638,6 @@ export default function PanelPage() {
               </div>
             </div>
 
-            {/* Horaires */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
-              </div>
-              <div className="p-4 space-y-4">
-                {JOURS.map(([key, label]) => {
-                  const h = boutique.horaires[key]
-                  return (
-                    <div key={key}>
-                      <div className="flex items-center gap-3 mb-2">
-                        <button
-                          className={'w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ' + (h.ouvert ? 'bg-green-400' : 'bg-gray-200')}
-                          onClick={() => updateHoraire(key, 'ouvert', !h.ouvert)}>
-                          <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (h.ouvert ? 'translate-x-5' : 'translate-x-0.5')} />
-                        </button>
-                        <span className={'text-sm font-bold flex-1 ' + (h.ouvert ? 'text-brun' : 'text-gray-300')}>{label}</span>
-                        {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
-                      </div>
-                      {h.ouvert && (
-                        <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
-                          <div className="flex items-center gap-2">
-                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.matin ? 'bg-or' : 'bg-gray-200')}
-                              onClick={() => updateHoraire(key, 'matin', !h.matin)}>
-                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.matin ? 'translate-x-4' : 'translate-x-0.5')} />
-                            </button>
-                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.matin ? 'text-brun' : 'text-gray-300')}>Matin</span>
-                            {h.matin ? (
-                              <div className="flex items-center gap-1.5 flex-1">
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.matinDebut} onChange={e => updateHoraire(key, 'matinDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.matinFin} onChange={e => updateHoraire(key, 'matinFin', e.target.value)} />
-                              </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.am ? 'bg-or' : 'bg-gray-200')}
-                              onClick={() => updateHoraire(key, 'am', !h.am)}>
-                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.am ? 'translate-x-4' : 'translate-x-0.5')} />
-                            </button>
-                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
-                            {h.am ? (
-                              <div className="flex items-center gap-1.5 flex-1">
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.amDebut} onChange={e => updateHoraire(key, 'amDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
-                                  value={h.amFin} onChange={e => updateHoraire(key, 'amFin', e.target.value)} />
-                              </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
             {/* Promotions */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
@@ -784,6 +709,69 @@ export default function PanelPage() {
                 </div>
               </div>
             </div>
+
+            {/* Horaires */}
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+                <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
+              </div>
+              <div className="p-4 space-y-4">
+                {JOURS.map(([key, label]) => {
+                  const h = boutique.horaires[key]
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <button
+                          className={'w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ' + (h.ouvert ? 'bg-green-400' : 'bg-gray-200')}
+                          onClick={() => updateHoraire(key, 'ouvert', !h.ouvert)}>
+                          <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (h.ouvert ? 'translate-x-5' : 'translate-x-0.5')} />
+                        </button>
+                        <span className={'text-sm font-bold flex-1 ' + (h.ouvert ? 'text-brun' : 'text-gray-300')}>{label}</span>
+                        {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
+                      </div>
+                      {h.ouvert && (
+                        <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
+                          <div className="flex items-center gap-2">
+                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.matin ? 'bg-or' : 'bg-gray-200')}
+                              onClick={() => updateHoraire(key, 'matin', !h.matin)}>
+                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.matin ? 'translate-x-4' : 'translate-x-0.5')} />
+                            </button>
+                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.matin ? 'text-brun' : 'text-gray-300')}>Matin</span>
+                            {h.matin ? (
+                              <div className="flex items-center gap-1.5 flex-1">
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.matinDebut} onChange={e => updateHoraire(key, 'matinDebut', e.target.value)} />
+                                <span className="text-xs text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.matinFin} onChange={e => updateHoraire(key, 'matinFin', e.target.value)} />
+                              </div>
+                            ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.am ? 'bg-or' : 'bg-gray-200')}
+                              onClick={() => updateHoraire(key, 'am', !h.am)}>
+                              <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.am ? 'translate-x-4' : 'translate-x-0.5')} />
+                            </button>
+                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
+                            {h.am ? (
+                              <div className="flex items-center gap-1.5 flex-1">
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.amDebut} onChange={e => updateHoraire(key, 'amDebut', e.target.value)} />
+                                <span className="text-xs text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                  value={h.amFin} onChange={e => updateHoraire(key, 'amFin', e.target.value)} />
+                              </div>
+                            ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+
 
             {boutiqueEdited && (
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
@@ -1032,7 +1020,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
     <div className="space-y-4">
       {header}
       <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Paiements</button>
-      <StripePaiementSection email={user?.email || ''} showToast={showToast} />
+      <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
       <div>
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
         <CaSelector historique={historique} />
@@ -1254,7 +1242,7 @@ function BoucherNotifsForm() {
 }
 
 // ── Stripe paiement section ───────────────────────────────────────────────────
-function StripePaiementSection({ email, showToast }: { email: string; showToast: (msg: string) => void }) {
+function StripePaiementSection({ email, boutiqueName, showToast }: { email: string; boutiqueName?: string; showToast: (msg: string) => void }) {
   const boucherStore = useBoucherStore()
   const account = boucherStore.getStripeAccount(email)
   const [confirming, setConfirming] = useState(false)
@@ -1266,13 +1254,25 @@ function StripePaiementSection({ email, showToast }: { email: string; showToast:
       const res = await fetch('/api/connect/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, nom_boutique: 'Boucherie', ville: '', type: 'boucher' }),
+        body: JSON.stringify({
+          email,
+          nom_boutique: boutiqueName || 'Boucherie',
+          ville: '',
+          type: 'boucher',
+        }),
       })
       const data = await res.json()
-      if (data.onboardingUrl) { boucherStore.clearStripeAccount(email); window.location.href = data.onboardingUrl }
-      else showToast('❌ Erreur Stripe')
-    } catch { showToast('❌ Erreur réseau') }
-    finally { setLoading(false) }
+      if (data.onboardingUrl) {
+        boucherStore.clearStripeAccount(email)
+        window.location.href = data.onboardingUrl
+        return
+      }
+      showToast('❌ ' + (data.error || 'Erreur Stripe — contactez le support'))
+    } catch (e: any) {
+      showToast('❌ Erreur réseau : ' + (e?.message || 'réessayez'))
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (!account) return (
