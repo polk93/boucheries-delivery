@@ -192,7 +192,9 @@ export default function PanelPage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   // ── IDs et store ─────────────────────────────────────────────────────────────
-  const myBoucherieId = user?.boucherieId || 1
+  const myBoucherieId = user?.isDemo
+  ? (user?.boucherieId || 1)
+  : parseInt(user?.email?.replace(/\D/g, '').slice(-6) || '999')
   const myBoucherie   = BOUCHERIES.find(b => b.id === myBoucherieId)
   const bRef          = user?.isDemo ? myBoucherie : undefined
   const boucherStore  = useBoucherStore()
@@ -204,6 +206,12 @@ export default function PanelPage() {
   )
 
   const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
+  if (user?.isDemo) return BOUCHERIES.flatMap(b =>
+    b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
+  )
+  const saved = boucherStore.getProduits(myBoucherieId)
+  return saved as unknown as ProduitEtendu[]
+})
     const saved = boucherStore.getProduits(myBoucherieId)
     if (saved.length > 0) return saved as unknown as ProduitEtendu[]
     if (user?.isDemo) return BOUCHERIES.flatMap(b =>
