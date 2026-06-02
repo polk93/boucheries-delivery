@@ -204,21 +204,15 @@ export default function PanelPage() {
   const [isOpen, setIsOpen] = useState<boolean>(() =>
     boucherStore.getIsOpen(bid) ?? true
   )
-
-  const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
-  if (user?.isDemo) return BOUCHERIES.flatMap(b =>
-    b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
-  )
+const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
+  if (user?.isDemo) {
+    return BOUCHERIES.flatMap(b =>
+      b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
+    )
+  }
   const saved = boucherStore.getProduits(myBoucherieId)
   return saved as unknown as ProduitEtendu[]
 })
-    const saved = boucherStore.getProduits(myBoucherieId)
-    if (saved.length > 0) return saved as unknown as ProduitEtendu[]
-    if (user?.isDemo) return BOUCHERIES.flatMap(b =>
-      b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
-    )
-    return []
-  })
 
   const [orders, setOrders] = useState<Commande[]>(() => {
     const saved = boucherStore.getOrders(bid)
