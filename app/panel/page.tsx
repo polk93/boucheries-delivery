@@ -193,8 +193,8 @@ export default function PanelPage() {
 
   // ── IDs et store ─────────────────────────────────────────────────────────────
   const myBoucherieId = user?.isDemo
-  ? (user?.boucherieId || 1)
-  : parseInt(user?.email?.replace(/\D/g, '').slice(-6) || '999')
+    ? (user?.boucherieId || 1)
+    : (user?.boucherieId || (1000 + (user?.email?.charCodeAt(0) || 0) % 9000))
   const myBoucherie   = BOUCHERIES.find(b => b.id === myBoucherieId)
   const bRef          = user?.isDemo ? myBoucherie : undefined
   const boucherStore  = useBoucherStore()
@@ -204,15 +204,15 @@ export default function PanelPage() {
   const [isOpen, setIsOpen] = useState<boolean>(() =>
     boucherStore.getIsOpen(bid) ?? true
   )
-const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
-  if (user?.isDemo) {
-    return BOUCHERIES.flatMap(b =>
+
+  const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
+    const saved = boucherStore.getProduits(myBoucherieId)
+    if (saved.length > 0) return saved as unknown as ProduitEtendu[]
+    if (user?.isDemo) return BOUCHERIES.flatMap(b =>
       b.produits.map(p => ({ ...p, boucherieId: b.id, boucherieNom: b.nom, photoUrl: p.photo }))
     )
-  }
-  const saved = boucherStore.getProduits(myBoucherieId)
-  return saved as unknown as ProduitEtendu[]
-})
+    return []
+  })
 
   const [orders, setOrders] = useState<Commande[]>(() => {
     const saved = boucherStore.getOrders(bid)
@@ -317,7 +317,13 @@ const [produits, setProduits] = useState<ProduitEtendu[]>(() => {
         cat: modalProd.cat as any,
         venteType: modalProd.venteType as any,
       }
-      setProduits(prev => { const next = [...prev, newProd]; boucherStore.setProduits(myBoucherieId, next); return next })
+      setProduits(prev => {
+        const next = [...prev, newProd]
+        boucherStore.setProduits(myBoucherieId, next)
+        // Enregistrer le boucher dans le registry dès le premier produit
+        if (user?.email) boucherStore.registerBoucher(user.email, myBoucherieId)
+        return next
+      })
       showToast('✅ Produit créé !')
     } else {
       setProduits(prev => prev.map(p => {
@@ -1178,7 +1184,11 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
   const [saved, setSaved] = useState(false)
 
   function enregistrer() {
-    boucherStore.setBoucherProfil(email, form)
+    // Si l'email a changé, migrer toutes les données vers le nouvel email
+    if (form.email && form.email !== email) {
+      boucherStore.migrateEmail(email, form.email)
+    }
+    boucherStore.setBoucherProfil(form.email || email, { ...form, email: form.email || email })
     setSaved(true)
     showToast('✅ Profil mis à jour !')
     setTimeout(() => setSaved(false), 2500)

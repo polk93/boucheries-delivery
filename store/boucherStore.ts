@@ -26,6 +26,7 @@ interface BoucherStore {
   historique:     Record<string, any[]>
   boutiques:      Record<string, any>
   isOpen:         Record<string, boolean>
+  registry:       Record<string, number>  // email → boucherieId
 
   // Produits
   getProduits:   (bid: number) => ProduitSave[]
@@ -58,13 +59,20 @@ interface BoucherStore {
   // Statut ouvert/fermé
   getIsOpen: (bid: string) => boolean | null
   setIsOpen: (bid: string, val: boolean) => void
+
+  // Registry email → boucherieId (pour retrouver les boutiques actives)
+  registerBoucher: (email: string, bid: number) => void
+  getActiveBouchers: () => { email: string; bid: number }[]
+
+  // Migration email — copie toutes les données vers le nouvel email et supprime l'ancien
+  migrateEmail: (oldEmail: string, newEmail: string) => void
 }
 
 export const useBoucherStore = create<BoucherStore>()(
   persist(
     (set, get) => ({
       produits: {}, stripeAccounts: {}, profils: {},
-      orders: {}, historique: {}, boutiques: {}, isOpen: {},
+      orders: {}, historique: {}, boutiques: {}, isOpen: {}, registry: {},
 
       getProduits:   (bid) => get().produits[String(bid)] || [],
       setProduits:   (bid, p) => set(s => ({ produits: { ...s.produits, [String(bid)]: p } })),
@@ -90,7 +98,51 @@ export const useBoucherStore = create<BoucherStore>()(
 
       getIsOpen: (bid) => get().isOpen[bid] ?? null,
       setIsOpen: (bid, val) => set(s => ({ isOpen: { ...s.isOpen, [bid]: val } })),
+
+      registerBoucher: (email, bid) =>
+        set(s => ({ registry: { ...s.registry, [email]: bid } })),
+      getActiveBouchers: () =>
+        Object.entries(get().registry).map(([email, bid]) => ({ email, bid })),
+
+      migrateEmail: (oldEmail, newEmail) => {
+        if (!oldEmail || !newEmail || oldEmail === newEmail) return
+        const s = get()
+        // Copier profil
+        const profil = s.profils[oldEmail]
+        // Copier compte Stripe
+        const stripe = s.stripeAccounts[oldEmail]
+        // Copier registry
+        const bid = s.registry[oldEmail]
+
+        set(state => {
+          const newProfils        = { ...state.profils }
+          const newStripe         = { ...state.stripeAccounts }
+          const newRegistry       = { ...state.registry }
+
+          if (profil) {
+            newProfils[newEmail]  = { ...profil, email: newEmail }
+            delete newProfils[oldEmail]
+          }
+          if (stripe) {
+            newStripe[newEmail]   = { ...stripe, email: newEmail }
+            delete newStripe[oldEmail]
+          }
+          if (bid !== undefined) {
+            newRegistry[newEmail] = bid
+            delete newRegistry[oldEmail]
+          }
+
+          return {
+            profils:        newProfils,
+            stripeAccounts: newStripe,
+            registry:       newRegistry,
+          }
+        })
+      },
     }),
     { name: 'boucherie-boucher-data', version: 3 }
   )
 )
+
+// Note: cette approche par ID numérique est fragile.
+// Ajout d'un index email→bid pour retrouver les boutiques actives
