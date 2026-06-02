@@ -796,60 +796,7 @@ export default function PanelPage() {
 
         {/* ══ PARAMÈTRES GÉNÉRAUX ══ */}
         {tab === 'parametres' && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0"></div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
-              </div>
-              {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
-            </div>
-
-            {/* Profil boucher modifiable */}
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Mon compte</p>
-              <BoucherProfilForm user={user} showToast={showToast} />
-            </div>
-
-            {/* Notifications toggles */}
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Alertes</p>
-              <BoucherNotifsForm />
-            </div>
-
-            {/* Stripe Connect */}
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Paiements</p>
-              <StripePaiementSection email={user?.email || ''} showToast={showToast} />
-            </div>
-
-            {/* CA sélecteur */}
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
-              <CaSelector historique={historique} />
-            </div>
-
-            {/* Application */}
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Application</p>
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                {[{ico:'🆘',label:'Support',sub:'FAQ et contact'},{ico:'📋',label:'CGU',sub:"Conditions d'utilisation"}].map((item,i) => (
-                  <div key={item.label} className={'flex items-center gap-3 px-4 py-3.5 ' + (i === 0 ? 'border-b border-gris-bd' : '')}>
-                    <span className="text-xl">{item.ico}</span>
-                    <div className="flex-1"><p className="text-sm font-semibold text-brun">{item.label}</p><p className="text-xs text-gray-400">{item.sub}</p></div>
-                    <span className="text-gray-300">›</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
-              onClick={() => { logout(); router.push('/') }}>
-               Se déconnecter
-            </button>
-            <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
-          </div>
+          <ParamsNav user={user} showToast={showToast} historique={historique} logout={logout} router={router} />
         )}
       </div>
 
@@ -1041,6 +988,187 @@ export default function PanelPage() {
       <BottomNavBoucher currentTab={tab} onTabChange={setTab} />
     </div>
   )
+
+// ── Navigation paramètres boucher ────────────────────────────────────────────
+type ParamsSection = 'compte' | 'alertes' | 'paiements' | 'support' | 'cgu' | null
+
+function ParamsNav({ user, showToast, historique, logout, router }: {
+  user: any; showToast: (m: string) => void; historique: any[]
+  logout: () => void; router: any
+}) {
+  const [section, setSection] = useState<ParamsSection>(null)
+
+  // ── Avatar header ──────────────────────────────────────────────────────────
+  const header = (
+    <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3 mb-4">
+      <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
+        <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
+      </div>
+      {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
+    </div>
+  )
+
+  // ── Sous-pages ─────────────────────────────────────────────────────────────
+  if (section === 'compte') return (
+    <div className="space-y-4">
+      {header}
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Mon compte</button>
+      <BoucherProfilForm user={user} showToast={showToast} />
+      <MdpSectionBoucher showToast={showToast} />
+    </div>
+  )
+
+  if (section === 'alertes') return (
+    <div className="space-y-4">
+      {header}
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Alertes</button>
+      <BoucherNotifsForm />
+    </div>
+  )
+
+  if (section === 'paiements') return (
+    <div className="space-y-4">
+      {header}
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Paiements</button>
+      <StripePaiementSection email={user?.email || ''} showToast={showToast} />
+      <div>
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
+        <CaSelector historique={historique} />
+      </div>
+    </div>
+  )
+
+  if (section === 'support') return (
+    <div className="space-y-4">
+      {header}
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Support</button>
+      <div className="bg-brun rounded-2xl p-5 text-center">
+        <span className="text-4xl block mb-2">💬</span>
+        <p className="text-white font-bold text-sm mb-1">Réponse garantie sous 2h</p>
+        <p className="text-white/60 text-xs mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
+        <a href="mailto:support@boucheriedelivery.fr" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
+      </div>
+      <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+        {[
+          { q: "Comment modifier mes produits ?", a: "Allez dans l'onglet Produits, appuyez sur ✏️ à côté du produit à modifier." },
+          { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectués chaque lundi sur votre compte Stripe Connect." },
+          { q: "Comment signaler un problème de livraison ?", a: "Contactez-nous par email avec le numéro de commande concerné." },
+          { q: "Comment changer mes horaires ?", a: "Allez dans l'onglet Boutique, section Horaires." },
+        ].map((faq, i, arr) => {
+          const [open, setOpen] = useState(false)
+          return (
+            <div key={i} className={i < arr.length - 1 ? 'border-b border-gris-bd pb-3' : ''}>
+              <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
+                <p className="text-sm font-semibold text-brun">{faq.q}</p>
+                <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
+              </button>
+              {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  if (section === 'cgu') return (
+    <div className="space-y-4">
+      {header}
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Conditions</button>
+      <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+        <p className="text-xs text-brun-clair font-semibold">Contrat partenaire boucher · En vigueur depuis le 13 mai 2026</p>
+      </div>
+      {[
+        { t: "1. Commission", c: "BoucheriesDelivery retient 15% sur chaque commande. Le boucher reçoit 85% du montant des produits, versé chaque lundi." },
+        { t: "2. Engagement", c: "Sans engagement de durée. Résiliation possible à tout moment depuis les paramètres. Prise d'effet sous 30 jours." },
+        { t: "3. Responsabilité", c: "Le boucher est seul responsable de la qualité, conformité sanitaire et traçabilité de ses produits." },
+        { t: "4. Allergènes", c: "Le boucher doit renseigner les 14 allergènes obligatoires sur chaque produit (obligation légale EU n°1169/2011)." },
+        { t: "5. Paiements", c: "Les paiements sont gérés par Stripe. BoucheriesDelivery ne stocke jamais les coordonnées bancaires." },
+        { t: "6. Propriété", c: "Les photos et descriptions publiées doivent appartenir au boucher ou être libres de droits." },
+      ].map((s, i) => (
+        <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
+          <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">{s.c}</p>
+        </div>
+      ))}
+    </div>
+  )
+
+  // ── Menu principal ─────────────────────────────────────────────────────────
+  return (
+    <div className="space-y-4">
+      {header}
+
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {[
+          { ico: '👤', label: 'Mon compte',   sub: 'Profil, email, téléphone, mot de passe', section: 'compte'   as ParamsSection },
+          { ico: '🔔', label: 'Alertes',       sub: 'Notifications commandes et stock',       section: 'alertes'  as ParamsSection },
+          { ico: '💳', label: 'Paiements',     sub: 'Stripe Connect, historique CA',           section: 'paiements'as ParamsSection },
+          { ico: '🆘', label: 'Support',       sub: 'FAQ et contact',                          section: 'support'  as ParamsSection },
+          { ico: '📋', label: 'CGU & Contrat', sub: "Conditions partenaire",                   section: 'cgu'      as ParamsSection },
+        ].map((item, i, arr) => (
+          <button key={item.label}
+            className={'w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-creme transition-colors font-sans ' + (i < arr.length - 1 ? 'border-b border-gris-bd' : '')}
+            onClick={() => setSection(item.section)}>
+            <span className="text-xl flex-shrink-0">{item.ico}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-brun">{item.label}</p>
+              <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+            </div>
+            <span className="text-gray-300 text-base flex-shrink-0">›</span>
+          </button>
+        ))}
+      </div>
+
+      <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
+        onClick={() => { logout(); router.push('/') }}>
+        🚪 Se déconnecter
+      </button>
+      <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+    </div>
+  )
+}
+
+// ── Changement de mot de passe boucher ────────────────────────────────────────
+function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
+  const [form, setForm] = useState({ ancien: '', nouveau: '', confirm: '' })
+  const [error, setError] = useState('')
+  const [open, setOpen] = useState(false)
+
+  function valider() {
+    if (!form.ancien) { setError('Saisissez votre mot de passe actuel'); return }
+    if (form.nouveau.length < 6) { setError('Minimum 6 caractères'); return }
+    if (form.nouveau !== form.confirm) { setError('Les mots de passe ne correspondent pas'); return }
+    setError('')
+    setForm({ ancien: '', nouveau: '', confirm: '' })
+    setOpen(false)
+    showToast('✅ Mot de passe modifié !')
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left font-sans" onClick={() => setOpen(o => !o)}>
+        <span className="text-xl">🔒</span>
+        <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-xs text-gray-400">Modifier mon mot de passe</p></div>
+        <span className="text-gray-300">{open ? '▴' : '›'}</span>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-3 border-t border-gris-bd pt-3">
+          {[['ancien','Mot de passe actuel'],['nouveau','Nouveau mot de passe'],['confirm','Confirmer']].map(([k,l]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+            </div>
+          ))}
+          {error && <p className="text-xs text-rouge-vif">{error}</p>}
+          <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={valider}>Modifier</button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ── Formulaire profil boucher ─────────────────────────────────────────────────
 function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
