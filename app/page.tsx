@@ -152,16 +152,28 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [catActive, setCatActive] = useState<string | null>(null)
   const boucherStore = useBoucherStore()
 const boutiquesReelles = useMemo(() =>
-  Array.from({length: 50}, (_, i) => i+1)
+  Array.from({length: 50}, (_, i) => i + 1)
     .map(bid => ({ bid, prods: boucherStore.getProduits(bid) }))
     .filter(x => x.prods.length > 0)
     .map(x => ({
-      id: x.bid, nom: x.prods[0]?.boucherieNom || `Boucherie #${x.bid}`,
-      note: 5.0, frais: 2.9, minCommande: 15, livraison: true, clickCollect: true,
-      adresse: '', desc: `${x.prods.length} produit${x.prods.length>1?'s':''} disponible${x.prods.length>1?'s':''}`,
-      tags: ['Artisan'], photo: null, produits: x.prods as any,
+      id: x.bid,
+      nom: x.prods[0]?.boucherieNom || `Boucherie #${x.bid}`,
+      note: 5.0,
+      frais: 2.9,
+      minCommande: 15,
+      livraison: true,
+      clickCollect: true,
+      adresse: '',
+      desc: `${x.prods.length} produit${x.prods.length > 1 ? 's' : ''} disponible${x.prods.length > 1 ? 's' : ''}`,
+      tags: ['Artisan'] as string[],
+      photo: null,
+      produits: x.prods as any,
       ouvert: boucherStore.getIsOpen(String(x.bid)) ?? true,
-    }))
+      avis: [],
+      img: '',
+      cat: 'Artisan',
+      badge: null,
+    } as any))
 , [boucherStore])
   const [filterActive, setFilterActive] = useState('Tous')
   const [sortBy, setSortBy] = useState('note')
