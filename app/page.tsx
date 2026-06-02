@@ -37,7 +37,7 @@ const COORDS: Record<number, { lat: number; lng: number }> = {
 function PageNonConnecte() {
   const { login } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
-const boucheriesToShow = showBoutiques
+
   return (
     <div className="min-h-screen bg-creme flex flex-col" style={{ paddingBottom: 72 }}>
 
@@ -171,6 +171,9 @@ const boutiquesReelles = useMemo(() =>
   const [panierOpen, setPanierOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const boucheriesToShow = showBoutiques
+  ? [...BOUCHERIES, ...boutiquesReelles.filter(b => !BOUCHERIES.find(d => d.id === b.id))]
+  : boutiquesReelles
 
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'loading' | 'ok' | 'denied'>('idle')
@@ -419,8 +422,7 @@ const boutiquesReelles = useMemo(() =>
 
       {/* ── CATALOGUE ── */}
       <div className="max-w-2xl mx-auto w-full px-4 py-4">
-? [...BOUCHERIES, ...boutiquesReelles.filter(b => !BOUCHERIES.find(d => d.id === b.id))]
-  : boutiquesReelles
+
         {/* Vrai compte — pas encore de boucheries réelles */}
        {boutiquesReelles.length === 0 && !showBoutiques ? (
   <div className="text-center py-16 text-gray-400">
