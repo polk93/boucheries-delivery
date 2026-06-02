@@ -12,6 +12,7 @@ import ModalBoucherie from '@/components/boucherie/ModalBoucherie'
 import ModalPersonnalisation from '@/components/boucherie/ModalPersonnalisation'
 import { BOUCHERIES, CATS_NAV, type Boucherie, type Produit } from '@/lib/data'
 import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_MIN } from '@/lib/livraison'
+import { useBoucherStore } from '@/store/boucherStore'
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -36,7 +37,7 @@ const COORDS: Record<number, { lat: number; lng: number }> = {
 function PageNonConnecte() {
   const { login } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
-
+const boucheriesToShow = showBoutiques
   return (
     <div className="min-h-screen bg-creme flex flex-col" style={{ paddingBottom: 72 }}>
 
@@ -149,6 +150,19 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [modal, setModal] = useState<Boucherie | null>(null)
   const [customProd, setCustomProd] = useState<{ prod: Produit; boucherie: Boucherie } | null>(null)
   const [catActive, setCatActive] = useState<string | null>(null)
+  const boucherStore = useBoucherStore()
+const boutiquesReelles = useMemo(() =>
+  Array.from({length: 50}, (_, i) => i+1)
+    .map(bid => ({ bid, prods: boucherStore.getProduits(bid) }))
+    .filter(x => x.prods.length > 0)
+    .map(x => ({
+      id: x.bid, nom: x.prods[0]?.boucherieNom || `Boucherie #${x.bid}`,
+      note: 5.0, frais: 2.9, minCommande: 15, livraison: true, clickCollect: true,
+      adresse: '', desc: `${x.prods.length} produit${x.prods.length>1?'s':''} disponible${x.prods.length>1?'s':''}`,
+      tags: ['Artisan'], photo: null, produits: x.prods as any,
+      ouvert: boucherStore.getIsOpen(String(x.bid)) ?? true,
+    }))
+, [boucherStore])
   const [filterActive, setFilterActive] = useState('Tous')
   const [sortBy, setSortBy] = useState('note')
   const [searchQuery, setSearchQuery] = useState('')
@@ -213,7 +227,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
     if (!searchQuery.trim()) return { boucheries: [], produits: [] }
     const q = searchQuery.toLowerCase()
     return {
-      boucheries: BOUCHERIES.filter(b => b.nom.toLowerCase().includes(q) || b.tags.some(t => t.toLowerCase().includes(q))).slice(0, 3),
+      boucheries: boucheriesToShow.filter(b => b.nom.toLowerCase().includes(q) || b.tags.some(t => t.toLowerCase().includes(q))).slice(0, 3),
       produits: BOUCHERIES.flatMap(b => b.produits.filter(p => p.nom.toLowerCase().includes(q)).map(p => ({ ...p, boucherie: b }))).slice(0, 5),
     }
   }, [searchQuery])
@@ -405,20 +419,21 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
 
       {/* ── CATALOGUE ── */}
       <div className="max-w-2xl mx-auto w-full px-4 py-4">
-
+? [...BOUCHERIES, ...boutiquesReelles.filter(b => !BOUCHERIES.find(d => d.id === b.id))]
+  : boutiquesReelles
         {/* Vrai compte — pas encore de boucheries réelles */}
-        {!showBoutiques ? (
-          <div className="text-center py-16 text-gray-400">
-            <span className="text-5xl block mb-4">🔪</span>
-            <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
-            <p className="text-sm leading-relaxed mb-2">
-              Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
-            </p>
-            <p className="text-xs text-gray-300">
-              Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
-            </p>
-          </div>
-        ) : (<>
+       {boutiquesReelles.length === 0 && !showBoutiques ? (
+  <div className="text-center py-16 text-gray-400">
+    <span className="text-5xl block mb-4">🔪</span>
+    <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
+    <p className="text-sm leading-relaxed mb-2">
+      Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
+    </p>
+    <p className="text-xs text-gray-300">
+      Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
+    </p>
+  </div>
+) : (<>
 
         {userPos && filtered.length > 0 && (
           <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mb-3 flex justify-between items-center">
