@@ -1169,9 +1169,9 @@ function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
 // ── Formulaire profil boucher ─────────────────────────────────────────────────
 function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
   const boucherStore = useBoucherStore()
+  const { login } = useAuth()
   const email = user?.email || ''
 
-  // Charger depuis localStorage via le store
   const saved_profil = boucherStore.getBoucherProfil(email)
 
   const [form, setForm] = useState({
@@ -1184,11 +1184,24 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
   const [saved, setSaved] = useState(false)
 
   function enregistrer() {
-    // Si l'email a changé, migrer toutes les données vers le nouvel email
-    if (form.email && form.email !== email) {
-      boucherStore.migrateEmail(email, form.email)
+    const newEmail = form.email.trim() || email
+
+    // Migrer les données si l'email a changé
+    if (newEmail !== email) {
+      boucherStore.migrateEmail(email, newEmail)
     }
-    boucherStore.setBoucherProfil(form.email || email, { ...form, email: form.email || email })
+
+    // Sauvegarder le profil
+    boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
+
+    // Mettre à jour le compte connecté pour que tout l'UI reflète les changements
+    login({
+      ...user,
+      nom: `${form.prenom} ${form.nom}`.trim(),
+      email: newEmail,
+      boucherieNom: form.boutique,
+    })
+
     setSaved(true)
     showToast('✅ Profil mis à jour !')
     setTimeout(() => setSaved(false), 2500)
