@@ -155,7 +155,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   console.log('bouchersDB:', bouchersDB, 'loading:', loadingDB)
  const boutiquesReelles = useMemo(() =>
   bouchersDB
-    .filter(b => b.produits && b.produits.length > 0)
+    .filter(b => b.produits && b.produits.filter((p: any) => p.actif !== false).length > 0)
     .map(b => ({
       id:           b.id,           // UUID string (pas number)
       nom:          b.nom_boutique,
@@ -168,7 +168,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
       desc:         b.description || `${b.produits.length} produit${b.produits.length > 1 ? 's' : ''} disponible${b.produits.length > 1 ? 's' : ''}`,
       tags:         ['Artisan'] as string[],
       photo:        null,
-      produits:     b.produits.map(p => ({
+      produits:     b.produits.filter((p: any) => p.actif !== false).map(p => ({
         id:          p.id,
         nom:         p.nom,
         desc:        p.description,
@@ -261,7 +261,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   }, [searchQuery])
   const { boucheries: srB, produits: srP } = searchResults()
 
-  const filtered = boucheriesToShow
+ const filtered = boucheriesToShow.filter((b: any) => b.ouvert !== false)
     .filter(b => {
       if (userPos && COORDS[b.id]) {
         if (distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) > rayonKm) return false
