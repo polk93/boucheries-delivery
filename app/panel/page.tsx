@@ -237,6 +237,11 @@ export default function PanelPage() {
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
+  // Reset sur l'onglet commandes à chaque connexion
+  useEffect(() => {
+    if (user) setTab('commandes')
+  }, [user?.email])
+
   // Synchroniser automatiquement quand user change (reconnexion)
   useEffect(() => {
     if (!user) return
