@@ -198,6 +198,8 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [authOpen, setAuthOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const boucheriesToShow = showBoutiques
+  ? BOUCHERIES
+  : boutiquesReelles
   ? [...BOUCHERIES, ...boutiquesReelles.filter(b => !BOUCHERIES.find(d => d.id === b.id))]
   : boutiquesReelles
 
