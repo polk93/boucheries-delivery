@@ -17,17 +17,25 @@ export async function GET(req: NextRequest) {
     if (email) {
       const { data, error } = await supabase
         .from('bouchers').select('*, produits(*)').eq('email', email).single()
-      if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+      if (error) {
+        console.error('[bouchers GET email]', error)
+        return NextResponse.json({ error: error.message, details: error }, { status: 404 })
+      }
       return NextResponse.json(data)
     }
 
     const { data, error } = await supabase
       .from('bouchers').select('*, produits(*)')
       .eq('actif', true).order('created_at', { ascending: true })
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    if (error) {
+      console.error('[bouchers GET all]', error)
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 })
+    }
     return NextResponse.json(data || [])
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('[bouchers GET catch]', err)
+    return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 })
   }
 }
 
