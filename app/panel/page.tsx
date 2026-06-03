@@ -66,7 +66,27 @@ interface HoraireJour {
   amFin: string
 }
 
-// ── Données démo ──────────────────────────────────────────────────────────────
+// ── Vérification automatique ouvert/fermé selon les horaires ─────────────────
+function isBoutiqueOuverteNow(horaires: Record<string, HoraireJour>): boolean {
+  const now = new Date()
+  const jours = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
+  const jour = jours[now.getDay()]
+  const h = horaires[jour]
+  if (!h || !h.ouvert) return false
+
+  const heure = now.getHours() * 60 + now.getMinutes()
+
+  function toMin(s: string): number {
+    const [hh, mm] = s.split(':').map(Number)
+    return hh * 60 + mm
+  }
+
+  const matinOk = h.matin && heure >= toMin(h.matinDebut) && heure < toMin(h.matinFin)
+  const amOk    = h.am    && heure >= toMin(h.amDebut)    && heure < toMin(h.amFin)
+  return matinOk || amOk
+}
+
+
 const ORDERS_INIT: Commande[] = [
   {
     id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
@@ -255,6 +275,26 @@ export default function PanelPage() {
       }),
     }).catch(console.error)
   }, [user?.email])
+
+  // ── Ouverture/fermeture automatique selon les horaires ───────────────────────
+  useEffect(() => {
+    if (!user || user.isDemo) return
+
+    function checkHoraires() {
+      const shouldBeOpen = isBoutiqueOuverteNow(boutique.horaires)
+      if (shouldBeOpen !== isOpen) {
+        setIsOpenPersist(shouldBeOpen)
+        showToast(shouldBeOpen ? '🟢 Boutique ouverte automatiquement' : '🔴 Boutique fermée automatiquement')
+      }
+    }
+
+    // Vérifier immédiatement
+    checkHoraires()
+
+    // Vérifier toutes les minutes
+    const interval = setInterval(checkHoraires, 60000)
+    return () => clearInterval(interval)
+  }, [boutique.horaires, user?.email])
 
   // Reset sur l'onglet commandes à chaque connexion
   useEffect(() => {
@@ -1220,11 +1260,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
           </button>
         ))}
       </div>
-<button
-  className={'border rounded-xl px-3 py-1.5 text-xs font-bold transition-all ' + (isOpen ? 'bg-green-500 border-green-500 text-white' : 'bg-red-100 border-red-300 text-red-600')}
-  onClick={() => setIsOpenPersist(!isOpen)}>
-  {isOpen ? '🟢 Ouvert' : '🔴 Fermé'}
-</button>
+
       <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
         onClick={() => { logout(); router.push('/') }}>
         🚪 Se déconnecter
@@ -1302,20 +1338,6 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
     // Sauvegarder dans le store boucher
     boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
 
-    // Mettre à jour dans Supabase
-if (!user?.isDemo) {
-  fetch('/api/bouchers', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: newEmail,
-      nom_boutique: form.boutique,
-      nom: `${form.prenom} ${form.nom}`.trim(),
-      telephone: form.tel,
-    }),
-  }).catch(console.error)
-}
-
     // Mettre à jour le store auth — déclenche un re-render de TOUS les composants
     // qui utilisent useAuth() sans rechargement de page
     updateUser({
@@ -1323,13 +1345,7 @@ if (!user?.isDemo) {
       email: newEmail,
       boucherieNom: form.boutique,
     })
-updateUser({
-      nom: `${form.prenom} ${form.nom}`.trim(),
-      email: newEmail,
-      boucherieNom: form.boutique,
-    })
 
-   
     setSaved(true)
     showToast('✅ Profil mis à jour !')
     setTimeout(() => setSaved(false), 2500)
