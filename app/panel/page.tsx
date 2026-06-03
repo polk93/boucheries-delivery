@@ -1220,7 +1220,11 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
           </button>
         ))}
       </div>
-
+<button
+  className={'border rounded-xl px-3 py-1.5 text-xs font-bold transition-all ' + (isOpen ? 'bg-green-500 border-green-500 text-white' : 'bg-red-100 border-red-300 text-red-600')}
+  onClick={() => setIsOpenPersist(!isOpen)}>
+  {isOpen ? '🟢 Ouvert' : '🔴 Fermé'}
+</button>
       <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
         onClick={() => { logout(); router.push('/') }}>
         🚪 Se déconnecter
