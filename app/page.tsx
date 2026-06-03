@@ -495,7 +495,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
                     </div>
                     <p className="text-xs text-gray-400 mb-2 line-clamp-2">{b.desc}</p>
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {b.tags.slice(0, 3).map(t => <span key={t} className="bg-gris-bd text-brun-clair text-[10px] font-medium px-1.5 py-0.5 rounded">{t}</span>)}
+                      {b.tags.slice(0, 3).map((t: string) => <span key={t} className="bg-gris-bd text-brun-clair text-[10px] font-medium px-1.5 py-0.5 rounded">{t}</span>)}
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
                       <span className="text-[11px] text-gray-400">🕐 {b.livraison} · {userPos ? `🚚 ${getFrais(b).toFixed(2)} € · 📍 ${getDistance(b)} km` : (b.frais === 0 ? '🚚 Gratuit' : `🚚 ${b.frais.toFixed(2)} €`)}</span>
