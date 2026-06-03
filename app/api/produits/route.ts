@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY requis')
+  if (!url || !key) throw new Error('Variables Supabase manquantes')
   return createClient(url, key)
 }
 
@@ -40,8 +40,19 @@ export async function POST(req: NextRequest) {
     const { email, ...produit } = body
     if (!email) return NextResponse.json({ error: 'email boucher requis' }, { status: 400 })
 
-    const { data: boucher } = await supabase.from('bouchers').select('id').eq('email', email).single()
-    if (!boucher) return NextResponse.json({ error: "Boucher introuvable — créez la boutique d'abord" }, { status: 404 })
+    const { data: boucherExist } = await supabase.from('bouchers').select('id').eq('email', email).single()
+
+    let boucherId: string
+    if (boucherExist?.id) {
+      boucherId = boucherExist.id
+    } else {
+      const { data: newBoucher, error: createErr } = await supabase
+        .from('bouchers')
+        .insert({ email, nom_boutique: produit.boucherieNom || 'Ma Boucherie', nom: email.split('@')[0], actif: true })
+        .select('id').single()
+      if (createErr || !newBoucher) return NextResponse.json({ error: 'Impossible de creer la boutique' }, { status: 500 })
+      boucherId = newBoucher.id
+    }
 
     const { data, error } = await supabase.from('produits').insert({
       boucher_id:  boucherId,
@@ -51,8 +62,8 @@ export async function POST(req: NextRequest) {
       icon:        produit.icon || '🥩',
       stock:       parseInt(produit.stock) || 0,
       photo_url:   produit.photoUrl || null,
-      cat:         produit.cat || 'Bœuf',
-      vente_type:  produit.venteType || 'pièce',
+      cat:         produit.cat || 'Boeuf',
+      vente_type:  produit.venteType || 'piece',
       decoupes:    produit.decoupes ? produit.decoupes.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
       preparation: produit.preparation ? produit.preparation.split(',').map((s: string) => s.trim()).filter(Boolean) : [],
       allergenes:  produit.allergenes || '',
