@@ -1298,6 +1298,20 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
     // Sauvegarder dans le store boucher
     boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
 
+    // Mettre à jour dans Supabase
+if (!user?.isDemo) {
+  fetch('/api/bouchers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: newEmail,
+      nom_boutique: form.boutique,
+      nom: `${form.prenom} ${form.nom}`.trim(),
+      telephone: form.tel,
+    }),
+  }).catch(console.error)
+}
+
     // Mettre à jour le store auth — déclenche un re-render de TOUS les composants
     // qui utilisent useAuth() sans rechargement de page
     updateUser({
@@ -1305,7 +1319,13 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
       email: newEmail,
       boucherieNom: form.boutique,
     })
+updateUser({
+      nom: `${form.prenom} ${form.nom}`.trim(),
+      email: newEmail,
+      boucherieNom: form.boutique,
+    })
 
+   
     setSaved(true)
     showToast('✅ Profil mis à jour !')
     setTimeout(() => setSaved(false), 2500)
