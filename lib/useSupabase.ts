@@ -42,7 +42,8 @@ export function useSupabaseBouchers() {
 
   const fetchBouchers = useCallback(async () => {
     try {
-      const res = await fetch('/api/bouchers')
+      const baseUrl = process.env.NEXT_PUBLIC_URL || ''
+      const res = await fetch(`${baseUrl}/api/bouchers`)
       if (!res.ok) throw new Error('Erreur chargement bouchers')
       const data = await res.json()
       setBouchers(data)
