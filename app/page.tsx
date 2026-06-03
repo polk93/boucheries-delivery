@@ -271,7 +271,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
       if (filterActive === 'Gratuit') return b.frais === 0
       if (filterActive === 'Bio') return b.tags.includes('Bio')
       if (filterActive === 'Halal') return b.tags.includes('Halal')
-      if (filterActive === 'Premium') return b.tags.some(t => ['Wagyu', 'MOF', 'Label Rouge'].includes(t))
+      if (filterActive === 'Premium') return b.tags.some((t: string) => ['Wagyu', 'MOF', 'Label Rouge'].includes(t))
       return true
     })
     .map(b => ({ ...b, distKm: userPos && COORDS[b.id] ? distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) : null }))
