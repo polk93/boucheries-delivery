@@ -356,25 +356,60 @@ export default function PanelPage() {
     setIsNew(true)
   }
 
-  function saveProduit() {
+  async function saveProduit() {
     if (!modalProd) return
     if (!modalProd.nom.trim() || !modalProd.prix.trim()) { showToast('⚠️ Nom et prix obligatoires'); return }
+
+    const profil = boucherStore.getBoucherProfil(user?.email || '')
+    const boucherieNom = profil?.boutique || user?.boucherieNom || user?.nom || 'Ma Boucherie'
+
     if (isNew) {
+      // Sauvegarder dans Supabase d'abord pour obtenir l'ID réel
+      if (!user?.isDemo && user?.email) {
+        try {
+          const data = await supabase.addProduit({
+            ...modalProd,
+            boucherieNom,
+            email: user.email,
+          })
+          // Utiliser l'ID Supabase réel
+          const newProd: ProduitEtendu = {
+            id: data?.id || ('local_' + Date.now()),
+            nom: modalProd.nom, desc: modalProd.desc,
+            prix: parseFloat(modalProd.prix) || 0,
+            icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0,
+            photo: modalProd.photoUrl, photoUrl: modalProd.photoUrl,
+            decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
+            preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
+            boucherieId: myBoucherieId, boucherieNom,
+            cat: modalProd.cat as any, venteType: modalProd.venteType as any,
+          }
+          setProduits(prev => {
+            const next = [...prev, newProd]
+            boucherStore.setProduits(myBoucherieId, next)
+            boucherStore.registerBoucher(user.email!, myBoucherieId)
+            return next
+          })
+          showToast('✅ Produit créé !')
+          setModalProd(null)
+          return
+        } catch (e) {
+          console.error('Erreur Supabase:', e)
+          showToast('⚠️ Sauvegarde locale uniquement')
+        }
+      }
+
+      // Fallback local (démo ou erreur Supabase)
       const newProd: ProduitEtendu = {
-        id: 'new_' + Date.now(),
-        nom: modalProd.nom,
-        desc: modalProd.desc,
+        id: 'local_' + Date.now(),
+        nom: modalProd.nom, desc: modalProd.desc,
         prix: parseFloat(modalProd.prix) || 0,
-        icon: modalProd.icon,
-        stock: parseInt(modalProd.stock) || 0,
-        photo: modalProd.photoUrl,
-        photoUrl: modalProd.photoUrl,
+        icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0,
+        photo: modalProd.photoUrl, photoUrl: modalProd.photoUrl,
         decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
-        boucherieId: modalProd.boucherieId,
-        boucherieNom: BOUCHERIES.find(b => b.id === modalProd.boucherieId)?.nom || '',
-        cat: modalProd.cat as any,
-        venteType: modalProd.venteType as any,
+        boucherieId: modalProd.boucherieId, boucherieNom,
+        cat: modalProd.cat as any, venteType: modalProd.venteType as any,
       }
       setProduits(prev => {
         const next = [...prev, newProd]
@@ -382,10 +417,6 @@ export default function PanelPage() {
         if (user?.email) boucherStore.registerBoucher(user.email, myBoucherieId)
         return next
       })
-      // Sauvegarder dans Supabase (synchronisation cross-device)
-      if (!user?.isDemo && supabase) {
-        supabase.addProduit(newProd).catch(console.error)
-      }
       showToast('✅ Produit créé !')
     } else {
       setProduits(prev => prev.map(p => {
