@@ -197,11 +197,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [panierOpen, setPanierOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
-  const boucheriesToShow = showBoutiques
-  ? BOUCHERIES
-  : boutiquesReelles
-  ? [...BOUCHERIES, ...boutiquesReelles.filter(b => !BOUCHERIES.find(d => d.id === b.id))]
-  : boutiquesReelles
+ const boucheriesToShow = showBoutiques ? BOUCHERIES : boutiquesReelles
 
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const [geoStatus, setGeoStatus] = useState<'idle' | 'loading' | 'ok' | 'denied'>('idle')
