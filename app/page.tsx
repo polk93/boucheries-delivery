@@ -13,6 +13,7 @@ import ModalPersonnalisation from '@/components/boucherie/ModalPersonnalisation'
 import { BOUCHERIES, CATS_NAV, type Boucherie, type Produit } from '@/lib/data'
 import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_MIN } from '@/lib/livraison'
 import { useBoucherStore } from '@/store/boucherStore'
+import { useSupabaseBouchers, type BoucherDB } from '@/lib/useSupabase'
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -150,31 +151,44 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [modal, setModal] = useState<Boucherie | null>(null)
   const [customProd, setCustomProd] = useState<{ prod: Produit; boucherie: Boucherie } | null>(null)
   const [catActive, setCatActive] = useState<string | null>(null)
-  const boucherStore = useBoucherStore()
-const boutiquesReelles = useMemo(() =>
-  Array.from({length: 50}, (_, i) => i + 1)
-    .map(bid => ({ bid, prods: boucherStore.getProduits(bid) }))
-    .filter(x => x.prods.length > 0)
-    .map(x => ({
-      id: x.bid,
-      nom: x.prods[0]?.boucherieNom || `Boucherie #${x.bid}`,
-      note: 5.0,
-      frais: 2.9,
-      minCommande: 15,
-      livraison: true,
+  const { bouchers: bouchersDB, loading: loadingDB } = useSupabaseBouchers()
+ const boutiquesReelles = useMemo(() =>
+  bouchersDB
+    .filter(b => b.produits && b.produits.length > 0)
+    .map(b => ({
+      id:           b.id,           // UUID string (pas number)
+      nom:          b.nom_boutique,
+      note:         5.0,
+      frais:        2.9,
+      minCommande:  15,
+      livraison:    true,
       clickCollect: true,
-      adresse: '',
-      desc: `${x.prods.length} produit${x.prods.length > 1 ? 's' : ''} disponible${x.prods.length > 1 ? 's' : ''}`,
-      tags: ['Artisan'] as string[],
-      photo: null,
-      produits: x.prods as any,
-      ouvert: boucherStore.getIsOpen(String(x.bid)) ?? true,
-      avis: [],
-      img: '',
-      cat: 'Artisan',
-      badge: null,
+      adresse:      b.adresse || '',
+      desc:         b.description || `${b.produits.length} produit${b.produits.length > 1 ? 's' : ''} disponible${b.produits.length > 1 ? 's' : ''}`,
+      tags:         ['Artisan'] as string[],
+      photo:        null,
+      produits:     b.produits.map(p => ({
+        id:          p.id,
+        nom:         p.nom,
+        desc:        p.description,
+        prix:        p.prix,
+        icon:        p.icon,
+        stock:       p.stock,
+        photo:       p.photo_url,
+        photoUrl:    p.photo_url,
+        cat:         p.cat,
+        venteType:   p.vente_type,
+        decoupes:    p.decoupes || [],
+        preparation: p.preparation || [],
+        allergenes:  p.allergenes || '',
+      })) as any,
+      ouvert:  b.ouvert,
+      avis:    [],
+      img:     '',
+      cat:     'Artisan',
+      badge:   null,
     } as any))
-, [boucherStore])
+, [bouchersDB])
   const [filterActive, setFilterActive] = useState('Tous')
   const [sortBy, setSortBy] = useState('note')
   const [searchQuery, setSearchQuery] = useState('')

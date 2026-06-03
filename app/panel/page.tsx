@@ -1,5 +1,6 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { useSupabaseProduits } from '@/lib/useSupabase'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
 import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
@@ -199,6 +200,7 @@ export default function PanelPage() {
   const bRef          = user?.isDemo ? myBoucherie : undefined
   const boucherStore  = useBoucherStore()
   const bid           = String(myBoucherieId)
+  const supabase      = useSupabaseProduits(user?.isDemo ? null : user?.email || null)
 
   // ── États persistants via boucherStore ───────────────────────────────────────
   const [isOpen, setIsOpen] = useState<boolean>(() =>
@@ -242,6 +244,23 @@ export default function PanelPage() {
     if (user) setTab('commandes')
   }, [user?.email])
 
+  // Charger les produits depuis Supabase pour les vrais comptes
+  useEffect(() => {
+    if (!user?.isDemo && supabase.produits.length > 0) {
+      // Sync Supabase → état local
+      const prods = supabase.produits.map((p: any) => ({
+        id: p.id, nom: p.nom, desc: p.description, prix: p.prix,
+        icon: p.icon, stock: p.stock, photo: p.photo_url, photoUrl: p.photo_url,
+        cat: p.cat, venteType: p.vente_type,
+        decoupes: p.decoupes || [], preparation: p.preparation || [],
+        allergenes: p.allergenes || '',
+        boucherieId: myBoucherieId,
+        boucherieNom: user?.boucherieNom || user?.nom || '',
+      }))
+      setProduits(prods as any)
+    }
+  }, [supabase.produits])
+
   // Synchroniser automatiquement quand user change (reconnexion)
   useEffect(() => {
     if (!user) return
@@ -268,6 +287,9 @@ export default function PanelPage() {
   }
   function setIsOpenPersist(val: boolean) {
     setIsOpen(val); boucherStore.setIsOpen(bid, val)
+    if (!user?.isDemo && supabase) {
+      supabase.updateIsOpen(val).catch(console.error)
+    }
   }
   function setBoutiquePersist(updater: ReturnType<typeof makeInitBoutique> | ((prev: ReturnType<typeof makeInitBoutique>) => ReturnType<typeof makeInitBoutique>)) {
     setBoutique(prev => {
@@ -340,10 +362,13 @@ export default function PanelPage() {
       setProduits(prev => {
         const next = [...prev, newProd]
         boucherStore.setProduits(myBoucherieId, next)
-        // Enregistrer le boucher dans le registry dès le premier produit
         if (user?.email) boucherStore.registerBoucher(user.email, myBoucherieId)
         return next
       })
+      // Sauvegarder dans Supabase (synchronisation cross-device)
+      if (!user?.isDemo && supabase) {
+        supabase.addProduit(newProd).catch(console.error)
+      }
       showToast('✅ Produit créé !')
     } else {
       setProduits(prev => prev.map(p => {
@@ -361,6 +386,14 @@ export default function PanelPage() {
           preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         }
       }))
+      // Sync Supabase
+      if (!user?.isDemo && supabase) {
+        supabase.updateProduit(modalProd.id, {
+          ...modalProd,
+          desc: modalProd.desc,
+          photoUrl: modalProd.photoUrl,
+        }).catch(console.error)
+      }
       showToast('✅ Produit mis à jour !')
     }
     setModalProd(null)
@@ -369,6 +402,9 @@ export default function PanelPage() {
   function deleteProd(id: string) {
     if (!confirm('Supprimer ce produit ?')) return
     setProduits(prev => { const next = prev.filter(p => p.id !== id); boucherStore.setProduits(myBoucherieId, next); return next })
+    if (!user?.isDemo && supabase) {
+      supabase.deleteProduit(id).catch(console.error)
+    }
     showToast('️ Produit supprimé')
   }
 
