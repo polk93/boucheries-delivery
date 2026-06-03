@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
@@ -34,6 +34,11 @@ export default function ParametresPage() {
   const [section, setSection] = useState<Section>(initSection)
   const [logoutConfirm, setLogoutConfirm] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+
+  // Rediriger automatiquement les bouchers vers leur panel
+  useEffect(() => {
+    if (isBoucher()) router.replace('/panel')
+  }, [user])
 
   if (section === 'profil')          return <ProfilSection onBack={() => setSection(null)} />
   if (section === 'adresses')        return <AdressesSection onBack={() => setSection(null)} />
