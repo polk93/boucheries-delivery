@@ -32,10 +32,12 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
       const { default: emailjs } = await import('@emailjs/browser')
       await emailjs.send(
         'service_uq712ai',
-        'template_0rdvwq8',
+        'template_ycddlce',
         {
           to_email: email,
-          subject:  '🥩 Votre code de vérification BoucheriesDelivery',
+          name:     email,
+          email:    email,
+          subject:  `Code de vérification BoucheriesDelivery : ${newCode}`,
           message:  `Votre code de vérification est : ${newCode}\n\nCe code expire dans 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`,
         },
         'LbqBSABkR-S5wg9PR'
