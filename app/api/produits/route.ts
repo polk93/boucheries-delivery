@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     if (!email) return NextResponse.json({ error: 'email boucher requis' }, { status: 400 })
 
     const { data: boucher } = await supabase.from('bouchers').select('id').eq('email', email).single()
-    if (!boucher) return NextResponse.json({ error: 'Boucher introuvable — créez la boutique d'abord' }, { status: 404 })
+    if (!boucher) return NextResponse.json({ error: "Boucher introuvable — créez la boutique d'abord" }, { status: 404 })
 
     const { data, error } = await supabase.from('produits').insert({
       boucher_id:  boucherId,
