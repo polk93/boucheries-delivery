@@ -49,15 +49,7 @@ export async function POST(req: NextRequest) {
     let { data: boucher } = await supabase
       .from('bouchers').select('id').eq('email', email).single()
 
-    // Créer le boucher si inexistant
-    if (!boucher) {
-      const { data: newBoucher, error: createErr } = await supabase
-        .from('bouchers')
-        .insert({ email, nom_boutique: produit.boucherieNom || 'Ma Boucherie', nom: email.split('@')[0] })
-        .select().single()
-      if (createErr) return NextResponse.json({ error: createErr.message }, { status: 500 })
-      boucher = newBoucher
-    }
+    if (!boucher) return NextResponse.json({ error: 'Boucher introuvable' }, { status: 404 })
 
     const { data, error } = await supabase
       .from('produits')
