@@ -1,31 +1,37 @@
 'use client'
 
-export default function BottomNavBoucher({ currentTab, onTabChange }: {
+interface BottomNavBoucherProps {
   currentTab: string
   onTabChange: (tab: string) => void
-}) {
+}
+
+export default function BottomNavBoucher({ currentTab, onTabChange }: BottomNavBoucherProps) {
   const tabs = [
-    { id: 'commandes',  ico: '📋', label: 'Commandes' },
-    { id: 'produits',   ico: '🛍️', label: 'Produits'  },
-    { id: 'boutique',   ico: '🏪', label: 'Boutique'  },
-    { id: 'parametres', ico: '⚙️', label: 'Paramètres'},
+    { id: 'commandes',   ico: '📋', label: 'Commandes'  },
+    { id: 'produits',    ico: '🥩', label: 'Produits'   },
+    { id: 'boutique',    ico: '🏪', label: 'Boutique'   },
+    { id: 'parametres',  ico: '⚙️', label: 'Paramètres' },
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-or z-20 shadow-[0_-4px_20px_rgba(61,32,18,.15)]">
-      <div className="bg-brun py-0.5 text-center">
-        <span className="text-[10px] font-bold text-or tracking-wider">🔪 ESPACE BOUCHER</span>
-      </div>
-      <div className="flex">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gris-bd z-20"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="flex max-w-2xl mx-auto">
         {tabs.map(t => (
-          <button key={t.id}
-            className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 border-none bg-transparent cursor-pointer transition-colors ${currentTab === t.id ? 'text-or' : 'text-gray-400'}`}
+          <button
+            key={t.id}
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors font-sans ${
+              currentTab === t.id ? 'text-brun' : 'text-gray-400'
+            }`}
             onClick={() => onTabChange(t.id)}>
-            <span className="text-lg">{t.ico}</span>
-            <span className="text-[10px] font-semibold">{t.label}</span>
+            <span className="text-lg leading-none">{t.ico}</span>
+            <span className="text-[9px] font-semibold">{t.label}</span>
+            {currentTab === t.id && (
+              <span className="w-1 h-1 rounded-full bg-brun mt-0.5" />
+            )}
           </button>
         ))}
       </div>
-    </nav>
+    </div>
   )
 }
