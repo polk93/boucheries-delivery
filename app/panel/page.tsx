@@ -239,6 +239,23 @@ export default function PanelPage() {
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
+  // Enregistrer le boucher dans Supabase dès la connexion (si pas démo)
+  useEffect(() => {
+    if (!user || user.isDemo) return
+    const profil = boucherStore.getBoucherProfil(user.email)
+    fetch('/api/bouchers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:        user.email,
+        nom_boutique: profil?.boutique || user.boucherieNom || user.nom || 'Ma Boucherie',
+        nom:          profil?.nom || user.nom || '',
+        prenom:       profil?.prenom || '',
+        telephone:    profil?.tel || '',
+      }),
+    }).catch(console.error)
+  }, [user?.email])
+
   // Reset sur l'onglet commandes à chaque connexion
   useEffect(() => {
     if (user) setTab('commandes')
