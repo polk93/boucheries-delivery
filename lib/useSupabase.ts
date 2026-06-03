@@ -34,7 +34,7 @@ export interface BoucherDB {
   produits: ProduitDB[]
 }
 
-// ── Hook principal ────────────────────────────────────────────────────────────
+// ── Hook principal avec Realtime ─────────────────────────────────────────────
 export function useSupabaseBouchers() {
   const [bouchers, setBouchers] = useState<BoucherDB[]>([])
   const [loading, setLoading]   = useState(true)
@@ -55,8 +55,35 @@ export function useSupabaseBouchers() {
 
   useEffect(() => {
     fetchBouchers()
-    // Rafraîchir toutes les 30 secondes
-    const interval = setInterval(fetchBouchers, 30000)
+
+    // Polling toutes les 5 secondes pour les mises à jour
+    const interval = setInterval(fetchBouchers, 5000)
+
+    // Realtime Supabase — écoute les changements sur bouchers et produits
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (supabaseUrl && supabaseKey) {
+      import('@supabase/supabase-js').then(({ createClient }) => {
+        const client = createClient(supabaseUrl, supabaseKey)
+
+        const channel = client
+          .channel('boutiques-changes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'bouchers' }, () => {
+            fetchBouchers()
+          })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'produits' }, () => {
+            fetchBouchers()
+          })
+          .subscribe()
+
+        return () => {
+          client.removeChannel(channel)
+          clearInterval(interval)
+        }
+      })
+    }
+
     return () => clearInterval(interval)
   }, [fetchBouchers])
 
