@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 interface EmailVerifyProps {
   email: string
@@ -7,40 +7,52 @@ interface EmailVerifyProps {
   onCancel: () => void
 }
 
+// Génère un code 6 chiffres
+function genCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000))
+}
+
 export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailVerifyProps) {
-  const [code, setCode] = useState('')
-  const [sent, setSent] = useState(false)
+  const [code, setCode]       = useState('')
+  const [sent, setSent]       = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
+  const expectedCode          = useRef('')
+  const expiresAt             = useRef(0)
 
   async function envoyer() {
     setLoading(true); setError('')
     try {
-      const res = await fetch('/api/email-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      if (res.ok) setSent(true)
-      else setError('Erreur envoi email')
-    } catch { setError('Erreur réseau') }
-    finally { setLoading(false) }
+      // Générer et stocker le code côté client
+      const newCode = genCode()
+      expectedCode.current = newCode
+      expiresAt.current    = Date.now() + 10 * 60 * 1000 // 10 min
+
+      // Envoyer via EmailJS directement depuis le navigateur
+      const { default: emailjs } = await import('@emailjs/browser')
+      await emailjs.send(
+        'service_uq712ai',
+        'template_0rdvwq8',
+        {
+          to_email: email,
+          subject:  '🥩 Votre code de vérification BoucheriesDelivery',
+          message:  `Votre code de vérification est : ${newCode}\n\nCe code expire dans 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`,
+        },
+        'LbqBSABkR-S5wg9PR'
+      )
+      setSent(true)
+    } catch (e: any) {
+      setError('Erreur envoi email — ' + (e?.text || e?.message || 'réessayez'))
+    } finally {
+      setLoading(false)
+    }
   }
 
-  async function verifier() {
-    if (code.length !== 6) { setError('Code à 6 chiffres'); return }
-    setLoading(true); setError('')
-    try {
-      const res = await fetch('/api/email-verify', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
-      })
-      const data = await res.json()
-      if (data.verified) onVerified()
-      else setError(data.error || 'Code incorrect')
-    } catch { setError('Erreur réseau') }
-    finally { setLoading(false) }
+  function verifier() {
+    if (code.length !== 6) { setError('Entrez le code à 6 chiffres'); return }
+    if (Date.now() > expiresAt.current) { setError('Code expiré — demandez-en un nouveau'); return }
+    if (code !== expectedCode.current)  { setError('Code incorrect — vérifiez votre email'); return }
+    onVerified()
   }
 
   return (
@@ -59,29 +71,34 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
             </p>
             <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
               onClick={envoyer} disabled={loading}>
-              {loading ? '⏳ Envoi…' : '📧 Envoyer le code'}
+              {loading ? '⏳ Envoi en cours…' : '📧 Envoyer le code'}
             </button>
             <button className="w-full text-gray-400 text-sm font-sans" onClick={onCancel}>Annuler</button>
           </>
         ) : (
           <>
-            <p className="text-sm text-gray-500 text-center">Code envoyé ! Vérifiez votre boîte mail.</p>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+              <p className="text-sm text-green-700 font-semibold">✅ Code envoyé à {email}</p>
+              <p className="text-xs text-green-600 mt-0.5">Vérifiez votre boîte mail (et vos spams)</p>
+            </div>
             <div>
               <input
                 className="w-full border-2 border-brun rounded-xl px-3 py-3 text-2xl font-mono text-center outline-none tracking-widest"
                 placeholder="000000"
                 maxLength={6}
+                autoFocus
                 value={code}
                 onChange={e => { setCode(e.target.value.replace(/\D/g, '')); setError('') }}
+                onKeyDown={e => e.key === 'Enter' && verifier()}
               />
-              {error && <p className="text-xs text-rouge-vif mt-1 text-center">{error}</p>}
+              {error && <p className="text-xs text-rouge-vif mt-1.5 text-center font-semibold">{error}</p>}
             </div>
-            <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
+            <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300"
               onClick={verifier} disabled={loading || code.length !== 6}>
               {loading ? '⏳ Vérification…' : '✅ Confirmer'}
             </button>
-            <button className="w-full text-xs text-or font-semibold font-sans" onClick={envoyer}>
-              Renvoyer le code
+            <button className="w-full text-xs text-or font-semibold font-sans" onClick={envoyer} disabled={loading}>
+              🔄 Renvoyer le code
             </button>
           </>
         )}
