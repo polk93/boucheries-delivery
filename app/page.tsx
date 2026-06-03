@@ -152,6 +152,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   const [customProd, setCustomProd] = useState<{ prod: Produit; boucherie: Boucherie } | null>(null)
   const [catActive, setCatActive] = useState<string | null>(null)
   const { bouchers: bouchersDB, loading: loadingDB } = useSupabaseBouchers()
+  console.log('bouchersDB:', bouchersDB, 'loading:', loadingDB)
  const boutiquesReelles = useMemo(() =>
   bouchersDB
     .filter(b => b.produits && b.produits.length > 0)
@@ -260,7 +261,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   }, [searchQuery])
   const { boucheries: srB, produits: srP } = searchResults()
 
-  const filtered = BOUCHERIES
+  const filtered = boucheriesToShow
     .filter(b => {
       if (userPos && COORDS[b.id]) {
         if (distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) > rayonKm) return false
