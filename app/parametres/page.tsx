@@ -681,6 +681,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const needsPermis = ['scooter','voiture'].includes(form.vehicule)
+  const [sacIsotherme, setSacIsotherme] = useState<'oui'|'non'|null>(null)
   const [hParJour, setHParJour] = useState(3)
   const [joursParSemaine, setJours] = useState(5)
   const revenus_brut = hParJour * joursParSemaine * 4 * 2.5 * (2.85 + 2.5 * 0.80)
@@ -753,9 +754,43 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
           <h3 className="font-serif text-base font-bold text-brun">📅 Disponibilités</h3>
           <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="Ex: Lundi–Vendredi 11h–14h" value={form.disponibilite} onChange={e => setForm(f => ({...f,disponibilite:e.target.value}))} />
         </div>
-        <button className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.prenom||!form.email||!form.tel||!form.ville||!form.siret||!form.disponibilite||!docValide()||loading} onClick={soumettre}>
+
+        {/* Question sac isotherme */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
+          <p className="text-sm font-bold text-brun">🧊 Avez-vous un sac isotherme ?</p>
+          <p className="text-xs text-gray-400">Obligatoire pour maintenir la chaîne du froid lors des livraisons.</p>
+          <div className="flex gap-3">
+            <button
+              className={'flex-1 py-3 rounded-xl border-2 text-sm font-bold font-sans transition-all ' + (sacIsotherme === 'oui' ? 'bg-green-500 border-green-500 text-white' : 'border-gray-200 text-gray-500')}
+              onClick={() => setSacIsotherme('oui')}>
+              ✅ Oui
+            </button>
+            <button
+              className={'flex-1 py-3 rounded-xl border-2 text-sm font-bold font-sans transition-all ' + (sacIsotherme === 'non' ? 'bg-rouge-vif border-rouge-vif text-white' : 'border-gray-200 text-gray-500')}
+              onClick={() => setSacIsotherme('non')}>
+              ❌ Non
+            </button>
+          </div>
+          {sacIsotherme === 'non' && (
+            <div className="bg-or-pale border border-or/20 rounded-xl p-3 space-y-2">
+              <p className="text-xs font-bold text-brun">🛒 Commandez votre sac isotherme</p>
+              <p className="text-xs text-gray-500 leading-relaxed">Un sac isotherme professionnel est indispensable. Commandez-en un sur Amazon avant de soumettre votre candidature.</p>
+              <a href="https://www.amazon.fr/s?k=sac+isotherme+livraison+professionnel&rh=p_36%3A1000-2000"
+                target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-or text-brun font-bold py-3 rounded-xl text-sm no-underline font-sans">
+                🛒 Voir les sacs isothermes sur Amazon →
+              </a>
+              <p className="text-xs text-gray-400 text-center">Environ 15-20€ · Livraison en 1-2 jours</p>
+            </div>
+          )}
+        </div>
+
+        <button className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.prenom||!form.email||!form.tel||!form.ville||!form.siret||!form.disponibilite||!docValide()||loading||sacIsotherme !== 'oui'} onClick={soumettre}>
           {loading ? '⏳ Envoi…' : '🛵 Envoyer mon dossier'}
         </button>
+        {sacIsotherme !== 'oui' && sacIsotherme !== null && (
+          <p className="text-xs text-rouge-vif text-center">⚠️ Vous devez disposer d'un sac isotherme pour postuler</p>
+        )}
         {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
       </div>
     </PageWrapper>
