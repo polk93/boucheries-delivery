@@ -261,7 +261,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   }, [searchQuery])
   const { boucheries: srB, produits: srP } = searchResults()
 
- const filtered = boucheriesToShow.filter((b: any) => b.ouvert !== false)
+ const filtered = boucheriesToShow.filter((b: any) => b.ouvert === true)
     .filter(b => {
       if (userPos && COORDS[b.id]) {
         if (distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) > rayonKm) return false

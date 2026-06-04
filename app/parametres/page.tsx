@@ -278,7 +278,14 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
 }
 
 function NotifsSection({ onBack }: { onBack: () => void }) {
-  const [prefs, setPrefs] = useState({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
+  const { user } = useAuth()
+  const [prefs, setPrefs] = useState({
+    livraison: user?.isDemo ? true  : false,
+    promos:    user?.isDemo ? true  : false,
+    nouveaux:  false,
+    rappels:   user?.isDemo ? true  : false,
+    rapport:   false,
+  })
   const items = [
     { key: 'livraison', label: 'Suivi de livraison', sub: 'Statut en temps réel de vos commandes' },
     { key: 'promos', label: 'Promotions & offres', sub: 'Bons plans des boucheries partenaires' },
