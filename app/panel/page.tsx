@@ -1128,32 +1128,6 @@ export default function PanelPage() {
                 </div>
               </div>
 
-              {/* Poids du morceau */}
-              <div>
-                <label className="text-xs font-bold text-brun block mb-1.5">⚖️ Poids estimé du morceau</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {modalProd.cat === 'Entrée'
-                    ? ['~500g','~1kg','~1.5kg']
-                    : [
-                        '80-120g','140-180g','180-220g','240-280g','280-320g',
-                        '340-380g','380-420g','440-480g','480-520g','540-580g',
-                        '580-620g','640-680g','680-720g','740-780g','780-820g',
-                        '840-880g','880-920g','940-980g','980-1020g',
-                        '1.04-1.16kg','1.14-1.26kg','1.24-1.36kg','1.34-1.46kg','1.44-1.56kg',
-                      ]
-                  }.map(p => (
-                    <button key={p}
-                      className={'px-2.5 py-1.5 rounded-xl border text-[11px] font-bold font-sans transition-all ' + (modalProd.poids === p ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                      onClick={() => setModalProd(f => f ? { ...f, poids: f.poids === p ? '' : p } : f)}>
-                      {p}
-                    </button>
-                  ))}
-                </div>
-                {modalProd.poids && (
-                  <p className="text-xs text-green-600 font-semibold mt-1.5">✓ Le client verra : ~{modalProd.poids}</p>
-                )}
-              </div>
-
               {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
