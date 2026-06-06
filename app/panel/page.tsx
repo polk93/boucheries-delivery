@@ -639,7 +639,7 @@ export default function PanelPage() {
                       <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
                         <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
                           onClick={() => setViewOrder(o)}> Récap</button>
-                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans"></a>
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
                         {o.status === 'new' ? (
                           <>
                             <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
@@ -733,34 +733,35 @@ export default function PanelPage() {
                 }
 
                 return (
-                <div key={p.id} className={'flex items-center gap-3 p-3 transition-opacity ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '') + (!isActif ? ' opacity-50' : '')}>
-                  {p.photoUrl
-                    ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 52, height: 52 }} />
-                    : <div className="rounded-xl bg-or-pale flex items-center justify-center text-2xl flex-shrink-0" style={{ width: 52, height: 52 }}>{p.icon}</div>
-                  }
-                  <div className="flex-1 min-w-0">
-                    <p className={'font-bold text-sm truncate ' + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
-                    <p className="text-xs text-gray-400 truncate">{p.desc}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
-                      <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
-                        {p.stock === 0 ? 'Rupture' : String(p.stock)}
-                      </span>
-                      {!p.photoUrl && (
-                        <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷 Photo</span>
-                      )}
+                <div key={p.id} className={'p-3 transition-opacity ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '') + (!isActif ? ' opacity-50' : '')}>
+                  {/* Ligne 1 : photo + nom + toggle */}
+                  <div className="flex items-center gap-2.5">
+                    {p.photoUrl
+                      ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 48, height: 48 }} />
+                      : <div className="rounded-xl bg-or-pale flex items-center justify-center text-xl flex-shrink-0" style={{ width: 48, height: 48 }}>{p.icon}</div>
+                    }
+                    <div className="flex-1 min-w-0">
+                      <p className={'font-bold text-sm truncate ' + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
+                      <p className="text-xs text-gray-400 truncate">{p.desc}</p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Toggle actif/inactif */}
+                    {/* Toggle bien aligné à droite */}
                     <button
                       className={'w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ' + (isActif ? 'bg-green-400' : 'bg-gray-200')}
-                      onClick={toggleActif}
-                      title={isActif ? 'Masquer ce produit' : 'Afficher ce produit'}>
+                      onClick={toggleActif}>
                       <span className={'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ' + (isActif ? 'translate-x-5' : 'translate-x-0.5')} />
                     </button>
-                    <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                    <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                  </div>
+                  {/* Ligne 2 : prix + stock + actions */}
+                  <div className="flex items-center gap-2 mt-2 pl-[56px]">
+                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
+                    <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
+                      {p.stock === 0 ? 'Rupture' : String(p.stock)}
+                    </span>
+                    {!p.photoUrl && <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷</span>}
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
+                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                    </div>
                   </div>
                 </div>
                 )
@@ -1593,11 +1594,12 @@ function CaSelector({ historique }: { historique: any[] }) {
 
       {/* Stats */}
       {nbCmd > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {[
-            { ico:'📋', val: String(nbCmd),               label:'Commandes' },
-            { ico:'🧺', val: panierMoy.toFixed(2) + ' €', label:'Panier moyen' },
-            { ico:'🛵', val: fraisTotal.toFixed(2) + ' €',label:'Livraisons' },
+            { ico:'📋', val: String(nbCmd),                   label:'Commandes' },
+            { ico:'🧺', val: panierMoy.toFixed(2) + ' €',     label:'Panier moyen' },
+            { ico:'💰', val: (ca * 0.85).toFixed(2) + ' €',   label:'Vos revenus (85%)' },
+            { ico:'🏷️', val: (ca * 0.15).toFixed(2) + ' €',  label:'Commission (15%)' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm text-center">
               <div className="text-lg mb-0.5">{s.ico}</div>
