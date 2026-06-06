@@ -778,11 +778,18 @@ export default function PanelPage() {
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
-                <div className="w-full h-28 bg-gradient-to-br from-brun to-brun-clair flex items-center justify-center relative">
-                  <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom ? boutique.nom[0] : ''}</span>
-                  <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                    {boutique.promo ? '️ Promo' : ' Artisan'}
-                  </span>
+                <div className="w-full h-28 flex items-center justify-center relative overflow-hidden">
+                  {(boutique as any).coverPhoto
+                    ? <img src={(boutique as any).coverPhoto} alt="cover" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full bg-gradient-to-br from-brun to-brun-clair flex items-center justify-center">
+                        <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom ? boutique.nom[0] : ''}</span>
+                      </div>
+                  }
+                  {(boutique as any).badge && (
+                    <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
+                      {(boutique as any).badge === 'Nouveau' ? '✨' : (boutique as any).badge === 'Promo' ? '🏷️' : (boutique as any).badge === 'Populaire' ? '🔥' : (boutique as any).badge === 'Premium' ? '⭐' : (boutique as any).badge === 'Bio' ? '🌿' : (boutique as any).badge === 'MOF' ? '🏆' : '🔴'} {(boutique as any).badge}
+                    </span>
+                  )}
                 </div>
                 <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
@@ -873,24 +880,61 @@ export default function PanelPage() {
             {/* Apparence */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm"> Apparence</p>
+                <p className="font-bold text-brun text-sm">🎨 Apparence</p>
               </div>
-              <div className="p-4 space-y-3">
+              <div className="p-4 space-y-4">
+
+                {/* Photo de couverture cliquable */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">Badge sur la carte</label>
-                  <div className="flex flex-wrap gap-2">
-                    {[['Aucun', '—'], ['Promo', '️'], ['Nouveau', '✨'], ['Populaire', ''], ['Premium', '⭐']].map(([b, ico]) => (
-                      <button key={b}
-                        className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + ((b === 'Aucun' && !boutique.promo) || (b === 'Promo' && boutique.promo) ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
-                        onClick={() => { setBoutiquePersist(bq => ({ ...bq, promo: b === 'Promo' })); setBoutiqueEdited(true) }}>
-                        {ico} {b}
-                      </button>
-                    ))}
-                  </div>
+                  <label className="text-xs font-bold text-brun block mb-2">📸 Photo de couverture</label>
+                  <label className="block cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const reader = new FileReader()
+                      reader.onload = ev => {
+                        setBoutiquePersist((b: any) => ({ ...b, coverPhoto: ev.target?.result as string }))
+                        setBoutiqueEdited(true)
+                      }
+                      reader.readAsDataURL(file)
+                    }} />
+                    <div className="w-full h-28 rounded-xl overflow-hidden relative group border-2 border-dashed border-gray-200 hover:border-brun transition-colors">
+                      {(boutique as any).coverPhoto
+                        ? <img src={(boutique as any).coverPhoto} alt="cover" className="w-full h-full object-cover" />
+                        : <div className="w-full h-full bg-gradient-to-br from-brun to-brun-clair flex items-center justify-center">
+                            <span className="text-white/20 font-serif text-5xl font-black">{boutique.nom?.[0] || '?'}</span>
+                          </div>
+                      }
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                        <p className="text-white text-xs font-bold">📷 Cliquer pour changer</p>
+                      </div>
+                    </div>
+                  </label>
                 </div>
+
+                {/* Badge sur la carte */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-1">Photo de couverture</label>
-                  <button className="w-full border-2 border-dashed border-gray-200 rounded-xl py-4 text-sm text-gray-400 font-sans"> Changer la photo</button>
+                  <label className="text-xs font-bold text-brun block mb-2">🏷️ Badge sur la carte</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { val: '',          label: 'Aucun',    ico: '—' },
+                      { val: 'Nouveau',   label: 'Nouveau',  ico: '✨' },
+                      { val: 'Promo',     label: 'Promo',    ico: '🏷️' },
+                      { val: 'Populaire', label: 'Populaire',ico: '🔥' },
+                      { val: 'Premium',   label: 'Premium',  ico: '⭐' },
+                      { val: 'Bio',       label: 'Bio',      ico: '🌿' },
+                    ].map(({ val, label, ico }) => {
+                      const current = (boutique as any).badge || ''
+                      const selected = current === val
+                      return (
+                        <button key={val}
+                          className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans transition-all ' + (selected ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                          onClick={() => { setBoutiquePersist((b: any) => ({ ...b, badge: val, promo: val === 'Promo' })); setBoutiqueEdited(true) }}>
+                          {ico} {label}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
