@@ -10,7 +10,7 @@ type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
   | 'commandes' | 'avis' | 'paiement'
   | 'support' | 'contact' | 'confidentialite' | 'cgu'
-  | 'livreur' | 'partenaire' | 'parrainage'
+  | 'livreur' | 'partenaire'
   | 'deconnexion' | null
 
 function PageWrapper({ title, onBack, children }: { title: string; onBack: () => void; children: React.ReactNode }) {
@@ -62,7 +62,6 @@ export default function ParametresPage() {
         { ico: '👤', label: 'Mon profil', sub: user?.nom || 'Modifier mes informations', action: () => setSection('profil') },
         { ico: '📍', label: 'Mes adresses', sub: '1 adresse enregistrée', action: () => setSection('adresses') },
         { ico: '🔔', label: 'Notifications', sub: 'Gérer mes préférences', action: () => setSection('notifs') },
-        { ico: '🎁', label: 'Parrainage', sub: 'Invitez vos amis, gagnez 5 €', action: () => setSection('parrainage') },
         { ico: '❤️', label: 'Boucheries favorites', sub: 'Vos boucheries sauvegardées', action: () => setSection('favoris') },
       ],
     },
@@ -454,6 +453,11 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
   const [form, setForm] = useState({ numero: '', titulaire: '', expiry: '', cvv: '' })
   const [saved, setSaved] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const commissions = [
+    { ico: '🥩', label: 'Vente de produits', taux: '15%', desc: 'Commission sur chaque vente boucher' },
+    { ico: '✅', label: 'Paiement sécurisé', taux: '0%', desc: 'Frais de paiement Stripe inclus' },
+    { ico: '💶', label: 'Virement boucher', taux: '85%', desc: 'Reversé chaque lundi automatiquement' },
+  ]
 
   function validate() {
     const e: Record<string, string> = {}
@@ -479,6 +483,23 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="💳 Moyens de paiement" onBack={onBack}>
       <div className="space-y-4">
+        {/* Bloc commissions */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+            <p className="text-xs font-bold text-brun">💰 Commissions BoucheriesDelivery</p>
+          </div>
+          {commissions.map((c, i) => (
+            <div key={c.label} className={'flex items-center gap-3 px-4 py-3 ' + (i < commissions.length - 1 ? 'border-b border-gris-bd' : '')}>
+              <span className="text-xl flex-shrink-0">{c.ico}</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-brun">{c.label}</p>
+                <p className="text-xs text-gray-400">{c.desc}</p>
+              </div>
+              <span className="text-sm font-black text-brun">{c.taux}</span>
+            </div>
+          ))}
+        </div>
+
         {saved && <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center"><p className="text-green-700 text-sm font-semibold">✅ Carte ajoutée !</p></div>}
         {cartes.length === 0
           ? <div className="bg-white rounded-2xl p-5 shadow-sm text-center"><span className="text-4xl block mb-3">💳</span><p className="font-bold text-brun text-sm mb-1">Aucune carte enregistrée</p></div>
