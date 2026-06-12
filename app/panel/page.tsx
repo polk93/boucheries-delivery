@@ -923,6 +923,8 @@ export default function PanelPage() {
                       { val: 'Populaire', label: 'Populaire',ico: '🔥' },
                       { val: 'Premium',   label: 'Premium',  ico: '⭐' },
                       { val: 'Bio',       label: 'Bio',      ico: '🌿' },
+                      { val: 'MOF',       label: 'MOF',      ico: '🏆' },
+                      { val: 'Fermé',     label: 'Fermé',    ico: '🔴' },
                     ].map(({ val, label, ico }) => {
                       const current = (boutique as any).badge || ''
                       const selected = current === val
@@ -1229,6 +1231,20 @@ export default function PanelPage() {
     </div>
   )
 
+// ── FAQ Item isolé (évite useState dans .map) ────────────────────────────────
+function PanelFaqItem({ faq, last }: { faq: { q: string; a: string }; last: boolean }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className={!last ? 'border-b border-gris-bd pb-3' : ''}>
+      <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
+        <p className="text-sm font-semibold text-brun">{faq.q}</p>
+        <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
+      </button>
+      {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
+    </div>
+  )
+}
+
 // ── Navigation paramètres boucher ────────────────────────────────────────────
 type ParamsSection = 'compte' | 'alertes' | 'paiements' | 'support' | 'cgu' | null
 
@@ -1296,18 +1312,9 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
           { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectués chaque lundi sur votre compte Stripe Connect." },
           { q: "Comment signaler un problème de livraison ?", a: "Contactez-nous par email avec le numéro de commande concerné." },
           { q: "Comment changer mes horaires ?", a: "Allez dans l'onglet Boutique, section Horaires." },
-        ].map((faq, i, arr) => {
-          const [open, setOpen] = useState(false)
-          return (
-            <div key={i} className={i < arr.length - 1 ? 'border-b border-gris-bd pb-3' : ''}>
-              <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
-                <p className="text-sm font-semibold text-brun">{faq.q}</p>
-                <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
-              </button>
-              {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
-            </div>
-          )
-        })}
+        ].map((faq, i, arr) => (
+          <PanelFaqItem key={i} faq={faq} last={i === arr.length - 1} />
+        ))}
       </div>
     </div>
   )
