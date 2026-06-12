@@ -920,7 +920,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p></div>
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <DocUpload label="📄 Kbis ou justificatif SIRET" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
+          <DocUpload label="📄 Kbis ou justificatif SIRET" sublabel="Extrait Kbis ou avis INSEE" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Vos coordonnées</h3>
