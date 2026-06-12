@@ -283,11 +283,16 @@ export default function PanelPage() {
 
     function checkHoraires() {
       const shouldBeOpen = isBoutiqueOuverteNow(boutique.horaires)
+      // Ne mettre à jour que si le statut a vraiment changé
       if (shouldBeOpen !== isOpen) {
         setIsOpenPersist(shouldBeOpen)
         showToast(shouldBeOpen ? '🟢 Boutique ouverte automatiquement' : '🔴 Boutique fermée automatiquement')
       }
     }
+
+    // Vérifier seulement si les horaires sont configurés (au moins un jour ouvert)
+    const hasHoraires = Object.values(boutique.horaires).some((h: any) => h.ouvert)
+    if (!hasHoraires) return
 
     // Vérifier immédiatement
     checkHoraires()
@@ -353,6 +358,19 @@ export default function PanelPage() {
     setBoutique(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater
       boucherStore.setBoutique(myBoucherieId, next)
+      // Sync horaires et statut ouvert vers Supabase
+      if (!user?.isDemo && user?.email) {
+        fetch('/api/bouchers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            nom_boutique: next.nom || user.boucherieNom || 'Ma Boucherie',
+            horaires: next.horaires,
+            ouvert: isBoutiqueOuverteNow(next.horaires),
+          }),
+        }).catch(console.error)
+      }
       return next
     })
   }
