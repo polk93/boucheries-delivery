@@ -1435,7 +1435,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
         <span className="text-4xl block mb-2">💬</span>
         <p className="text-white font-bold text-sm mb-1">Réponse garantie sous 2h</p>
         <p className="text-white/60 text-xs mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
-        <a href="mailto:support@boucheriedelivery.fr" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
+        <a href="mailto:boucheriesdelivery@gmail.com" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
         {[
