@@ -1033,8 +1033,7 @@ export default function PanelPage() {
                       { val: 'Populaire', label: 'Populaire',ico: '🔥' },
                       { val: 'Premium',   label: 'Premium',  ico: '⭐' },
                       { val: 'Bio',       label: 'Bio',      ico: '🌿' },
-                      { val: 'MOF',       label: 'MOF',      ico: '🏆' },
-                      { val: 'Fermé',     label: 'Fermé',    ico: '🔴' },
+                      { val: 'Halal',     label: 'Halal',    ico: '☪️' },
                     ].map(({ val, label, ico }) => {
                       const current = (boutique as any).badge || ''
                       const selected = current === val
