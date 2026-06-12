@@ -646,6 +646,7 @@ export default function PanelPage() {
     setBoutiquePersist(b => ({ ...b, promotions: b.promotions.filter((_, i) => i !== idx) }))
     setBoutiqueEdited(true)
   }
+}
 
   // â”€â”€ Ã‰cran non-boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  if (!user || !isBoucher()) {
