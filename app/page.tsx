@@ -261,7 +261,19 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
   }, [searchQuery])
   const { boucheries: srB, produits: srP } = searchResults()
 
- const filtered = boucheriesToShow.filter((b: any) => b.ouvert === true)
+ function isBoutiqueOuverte(b: any): boolean {
+  if (!b.ouvert) return false
+  if (!b.horaires) return true
+  const jours = ['dim','lun','mar','mer','jeu','ven','sam']
+  const now = new Date()
+  const h = b.horaires[jours[now.getDay()]]
+  if (!h || !h.ouvert) return false
+  const heure = now.getHours() * 60 + now.getMinutes()
+  const toMin = (s: string) => { const [hh,mm] = s.split(':').map(Number); return hh*60+mm }
+  return (h.matin && heure >= toMin(h.matinDebut) && heure < toMin(h.matinFin)) ||
+         (h.am    && heure >= toMin(h.amDebut)    && heure < toMin(h.amFin))
+}
+const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
     .filter(b => {
       if (userPos && COORDS[b.id]) {
         if (distanceKm(userPos.lat, userPos.lng, COORDS[b.id].lat, COORDS[b.id].lng) > rayonKm) return false

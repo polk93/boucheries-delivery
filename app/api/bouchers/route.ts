@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       telephone: telephone || '', nom_boutique,
       adresse: adresse || '', ville: ville || '',
       description: description || '',
+horaires: body.horaires || null,
       stripe_account_id: stripe_account_id || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' }).select().single()
