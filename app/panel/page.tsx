@@ -7,7 +7,6 @@ import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
 import AuthModal from '@/components/ui/AuthModal'
 import { BOUCHERIES, type Produit } from '@/lib/data'
 import { useBoucherStore } from '@/store/boucherStore'
-import PushSubscribeButton from '@/components/PushSubscribeButton'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ProduitEtendu extends Produit {
