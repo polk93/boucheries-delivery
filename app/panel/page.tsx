@@ -897,7 +897,7 @@ export default function PanelPage() {
                   }
                   {(boutique as any).badge && (
                     <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                      {(boutique as any).badge === 'Nouveau' ? '✨' : (boutique as any).badge === 'Promo' ? '🏷️' : (boutique as any).badge === 'Populaire' ? '🔥' : (boutique as any).badge === 'Premium' ? '⭐' : (boutique as any).badge === 'Bio' ? '🌿' : (boutique as any).badge === 'MOF' ? '🏆' : '🔴'} {(boutique as any).badge}
+                      {(boutique as any).badge === 'Nouveau' ? '✨' : (boutique as any).badge === 'Promo' ? '🏷️' : (boutique as any).badge === 'Populaire' ? '🔥' : (boutique as any).badge === 'Premium' ? '⭐' : (boutique as any).badge === 'Bio' ? '🌿' : (boutique as any).badge === 'Halal' ? '☪️' 
                     </span>
                   )}
                 </div>
