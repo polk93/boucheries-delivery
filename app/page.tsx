@@ -187,7 +187,7 @@ function PageCatalogue({ showBoutiques }: { showBoutiques: boolean }) {
       avis:    [],
       img:     '',
       cat:     'Artisan',
-      badge:   null,
+      badge: b.badge || null,
     } as any))
 , [bouchersDB])
   const [filterActive, setFilterActive] = useState('Tous')
