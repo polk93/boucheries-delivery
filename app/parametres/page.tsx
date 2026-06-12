@@ -10,7 +10,7 @@ type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
   | 'commandes' | 'avis' | 'paiement'
   | 'support' | 'contact' | 'confidentialite' | 'cgu'
-  | 'livreur' | 'partenaire' 
+  | 'livreur' | 'partenaire'
   | 'deconnexion' | null
 
 function PageWrapper({ title, onBack, children }: { title: string; onBack: () => void; children: React.ReactNode }) {
@@ -52,9 +52,7 @@ export default function ParametresPage() {
   if (section === 'confidentialite') return <ConfidentialiteSection onBack={() => setSection(null)} />
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
   if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
-  // @ts-ignore
   if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
-  
 
   const sections = [
     {
@@ -332,8 +330,8 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     { ico: '⭐', titre: 'Merci pour votre avis !', sub: 'Votre avis sur Maison Dupont a été publié', time: 'Il y a 2 jours', lu: true },
   ]
   return (
-    <PageWrapper title="🔔 Notifications" onBack={onBack}>  
-    <div className="space-y-4">
+    <PageWrapper title="🔔 Notifications" onBack={onBack}>
+      <div className="space-y-4">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Préférences</p></div>
           {items.map((item, i) => (
@@ -918,7 +916,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p></div>
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <DocUpload label="📄 Kbis ou justificatif SIRET" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
+          <DocUpload label="📄 Kbis ou justificatif SIRET" sublabel="Extrait Kbis de moins de 3 mois" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Vos coordonnées</h3>
