@@ -324,6 +324,9 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     { key: 'rappels', label: 'Rappels de panier', sub: 'Panier non finalisé' },
     { key: 'rapport', label: 'Rapport hebdomadaire', sub: 'Résumé de vos achats chaque semaine' },
   ]
+  import PushSubscribeButton from '@/components/PushSubscribeButton'
+// ...
+<PushSubscribeButton email={user?.email || null} role="client" />
   const NOTIFS_DEMO = [
     { ico: '🛵', titre: 'Votre livreur est en route !', sub: 'Commande #1042 · Arrivée dans ~8 min', time: 'Il y a 5 min', lu: false },
     { ico: '✅', titre: 'Commande #1041 prête !', sub: 'Comptoir du Veau · Présentez-vous en caisse', time: 'Il y a 2h', lu: false },

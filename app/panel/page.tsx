@@ -1636,6 +1636,9 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
 
 // ── Notifications boucher ─────────────────────────────────────────────────────
 function BoucherNotifsForm() {
+  import PushSubscribeButton from '@/components/PushSubscribeButton'
+// ...
+<PushSubscribeButton email={email} role="boucher" />
   const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
   const items = [
     { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Son + notification push instantanée' },
