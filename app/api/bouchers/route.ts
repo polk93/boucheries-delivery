@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY requis')
+  if (!url || !key) throw new Error('Variables Supabase manquantes')
   return createClient(url, key)
 }
 
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         .from('bouchers').select('*, produits(*)').eq('email', email).single()
       if (error) {
         console.error('[bouchers GET email]', error)
-        return NextResponse.json({ error: error.message, details: error }, { status: 404 })
+        return NextResponse.json({ error: error.message }, { status: 404 })
       }
       return NextResponse.json(data)
     }
@@ -30,12 +30,12 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('[bouchers GET all]', error)
-      return NextResponse.json({ error: error.message, details: error }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
     return NextResponse.json(data || [])
   } catch (err: any) {
     console.error('[bouchers GET catch]', err)
-    return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
 
@@ -43,18 +43,42 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = getSupabase()
     const body = await req.json()
-    const { email, nom, prenom, telephone, nom_boutique, adresse, ville, description, stripe_account_id } = body
-    if (!email || !nom_boutique) return NextResponse.json({ error: 'email et nom_boutique requis' }, { status: 400 })
+    const {
+      email, nom, prenom, telephone, nom_boutique,
+      adresse, ville, description, stripe_account_id,
+      horaires, badge, cover_photo, frais, min_commande, ouvert,
+    } = body
 
-    const { data, error } = await supabase.from('bouchers').upsert({
-      email, nom: nom || nom_boutique, prenom: prenom || '',
-      telephone: telephone || '', nom_boutique,
-      adresse: adresse || '', ville: ville || '',
-      description: description || '',
-horaires: body.horaires || null,
-      stripe_account_id: stripe_account_id || null,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' }).select().single()
+    if (!email || !nom_boutique) {
+      return NextResponse.json({ error: 'email et nom_boutique requis' }, { status: 400 })
+    }
+
+    const updateData: any = {
+      email,
+      nom:               nom || nom_boutique,
+      prenom:            prenom            ?? undefined,
+      telephone:         telephone         ?? undefined,
+      nom_boutique,
+      adresse:           adresse           ?? undefined,
+      ville:             ville             ?? undefined,
+      description:       description       ?? undefined,
+      stripe_account_id: stripe_account_id ?? undefined,
+      horaires:          horaires          ?? undefined,
+      badge:             badge             ?? undefined,
+      cover_photo:       cover_photo       ?? undefined,
+      frais:             frais             ?? undefined,
+      min_commande:      min_commande      ?? undefined,
+      ouvert:            ouvert            ?? undefined,
+      updated_at:        new Date().toISOString(),
+    }
+
+    // Supprimer les undefined
+    Object.keys(updateData).forEach(k => updateData[k] === undefined && delete updateData[k])
+
+    const { data, error } = await supabase
+      .from('bouchers')
+      .upsert(updateData, { onConflict: 'email' })
+      .select().single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)

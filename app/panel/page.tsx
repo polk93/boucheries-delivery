@@ -261,6 +261,34 @@ export default function PanelPage() {
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
   // Enregistrer le boucher dans Supabase dès la connexion (si pas démo)
+  // et charger ses données sauvegardées
+  useEffect(() => {
+    if (!user || user.isDemo) return
+    fetch(`/api/bouchers?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return
+        // Charger le profil depuis Supabase
+        if (data.nom || data.prenom || data.telephone) {
+          boucherStore.setBoucherProfil(user.email, {
+            prenom:   data.prenom   || '',
+            nom:      data.nom      || '',
+            email:    data.email    || user.email,
+            tel:      data.telephone || '',
+            boutique: data.nom_boutique || '',
+          })
+        }
+        // Charger les horaires depuis Supabase
+        if (data.horaires) {
+          setBoutiquePersist((b: any) => ({ ...b, horaires: data.horaires }))
+        }
+        // Charger badge et photo
+        if (data.badge) {
+          setBoutiquePersist((b: any) => ({ ...b, badge: data.badge, coverPhoto: data.cover_photo || b.coverPhoto }))
+        }
+      })
+      .catch(console.error)
+  }, [user?.email])
   useEffect(() => {
     if (!user || user.isDemo) return
     const profil = boucherStore.getBoucherProfil(user.email)
@@ -358,19 +386,6 @@ export default function PanelPage() {
     setBoutique(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater
       boucherStore.setBoutique(myBoucherieId, next)
-      // Sync horaires et statut ouvert vers Supabase
-      if (!user?.isDemo && user?.email) {
-        fetch('/api/bouchers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: user.email,
-            nom_boutique: next.nom || user.boucherieNom || 'Ma Boucherie',
-            horaires: next.horaires,
-            ouvert: isBoutiqueOuverteNow(next.horaires),
-          }),
-        }).catch(console.error)
-      }
       return next
     })
   }
@@ -1024,8 +1039,29 @@ export default function PanelPage() {
 
             {boutiqueEdited && (
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
-                onClick={() => { setBoutiqueEdited(false); showToast('✅ Boutique mise à jour !') }}>
-                 Enregistrer les modifications
+                onClick={() => {
+                  setBoutiqueEdited(false)
+                  showToast('✅ Boutique mise à jour !')
+                  // Sync Supabase
+                  if (!user?.isDemo && user?.email) {
+                    fetch('/api/bouchers', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        email:        user.email,
+                        nom_boutique: boutique.nom || user.boucherieNom || 'Ma Boucherie',
+                        adresse:      boutique.adresse || '',
+                        telephone:    boutique.tel || '',
+                        description:  boutique.desc || '',
+                        horaires:     boutique.horaires,
+                        badge:        (boutique as any).badge || '',
+                        cover_photo:  (boutique as any).coverPhoto || '',
+                        ouvert:       isBoutiqueOuverteNow(boutique.horaires),
+                      }),
+                    }).catch(console.error)
+                  }
+                }}>
+                💾 Enregistrer les modifications
               </button>
             )}
           </div>
@@ -1460,16 +1496,30 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
       boucherStore.migrateEmail(email, newEmail)
     }
 
-    // Sauvegarder dans le store boucher
+    // Sauvegarder dans le store local
     boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
 
-    // Mettre à jour le store auth — déclenche un re-render de TOUS les composants
-    // qui utilisent useAuth() sans rechargement de page
+    // Mettre à jour le store auth — re-render immédiat partout
     updateUser({
       nom: `${form.prenom} ${form.nom}`.trim(),
       email: newEmail,
       boucherieNom: form.boutique,
     })
+
+    // Sync Supabase — cross-device
+    if (!user?.isDemo) {
+      fetch('/api/bouchers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:        newEmail,
+          nom_boutique: form.boutique || user?.boucherieNom || 'Ma Boucherie',
+          nom:          `${form.prenom} ${form.nom}`.trim(),
+          prenom:       form.prenom,
+          telephone:    form.tel,
+        }),
+      }).catch(console.error)
+    }
 
     setSaved(true)
     showToast('✅ Profil mis à jour !')
