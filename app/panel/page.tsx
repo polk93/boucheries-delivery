@@ -648,17 +648,17 @@ export default function PanelPage() {
   }
 
   // ── Écran non-boucher ──────────────────────────────────────────────────────
-  if (!user || !isBoucher()) {
+ if (!user || !isBoucher()) {
     return (
       <div className="min-h-screen bg-creme flex flex-col items-center justify-center px-5 pb-10">
         <div className="text-center max-w-sm">
-          <span className="text-6xl block mb-4"></span>
+          <span className="text-6xl block mb-4">🔪</span>
           <h1 className="font-serif text-2xl font-black text-brun mb-2">Espace Boucher</h1>
-          <p className="text-gray-400 text-sm mb-6">Connectez-vous avec votre compte boucher pour accéder à votre tableau de bord.</p>
-          <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans hover:bg-rouge-vif transition-colors"
+          <p className="text-gray-400 text-sm mb-6">Connectez-vous avec votre compte boucher.</p>
+          <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans"
             onClick={() => setAuthOpen(true)}>🔪 Connexion Boucher</button>
           <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
-      onClick={() => router.push('/')}>Retour à l'accueil</button>
+            onClick={() => router.push('/')}>← Retour</button>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} defaultRole="boucher" />}
       </div>
