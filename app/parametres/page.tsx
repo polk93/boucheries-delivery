@@ -865,6 +865,8 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
   )
 
 
+}
+
 function PartenaireSection({ onBack }: { onBack: () => void }) {
   const { addBoucher } = useAccounts()
   const [step, setStep] = useState<'info'|'form'>('info')
