@@ -656,9 +656,9 @@ export default function PanelPage() {
           <h1 className="font-serif text-2xl font-black text-brun mb-2">Espace Boucher</h1>
           <p className="text-gray-400 text-sm mb-6">Connectez-vous avec votre compte boucher pour accéder à votre tableau de bord.</p>
           <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans hover:bg-rouge-vif transition-colors"
-            onClick={() => setAuthOpen(true)}> Connexion Boucher</button>
+            onClick={() => setAuthOpen(true)}>🔪 Connexion Boucher</button>
           <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
-            onClick={() => router.push('/')}>← Retour à l'accueil</button>
+      onClick={() => router.push('/')}>← Retour à l'accueil</button>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} defaultRole="boucher" />}
       </div>
