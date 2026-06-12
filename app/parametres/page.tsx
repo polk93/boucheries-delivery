@@ -10,7 +10,7 @@ type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
   | 'commandes' | 'avis' | 'paiement'
   | 'support' | 'contact' | 'confidentialite' | 'cgu'
-  | 'livreur' | 'partenaire'
+  | 'livreur' | 'partenaire' | 'parrainage'
   | 'deconnexion' | null
 
 function PageWrapper({ title, onBack, children }: { title: string; onBack: () => void; children: React.ReactNode }) {
@@ -52,8 +52,9 @@ export default function ParametresPage() {
   if (section === 'confidentialite') return <ConfidentialiteSection onBack={() => setSection(null)} />
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
   if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
+  // @ts-ignore
   if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
-  if (section === 'parrainage')      return <ParrainageSection onBack={() => setSection(null)} />
+  
 
   const sections = [
     {
@@ -933,15 +934,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   )
 }
 
-function ParrainageSection({ onBack }: { onBack: () => void }) {
-  const { user } = useAuth()
-  const [copied, setCopied] = useState(false)
-  const code = user ? user.email.split('@')[0].toUpperCase().slice(0,5) + String(user.email.length * 7 % 100) : 'MONCODE'
-  const lien = `https://boucheries-delivery.vercel.app?ref=${code}`
-  const stats = { invites: 3, convertis: 2, gains: 10.00 }
 
-  return (
-    <PageWrapper title="🎁 Parrainage" onBack={onBack}>
       <div className="space-y-4">
         <div className="bg-brun rounded-2xl p-5 text-center space-y-2">
           <span className="text-4xl block">🎁</span>
