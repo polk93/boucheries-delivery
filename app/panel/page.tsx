@@ -658,7 +658,7 @@ export default function PanelPage() {
           <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans hover:bg-rouge-vif transition-colors"
             onClick={() => setAuthOpen(true)}>🔪 Connexion Boucher</button>
           <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
-      onClick={() => router.push('/')}>← Retour à l'accueil</button>
+      onClick={() => router.push('/')}>Retour à l'accueil</button>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} defaultRole="boucher" />}
       </div>
