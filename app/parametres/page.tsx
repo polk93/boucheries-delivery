@@ -53,7 +53,7 @@ export default function ParametresPage() {
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
   if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
   if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
-  if (section === 'parrainage')      return <ParrainageSection onBack={() => setSection(null)} />
+  
 
   const sections = [
     {
