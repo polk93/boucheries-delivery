@@ -5,7 +5,6 @@ import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
-import PushSubscribeButton from '@/components/PushSubscribeButton'
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
