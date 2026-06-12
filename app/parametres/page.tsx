@@ -369,6 +369,7 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
 }
 
 function FavorisSection({ onBack }: { onBack: () => void }) {
+  const { user } = useAuth()
   const router = useRouter()
   const [favoris, setFavoris] = useState<{ id: string; nom: string; note: number }[]>([])
 
