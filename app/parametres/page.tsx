@@ -969,3 +969,4 @@ function ParrainageSection({ onBack }: { onBack: () => void }) {
     </PageWrapper>
   )
 }
+}
