@@ -209,6 +209,7 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
 }
 
 function AdressesSection({ onBack }: { onBack: () => void }) {
+  const { user } = useAuth()
   type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
   const [adresses, setAdresses] = useState<Adresse[]>([])
 
