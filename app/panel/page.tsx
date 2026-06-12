@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useSupabaseProduits } from '@/lib/useSupabase'
 import { useRouter } from 'next/navigation'
@@ -8,7 +8,7 @@ import AuthModal from '@/components/ui/AuthModal'
 import { BOUCHERIES, type Produit } from '@/lib/data'
 import { useBoucherStore } from '@/store/boucherStore'
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface ProduitEtendu extends Produit {
   boucherieId: number
   boucherieNom: string
@@ -67,7 +67,7 @@ interface HoraireJour {
   amFin: string
 }
 
-// ── Vérification automatique ouvert/fermé selon les horaires ─────────────────
+// â”€â”€ VÃ©rification automatique ouvert/fermÃ© selon les horaires â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function isBoutiqueOuverteNow(horaires: Record<string, HoraireJour>): boolean {
   const now = new Date()
   const jours = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
@@ -91,39 +91,39 @@ function isBoutiqueOuverteNow(horaires: Record<string, HoraireJour>): boolean {
 const ORDERS_INIT: Commande[] = [
   {
     id: '#1042', client: 'Sophie M.', tel: '06 12 34 56 78',
-    adresse: '8 rue Léon Frot, 75011 Paris', creneau: 'Dès que possible',
+    adresse: '8 rue LÃ©on Frot, 75011 Paris', creneau: 'DÃ¨s que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:42',
     frais: 2.90, status: 'new', modePaiement: 'Carte Visa', stripeId: 'pi_demo001',
     lignes: [
-      { produit: 'Entrecôte Charolais', icon: '', qty: 2, prix: 18.90, decoupe: 'Épaisse (2cm)', preparation: 'Marinée herbes', note: '' },
-      { produit: 'Merguez Maison', icon: '️', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-épicées', note: 'Pour BBQ' },
+      { produit: 'EntrecÃ´te Charolais', icon: '', qty: 2, prix: 18.90, decoupe: 'Ã‰paisse (2cm)', preparation: 'MarinÃ©e herbes', note: '' },
+      { produit: 'Merguez Maison', icon: 'ï¸', qty: 1, prix: 8.50, decoupe: 'Standard', preparation: 'Extra-Ã©picÃ©es', note: 'Pour BBQ' },
     ],
   },
   {
-    id: '#1041', client: 'Théo B.', tel: '07 89 01 23 45',
-    adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13h–14h",
+    id: '#1041', client: 'ThÃ©o B.', tel: '07 89 01 23 45',
+    adresse: '23 avenue Parmentier, 75011 Paris', creneau: "Aujourd'hui 13hâ€“14h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:24',
     frais: 2.90, status: 'prep', modePaiement: 'Carte Mastercard', stripeId: 'pi_demo002',
     lignes: [
-      { produit: 'Filet de Bœuf', icon: '', qty: 1, prix: 24.50, decoupe: 'En médaillons', preparation: 'Nature', note: 'Cuisson rosée' },
+      { produit: 'Filet de BÅ“uf', icon: '', qty: 1, prix: 24.50, decoupe: 'En mÃ©daillons', preparation: 'Nature', note: 'Cuisson rosÃ©e' },
     ],
   },
   {
     id: '#1040', client: 'Marie L.', tel: '06 55 44 33 22',
-    adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12h–13h",
+    adresse: '5 passage Charles Dallery, 75011 Paris', creneau: "Aujourd'hui 12hâ€“13h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '11:06',
     frais: 0, status: 'ready', modePaiement: 'Carte Visa', stripeId: 'pi_demo003',
     lignes: [
-      { produit: "Bavette d'Aloyau", icon: '', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'Marinée échalotes', note: '' },
+      { produit: "Bavette d'Aloyau", icon: '', qty: 3, prix: 12.80, decoupe: 'Fine', preparation: 'MarinÃ©e Ã©chalotes', note: '' },
     ],
   },
   {
     id: '#1039', client: 'Jules R.', tel: '07 11 22 33 44',
-    adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'Dès que possible',
+    adresse: '14 rue de la Roquette, 75011 Paris', creneau: 'DÃ¨s que possible',
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:48',
     frais: 2.90, status: 'delivery', modePaiement: 'Apple Pay', stripeId: 'pi_demo004',
     lignes: [
-      { produit: 'Merguez Maison', icon: '️', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Épicées', note: '' },
+      { produit: 'Merguez Maison', icon: 'ï¸', qty: 2, prix: 8.50, decoupe: 'Standard', preparation: 'Ã‰picÃ©es', note: '' },
     ],
   },
 ]
@@ -131,32 +131,32 @@ const ORDERS_INIT: Commande[] = [
 const HISTORIQUE_INIT: Commande[] = [
   {
     id: '#1038', client: 'Anna K.', tel: '06 98 76 54 32',
-    adresse: '31 rue de la Folie Méricourt, 75011 Paris', creneau: "Aujourd'hui 11h–12h",
+    adresse: '31 rue de la Folie MÃ©ricourt, 75011 Paris', creneau: "Aujourd'hui 11hâ€“12h",
     date: new Date().toLocaleDateString('fr-FR'), heure: '10:21',
     frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_demo005',
     lignes: [
-      { produit: 'Côtes de Porc', icon: '', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien épaisses' },
+      { produit: 'CÃ´tes de Porc', icon: '', qty: 4, prix: 11.20, decoupe: 'Avec os', preparation: 'Nature', note: 'Bien Ã©paisses' },
     ],
   },
   {
     id: '#1037', client: 'Lucas P.', tel: '06 00 11 22 33',
-    adresse: '7 rue Keller, 75011 Paris', creneau: 'Dès que possible',
+    adresse: '7 rue Keller, 75011 Paris', creneau: 'DÃ¨s que possible',
     date: new Date(Date.now() - 86400000).toLocaleDateString('fr-FR'), heure: '18:30',
     frais: 2.90, status: 'done', modePaiement: 'Carte Visa', stripeId: 'pi_histo001',
     lignes: [
-      { produit: 'Entrecôte Charolais', icon: '', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
+      { produit: 'EntrecÃ´te Charolais', icon: '', qty: 1, prix: 18.90, decoupe: 'Standard', preparation: 'Nature', note: '' },
     ],
   },
 ]
 
-const SL: Record<string, string> = { new: 'Nouvelle', prep: 'En préparation', ready: 'Prête', delivery: 'En livraison', done: 'Livrée' }
+const SL: Record<string, string> = { new: 'Nouvelle', prep: 'En prÃ©paration', ready: 'PrÃªte', delivery: 'En livraison', done: 'LivrÃ©e' }
 const SC: Record<string, string> = {
   new: 'bg-yellow-100 text-yellow-700', prep: 'bg-blue-100 text-blue-600',
   ready: 'bg-green-100 text-green-600', delivery: 'bg-orange-100 text-orange-600', done: 'bg-gray-100 text-gray-500',
 }
 const SF = ['new', 'prep', 'ready', 'delivery', 'done']
-const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'Livrer', delivery: 'Confirmer' }
-const ICONS = ['', '', '️', '', '', '', '', '', '', '', '', '⭐']
+const BL: Record<string, string> = { new: 'PrÃ©parer', prep: 'PrÃªte', ready: 'Livrer', delivery: 'Confirmer' }
+const ICONS = ['', '', 'ï¸', '', '', '', '', '', '', '', '', 'â­']
 const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
 
 const HORAIRE_DEFAULT: HoraireJour = { ouvert: true, matin: true, matinDebut: '08:00', matinFin: '13:00', am: true, amDebut: '15:00', amFin: '19:30' }
@@ -171,7 +171,7 @@ const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
 }
 
 function emptyForm(boucherieId: number): ProduitForm {
-  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '', poids: '' }
+  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'BÅ“uf', venteType: 'piÃ¨ce', allergenes: '', poids: '' }
 }
 
 function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
@@ -180,12 +180,12 @@ function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
     desc: bRef ? bRef.desc : '',
     tel: bRef ? '01 23 45 67 89' : '',
     email: bRef ? 'contact@maboucherie.fr' : '',
-    adresse: '12 rue du Marché, 75011 Paris',
+    adresse: '12 rue du MarchÃ©, 75011 Paris',
     frais: bRef ? String(bRef.frais) : '2.9',
     minCommande: '15',
     rayon: '5',
     promo: false,
-    promoTexte: 'Livraison offerte dès 30 €',
+    promoTexte: 'Livraison offerte dÃ¨s 30 â‚¬',
     promotions: [] as Promo[],
     horaires: { ...HORAIRES_DEFAULT },
   }
@@ -202,7 +202,7 @@ interface Promo {
   active: boolean
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 export default function PanelPage() {
   const router = useRouter()
   const { user, logout, isBoucher } = useAuth()
@@ -213,7 +213,7 @@ export default function PanelPage() {
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // ── IDs et store ─────────────────────────────────────────────────────────────
+  // â”€â”€ IDs et store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const myBoucherieId = user?.isDemo
     ? (user?.boucherieId || 1)
     : (user?.boucherieId || (1000 + (user?.email?.charCodeAt(0) || 0) % 9000))
@@ -223,7 +223,7 @@ export default function PanelPage() {
   const bid           = String(myBoucherieId)
   const supabase      = useSupabaseProduits(user?.isDemo ? null : user?.email || null)
 
-  // ── États persistants via boucherStore ───────────────────────────────────────
+  // â”€â”€ Ã‰tats persistants via boucherStore â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [isOpen, setIsOpen] = useState<boolean>(() =>
     boucherStore.getIsOpen(bid) ?? true
   )
@@ -311,8 +311,8 @@ export default function PanelPage() {
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
 
-  // Enregistrer le boucher dans Supabase dès la connexion (si pas démo)
-  // et charger ses données sauvegardées
+  // Enregistrer le boucher dans Supabase dÃ¨s la connexion (si pas dÃ©mo)
+  // et charger ses donnÃ©es sauvegardÃ©es
   useEffect(() => {
     if (!user || user.isDemo) return
     fetch(`/api/bouchers?email=${encodeURIComponent(user.email)}`)
@@ -356,32 +356,32 @@ export default function PanelPage() {
     }).catch(console.error)
   }, [user?.email])
 
-  // ── Ouverture/fermeture automatique selon les horaires ───────────────────────
+  // â”€â”€ Ouverture/fermeture automatique selon les horaires â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     if (!user || user.isDemo) return
 
     function checkHoraires() {
       const shouldBeOpen = isBoutiqueOuverteNow(boutique.horaires)
-      // Ne mettre à jour que si le statut a vraiment changé
+      // Ne mettre Ã  jour que si le statut a vraiment changÃ©
       if (shouldBeOpen !== isOpen) {
         setIsOpenPersist(shouldBeOpen)
-        showToast(shouldBeOpen ? '🟢 Boutique ouverte automatiquement' : '🔴 Boutique fermée automatiquement')
+        showToast(shouldBeOpen ? 'ðŸŸ¢ Boutique ouverte automatiquement' : 'ðŸ”´ Boutique fermÃ©e automatiquement')
       }
     }
 
-    // Vérifier seulement si les horaires sont configurés (au moins un jour ouvert)
+    // VÃ©rifier seulement si les horaires sont configurÃ©s (au moins un jour ouvert)
     const hasHoraires = Object.values(boutique.horaires).some((h: any) => h.ouvert)
     if (!hasHoraires) return
 
-    // Vérifier immédiatement
+    // VÃ©rifier immÃ©diatement
     checkHoraires()
 
-    // Vérifier toutes les minutes
+    // VÃ©rifier toutes les minutes
     const interval = setInterval(checkHoraires, 60000)
     return () => clearInterval(interval)
   }, [boutique.horaires, user?.email])
 
-  // Reset sur l'onglet commandes à chaque connexion
+  // Reset sur l'onglet commandes Ã  chaque connexion
   useEffect(() => {
     if (user) setTab('commandes')
   }, [user?.email])
@@ -389,7 +389,7 @@ export default function PanelPage() {
   // Charger les produits depuis Supabase pour les vrais comptes
   useEffect(() => {
     if (!user?.isDemo && supabase.produits.length > 0) {
-      // Sync Supabase → état local
+      // Sync Supabase â†’ Ã©tat local
       const prods = supabase.produits.map((p: any) => ({
         id: p.id, nom: p.nom, desc: p.description, prix: p.prix,
         icon: p.icon, stock: p.stock, photo: p.photo_url, photoUrl: p.photo_url,
@@ -420,7 +420,7 @@ export default function PanelPage() {
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
-  // ── Wrappers de mise à jour avec persistence ──────────────────────────────────
+  // â”€â”€ Wrappers de mise Ã  jour avec persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function setOrdersPersist(fn: (prev: Commande[]) => Commande[]) {
     setOrders(prev => { const next = fn(prev); boucherStore.setOrders(bid, next); return next })
   }
@@ -455,7 +455,7 @@ export default function PanelPage() {
       }).catch(console.error)
     }
     if (order?.status === 'new') {
-      // Décrémenter stock automatiquement à l'acceptation
+      // DÃ©crÃ©menter stock automatiquement Ã  l'acceptation
       setProduits(prev => {
         const next = prev.map(p => {
           const ligne = order.lignes.find(l => l.produit === p.nom)
@@ -475,7 +475,7 @@ export default function PanelPage() {
       const justDone = updated.find(o => o.id === id && o.status === 'done')
       if (justDone) {
         setHistoriquePersist(h => [justDone, ...h])
-        showToast('✅ Commande archivée')
+        showToast('âœ… Commande archivÃ©e')
         return updated.filter(o => o.id !== id)
       }
       return updated
@@ -483,7 +483,7 @@ export default function PanelPage() {
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '' })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'BÅ“uf'), venteType: String(p.venteType || 'piÃ¨ce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '' })
     setIsNew(false)
   }
 
@@ -494,13 +494,13 @@ export default function PanelPage() {
 
   async function saveProduit() {
     if (!modalProd) return
-    if (!modalProd.nom.trim() || !modalProd.prix.trim()) { showToast('⚠️ Nom et prix obligatoires'); return }
+    if (!modalProd.nom.trim() || !modalProd.prix.trim()) { showToast('âš ï¸ Nom et prix obligatoires'); return }
 
     const profil = boucherStore.getBoucherProfil(user?.email || '')
     const boucherieNom = profil?.boutique || user?.boucherieNom || user?.nom || 'Ma Boucherie'
 
     if (isNew) {
-      // Sauvegarder dans Supabase d'abord pour obtenir l'ID réel
+      // Sauvegarder dans Supabase d'abord pour obtenir l'ID rÃ©el
       if (!user?.isDemo && user?.email) {
         try {
           const data = await supabase.addProduit({
@@ -508,7 +508,7 @@ export default function PanelPage() {
             boucherieNom,
             email: user.email,
           })
-          // Utiliser l'ID Supabase réel
+          // Utiliser l'ID Supabase rÃ©el
           const newProd: ProduitEtendu = {
             id: data?.id || ('local_' + Date.now()),
             nom: modalProd.nom, desc: modalProd.desc,
@@ -527,16 +527,16 @@ export default function PanelPage() {
             boucherStore.registerBoucher(user.email!, myBoucherieId)
             return next
           })
-          showToast('✅ Produit créé !')
+          showToast('âœ… Produit crÃ©Ã© !')
           setModalProd(null)
           return
         } catch (e) {
           console.error('Erreur Supabase:', e)
-          showToast('⚠️ Sauvegarde locale uniquement')
+          showToast('âš ï¸ Sauvegarde locale uniquement')
         }
       }
 
-      // Fallback local (démo ou erreur Supabase)
+      // Fallback local (dÃ©mo ou erreur Supabase)
       const newProd: ProduitEtendu = {
         id: 'local_' + Date.now(),
         nom: modalProd.nom, desc: modalProd.desc,
@@ -554,7 +554,7 @@ export default function PanelPage() {
         if (user?.email) boucherStore.registerBoucher(user.email, myBoucherieId)
         return next
       })
-      showToast('✅ Produit créé !')
+      showToast('âœ… Produit crÃ©Ã© !')
     } else {
       setProduits(prev => prev.map(p => {
         if (p.id !== modalProd.id) return p
@@ -579,7 +579,7 @@ export default function PanelPage() {
           photoUrl: modalProd.photoUrl,
         }).catch(console.error)
       }
-      showToast('✅ Produit mis à jour !')
+      showToast('âœ… Produit mis Ã  jour !')
     }
     setModalProd(null)
   }
@@ -590,14 +590,14 @@ export default function PanelPage() {
     if (!user?.isDemo && supabase) {
       supabase.deleteProduit(id).catch(console.error)
     }
-    showToast('️ Produit supprimé')
+    showToast('ï¸ Produit supprimÃ©')
   }
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !modalProd) return
     setModalProd(f => f ? { ...f, photoUrl: URL.createObjectURL(file) } : f)
-    showToast(' Photo ajoutée !')
+    showToast(' Photo ajoutÃ©e !')
     e.target.value = ''
   }
 
@@ -647,25 +647,25 @@ export default function PanelPage() {
     setBoutiqueEdited(true)
   }
 
-  // ── Écran non-boucher ──────────────────────────────────────────────────────
+  // â”€â”€ Ã‰cran non-boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  if (!user || !isBoucher()) {
     return (
       <div className="min-h-screen bg-creme flex flex-col items-center justify-center px-5 pb-10">
         <div className="text-center max-w-sm">
-          <span className="text-6xl block mb-4">🔪</span>
+          <span className="text-6xl block mb-4">ðŸ”ª</span>
           <h1 className="font-serif text-2xl font-black text-brun mb-2">Espace Boucher</h1>
           <p className="text-gray-400 text-sm mb-6">Connectez-vous avec votre compte boucher.</p>
           <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans"
-            onClick={() => setAuthOpen(true)}>🔪 Connexion Boucher</button>
-          <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
-            onClick={() => router.push('/')}>← Retour</button>
+            onClick={() => setAuthOpen(true)}>ðŸ”ª Connexion Boucher</button>
+            onClick={() => router.push('/')}>Retour</button>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} defaultRole="boucher" />}
       </div>
     )
   }
+  }
 
-  // ── Interface boucher ──────────────────────────────────────────────────────
+  // â”€â”€ Interface boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="min-h-screen bg-creme" style={{ paddingBottom: 88 }}>
 
@@ -674,12 +674,12 @@ export default function PanelPage() {
         <div>
           <span className="font-serif text-base font-black text-or"> {myBoucherie?.nom || 'Votre boucherie'}</span>
           <p className="text-white/55 text-xs mt-0.5">
-            {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · {user.nom}
+            {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} Â· {user.nom}
           </p>
         </div>
         <button className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-xs font-semibold"
           onClick={() => { logout(); router.push('/') }}>
-          Déconnexion
+          DÃ©connexion
         </button>
       </div>
 
@@ -687,7 +687,7 @@ export default function PanelPage() {
 
       <div className="px-4 max-w-2xl mx-auto">
 
-        {/* ══ COMMANDES ══ */}
+        {/* â•â• COMMANDES â•â• */}
         {tab === 'commandes' && (
           <div className="space-y-3">
             <div className="flex gap-2">
@@ -699,7 +699,7 @@ export default function PanelPage() {
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(true)}>
-                ️ Historique ({historique.length})
+                ï¸ Historique ({historique.length})
               </button>
             </div>
 
@@ -707,7 +707,7 @@ export default function PanelPage() {
               orders.length === 0
                 ? (
                   <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
-                    <span className="text-4xl block mb-2">✅</span>
+                    <span className="text-4xl block mb-2">âœ…</span>
                     <p className="text-sm font-semibold">Aucune commande en cours</p>
                   </div>
                 )
@@ -730,7 +730,7 @@ export default function PanelPage() {
                           <p className="text-xs text-or font-semibold mt-0.5"> {o.creneau}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
+                          <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} â‚¬</p>
                         </div>
                       </div>
                       <div className="px-4 py-2">
@@ -738,32 +738,32 @@ export default function PanelPage() {
                           <div key={i} className={'flex items-start gap-2 py-2 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
                             <span className="text-base flex-shrink-0">{l.icon}</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
-                              <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
+                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">Ã—{l.qty}</span></p>
+                              <p className="text-[11px] text-or font-semibold">âœ‚ï¸ {l.decoupe} Â· {l.preparation}</p>
                               {l.note ? <p className="text-[11px] text-gray-400 italic"> {l.note}</p> : null}
                             </div>
-                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
+                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} â‚¬</span>
                           </div>
                         ))}
                       </div>
                       <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
                         <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => setViewOrder(o)}> Récap</button>
-                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
+                          onClick={() => setViewOrder(o)}> RÃ©cap</button>
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">ðŸ“ž</a>
                         {o.status === 'new' ? (
                           <>
                             <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
-                              onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
+                              onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('âŒ Commande refusÃ©e') }}>
                               Refuser
                             </button>
                             <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
                               onClick={() => progress(o.id)}>
-                              ✅ Accepter
+                              âœ… Accepter
                             </button>
                           </>
                         ) : o.status !== 'done' ? (
                           <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
-                            onClick={() => progress(o.id)}>{BL[o.status]} →</button>
+                            onClick={() => progress(o.id)}>{BL[o.status]} â†’</button>
                         ) : null}
                       </div>
                     </div>
@@ -775,8 +775,8 @@ export default function PanelPage() {
               historique.length === 0
                 ? (
                   <div className="bg-white rounded-2xl p-8 text-center text-gray-400 shadow-sm">
-                    <span className="text-4xl block mb-2">️</span>
-                    <p className="text-sm">Aucune commande archivée</p>
+                    <span className="text-4xl block mb-2">ï¸</span>
+                    <p className="text-sm">Aucune commande archivÃ©e</p>
                   </div>
                 )
                 : historique.map(o => {
@@ -786,20 +786,20 @@ export default function PanelPage() {
                       <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
                         <div>
                           <span className="font-black text-brun text-sm">{o.id}</span>
-                          <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                          <span className="text-gray-400 text-xs ml-2">{o.date} Â· {o.heure}</span>
                         </div>
-                        <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
+                        <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">âœ… LivrÃ©e</span>
                       </div>
                       <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
                           <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
                         </div>
-                        <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
+                        <p className="text-sm font-black text-brun">{total.toFixed(2)} â‚¬</p>
                       </div>
                       <div className="px-4 py-3">
                         <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
-                          onClick={() => setViewOrder(o)}> Voir le récapitulatif</button>
+                          onClick={() => setViewOrder(o)}> Voir le rÃ©capitulatif</button>
                       </div>
                     </div>
                   )
@@ -808,24 +808,24 @@ export default function PanelPage() {
           </div>
         )}
 
-        {/* ══ PRODUITS ══ */}
+        {/* â•â• PRODUITS â•â• */}
         {tab === 'produits' && (
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
               <div>
                 <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
-                <p className="text-xs text-gray-400">{myProduits.filter(p => (p as any).actif !== false).length} produit{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} actif{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} · {myProduits.length} total</p>
+                <p className="text-xs text-gray-400">{myProduits.filter(p => (p as any).actif !== false).length} produit{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} actif{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} Â· {myProduits.length} total</p>
               </div>
               <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
             </div>
             {myProduits.length === 0
-              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
+              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit â€” <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
               : myProduits.map((p, i) => {
                 const isActif = (p as any).actif !== false
 
                 function toggleActif() {
                   const newActif = !isActif
-                  // Mettre à jour localement
+                  // Mettre Ã  jour localement
                   setProduits(prev => {
                     const next = prev.map(x => x.id === p.id ? { ...x, actif: newActif } : x)
                     boucherStore.setProduits(myBoucherieId, next)
@@ -839,7 +839,7 @@ export default function PanelPage() {
                       body: JSON.stringify({ id: p.id, actif: newActif }),
                     }).catch(console.error)
                   }
-                  showToast(newActif ? '✅ Produit activé' : '⏸️ Produit masqué')
+                  showToast(newActif ? 'âœ… Produit activÃ©' : 'â¸ï¸ Produit masquÃ©')
                 }
 
                 return (
@@ -854,7 +854,7 @@ export default function PanelPage() {
                       <p className={'font-bold text-sm truncate ' + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
                       <p className="text-xs text-gray-400 truncate">{p.desc}</p>
                     </div>
-                    {/* Toggle bien aligné à droite */}
+                    {/* Toggle bien alignÃ© Ã  droite */}
                     <button
                       className={'w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ' + (isActif ? 'bg-green-400' : 'bg-gray-200')}
                       onClick={toggleActif}>
@@ -863,14 +863,14 @@ export default function PanelPage() {
                   </div>
                   {/* Ligne 2 : prix + stock + actions */}
                   <div className="flex items-center gap-2 mt-2 pl-[56px]">
-                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
+                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} â‚¬</span>
                     <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
                       {p.stock === 0 ? 'Rupture' : String(p.stock)}
                     </span>
-                    {!p.photoUrl && <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷</span>}
+                    {!p.photoUrl && <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">ðŸ“·</span>}
                     <div className="flex items-center gap-1.5 ml-auto">
-                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>âœï¸</button>
+                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>ðŸ—‘ï¸</button>
                     </div>
                   </div>
                 </div>
@@ -880,13 +880,13 @@ export default function PanelPage() {
           </div>
         )}
 
-        {/* ══ BOUTIQUE ══ */}
+        {/* â•â• BOUTIQUE â•â• */}
         {tab === 'boutique' && (
           <div className="space-y-4">
 
-            {/* Aperçu */}
+            {/* AperÃ§u */}
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">AperÃ§u cÃ´tÃ© client</p>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
                 <div className="w-full h-28 flex items-center justify-center relative overflow-hidden">
                   {(boutique as any).coverPhoto
@@ -897,18 +897,18 @@ export default function PanelPage() {
                   }
                   {(boutique as any).badge && (
                     <span className="absolute top-2 left-2 bg-or text-brun text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                      {(boutique as any).badge === 'Nouveau' ? '✨' : (boutique as any).badge === 'Promo' ? '🏷️' : (boutique as any).badge === 'Populaire' ? '🔥' : (boutique as any).badge === 'Premium' ? '⭐' : (boutique as any).badge === 'Bio' ? '🌿' : (boutique as any).badge === 'Halal' ? '☪️' 
+                      {(boutique as any).badge === 'Nouveau' ? 'âœ¨' : (boutique as any).badge === 'Promo' ? 'ðŸ·ï¸' : (boutique as any).badge === 'Populaire' ? 'ðŸ”¥' : (boutique as any).badge === 'Premium' ? 'â­' : (boutique as any).badge === 'Bio' ? 'ðŸŒ¿' : (boutique as any).badge === 'Halal' ? 'â˜ªï¸' 
                     </span>
                   )}
                 </div>
                 <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-serif text-sm font-bold text-brun">{boutique.nom || 'Nom de votre boutique'}</span>
-                    <span className="text-xs text-or">⭐ —</span>
+                    <span className="text-xs text-or">â­ â€”</span>
                   </div>
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
+                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaÃ®tra iciâ€¦'}</p>
                   <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
-                    <span className="text-[11px] text-gray-400"> ~30 min ·  Click &amp; Collect</span>
+                    <span className="text-[11px] text-gray-400"> ~30 min Â·  Click &amp; Collect</span>
                     <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
                   </div>
                 </div>
@@ -921,7 +921,7 @@ export default function PanelPage() {
                 <p className="font-bold text-brun text-sm"> Informations</p>
               </div>
               <div className="p-4 space-y-3">
-                {([['nom', 'Nom de la boutique', 'Boucherie Dupont'], ['tel', 'Téléphone', '01 23 45 67 89'], ['email', 'Email', 'contact@maboucherie.fr'], ['adresse', 'Adresse', '12 rue du Marché']] as const).map(([k, l, ph]) => (
+                {([['nom', 'Nom de la boutique', 'Boucherie Dupont'], ['tel', 'TÃ©lÃ©phone', '01 23 45 67 89'], ['email', 'Email', 'contact@maboucherie.fr'], ['adresse', 'Adresse', '12 rue du MarchÃ©']] as const).map(([k, l, ph]) => (
                   <div key={k}>
                     <label className="text-xs font-bold text-brun block mb-1">{l}</label>
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
@@ -933,7 +933,7 @@ export default function PanelPage() {
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1">Description</label>
                   <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
-                    placeholder="Vos spécialités, votre histoire…"
+                    placeholder="Vos spÃ©cialitÃ©s, votre histoireâ€¦"
                     value={boutique.desc}
                     onChange={e => { setBoutiquePersist(b => ({ ...b, desc: e.target.value })); setBoutiqueEdited(true) }} />
                 </div>
@@ -943,11 +943,11 @@ export default function PanelPage() {
             {/* Promotions */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
-                <p className="font-bold text-brun text-sm">️ Promotions</p>
+                <p className="font-bold text-brun text-sm">ï¸ Promotions</p>
                 <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={addPromo}>+ Ajouter</button>
               </div>
               {boutique.promotions.length === 0
-                ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">️</span><p className="text-sm">Aucune promotion active.</p></div>
+                ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">ï¸</span><p className="text-sm">Aucune promotion active.</p></div>
                 : <div className="divide-y divide-gris-bd">
                     {boutique.promotions.map((promo, idx) => (
                       <div key={promo.id} className="p-4 space-y-3">
@@ -960,7 +960,7 @@ export default function PanelPage() {
                             <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
                           </div>
                           <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
-                            onClick={() => removePromo(idx)}>️</button>
+                            onClick={() => removePromo(idx)}>ï¸</button>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {['message', 'reduction', 'livraison', 'offre'].map(val => (
@@ -969,14 +969,14 @@ export default function PanelPage() {
                           ))}
                         </div>
                         <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder="Titre affiché…" value={promo.titre}
+                          placeholder="Titre affichÃ©â€¦" value={promo.titre}
                           onChange={e => updatePromo(idx, 'titre', e.target.value)} />
                         <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                          placeholder="Description…" value={promo.description}
+                          placeholder="Descriptionâ€¦" value={promo.description}
                           onChange={e => updatePromo(idx, 'description', e.target.value)} />
                         {promo.titre ? (
                           <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
-                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">AperÃ§u client</p>
                             <p className="text-xs text-rouge-vif font-bold">{promo.titre}</p>
                             {promo.description ? <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p> : null}
                           </div>
@@ -990,13 +990,13 @@ export default function PanelPage() {
             {/* Apparence */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-                <p className="font-bold text-brun text-sm">🎨 Apparence</p>
+                <p className="font-bold text-brun text-sm">ðŸŽ¨ Apparence</p>
               </div>
               <div className="p-4 space-y-4">
 
                 {/* Photo de couverture cliquable */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">📸 Photo de couverture</label>
+                  <label className="text-xs font-bold text-brun block mb-2">ðŸ“¸ Photo de couverture</label>
                   <label className="block cursor-pointer">
                     <input type="file" accept="image/*" className="hidden" onChange={e => {
                       const file = e.target.files?.[0]
@@ -1016,7 +1016,7 @@ export default function PanelPage() {
                           </div>
                       }
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                        <p className="text-white text-xs font-bold">📷 Cliquer pour changer</p>
+                        <p className="text-white text-xs font-bold">ðŸ“· Cliquer pour changer</p>
                       </div>
                     </div>
                   </label>
@@ -1024,16 +1024,16 @@ export default function PanelPage() {
 
                 {/* Badge sur la carte */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">🏷️ Badge sur la carte</label>
+                  <label className="text-xs font-bold text-brun block mb-2">ðŸ·ï¸ Badge sur la carte</label>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      { val: '',          label: 'Aucun',    ico: '—' },
-                      { val: 'Nouveau',   label: 'Nouveau',  ico: '✨' },
-                      { val: 'Promo',     label: 'Promo',    ico: '🏷️' },
-                      { val: 'Populaire', label: 'Populaire',ico: '🔥' },
-                      { val: 'Premium',   label: 'Premium',  ico: '⭐' },
-                      { val: 'Bio',       label: 'Bio',      ico: '🌿' },
-                      { val: 'Halal',     label: 'Halal',    ico: '☪️' },
+                      { val: '',          label: 'Aucun',    ico: 'â€”' },
+                      { val: 'Nouveau',   label: 'Nouveau',  ico: 'âœ¨' },
+                      { val: 'Promo',     label: 'Promo',    ico: 'ðŸ·ï¸' },
+                      { val: 'Populaire', label: 'Populaire',ico: 'ðŸ”¥' },
+                      { val: 'Premium',   label: 'Premium',  ico: 'â­' },
+                      { val: 'Bio',       label: 'Bio',      ico: 'ðŸŒ¿' },
+                      { val: 'Halal',     label: 'Halal',    ico: 'â˜ªï¸' },
                     ].map(({ val, label, ico }) => {
                       const current = (boutique as any).badge || ''
                       const selected = current === val
@@ -1067,7 +1067,7 @@ export default function PanelPage() {
                           <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (h.ouvert ? 'translate-x-5' : 'translate-x-0.5')} />
                         </button>
                         <span className={'text-sm font-bold flex-1 ' + (h.ouvert ? 'text-brun' : 'text-gray-300')}>{label}</span>
-                        {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
+                        {!h.ouvert && <span className="text-xs text-gray-400 italic">FermÃ©</span>}
                       </div>
                       {h.ouvert && (
                         <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
@@ -1081,27 +1081,27 @@ export default function PanelPage() {
                               <div className="flex items-center gap-1.5 flex-1">
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
                                   value={h.matinDebut} onChange={e => updateHoraire(key, 'matinDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
+                                <span className="text-xs text-gray-300">â†’</span>
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
                                   value={h.matinFin} onChange={e => updateHoraire(key, 'matinFin', e.target.value)} />
                               </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
+                            ) : <span className="text-xs text-gray-300 italic">FermÃ© le matin</span>}
                           </div>
                           <div className="flex items-center gap-2">
                             <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.am ? 'bg-or' : 'bg-gray-200')}
                               onClick={() => updateHoraire(key, 'am', !h.am)}>
                               <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.am ? 'translate-x-4' : 'translate-x-0.5')} />
                             </button>
-                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
+                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>AprÃ¨s-m.</span>
                             {h.am ? (
                               <div className="flex items-center gap-1.5 flex-1">
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
                                   value={h.amDebut} onChange={e => updateHoraire(key, 'amDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
+                                <span className="text-xs text-gray-300">â†’</span>
                                 <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
                                   value={h.amFin} onChange={e => updateHoraire(key, 'amFin', e.target.value)} />
                               </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
+                            ) : <span className="text-xs text-gray-300 italic">FermÃ© l'aprÃ¨s-midi</span>}
                           </div>
                         </div>
                       )}
@@ -1117,7 +1117,7 @@ export default function PanelPage() {
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
                 onClick={() => {
                   setBoutiqueEdited(false)
-                  showToast('✅ Boutique mise à jour !')
+                  showToast('âœ… Boutique mise Ã  jour !')
                   // Sync Supabase
                   if (!user?.isDemo && user?.email) {
                     fetch('/api/bouchers', {
@@ -1137,19 +1137,19 @@ export default function PanelPage() {
                     }).catch(console.error)
                   }
                 }}>
-                💾 Enregistrer les modifications
+                ðŸ’¾ Enregistrer les modifications
               </button>
             )}
           </div>
         )}
 
-        {/* ══ PARAMÈTRES GÉNÉRAUX ══ */}
+        {/* â•â• PARAMÃˆTRES GÃ‰NÃ‰RAUX â•â• */}
         {tab === 'parametres' && (
           <ParamsNav user={user} showToast={showToast} historique={historique} logout={logout} router={router} />
         )}
       </div>
 
-      {/* ══ MODAL RÉCAP COMMANDE ══ */}
+      {/* â•â• MODAL RÃ‰CAP COMMANDE â•â• */}
       {viewOrder && (() => {
         const o = viewOrder
         const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
@@ -1159,19 +1159,19 @@ export default function PanelPage() {
             <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92dvh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
                 <div>
-                  <h2 className="font-serif text-lg font-black text-brun"> Récap {o.id}</h2>
-                  <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
+                  <h2 className="font-serif text-lg font-black text-brun"> RÃ©cap {o.id}</h2>
+                  <p className="text-xs text-gray-400">{o.date} Ã  {o.heure}</p>
                 </div>
-                <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setViewOrder(null)}>✕</button>
+                <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setViewOrder(null)}>âœ•</button>
               </div>
               <div className="p-5 space-y-4">
                 <div className={'flex items-center gap-2 px-4 py-3 rounded-xl ' + (o.status === 'done' ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20')}>
-                  <span className="text-lg">{o.status === 'done' ? '✅' : '⏳'}</span>
+                  <span className="text-lg">{o.status === 'done' ? 'âœ…' : 'â³'}</span>
                   <div>
                     <p className={'text-sm font-bold ' + (o.status === 'done' ? 'text-green-700' : 'text-brun')}>
-                      {o.status === 'done' ? 'Commande livrée' : 'En cours — ' + SL[o.status]}
+                      {o.status === 'done' ? 'Commande livrÃ©e' : 'En cours â€” ' + SL[o.status]}
                     </p>
-                    <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
+                    <p className="text-xs text-gray-400">CrÃ©neau : {o.creneau}</p>
                   </div>
                 </div>
                 <div className="bg-creme rounded-2xl p-4">
@@ -1188,12 +1188,12 @@ export default function PanelPage() {
                         <div className="flex justify-between items-start mb-1">
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-brun">{l.icon} {l.produit}</p>
-                            <p className="text-[11px] text-or font-semibold mt-0.5">✂️ {l.decoupe} · {l.preparation}</p>
+                            <p className="text-[11px] text-or font-semibold mt-0.5">âœ‚ï¸ {l.decoupe} Â· {l.preparation}</p>
                             {l.note ? <p className="text-[11px] text-gray-400 italic mt-0.5"> {l.note}</p> : null}
                           </div>
                           <div className="text-right flex-shrink-0 ml-3">
-                            <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
-                            <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} €</p>
+                            <p className="text-xs text-gray-400">{l.qty} Ã— {l.prix.toFixed(2)} â‚¬</p>
+                            <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} â‚¬</p>
                           </div>
                         </div>
                       </div>
@@ -1201,11 +1201,11 @@ export default function PanelPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">DÃ©tail financier</p>
                   <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
-                    <div className="flex justify-between text-xs text-gray-500"><span>Sous-total</span><span>{sousTotal.toFixed(2)} €</span></div>
-                    <div className="flex justify-between text-xs text-gray-500"><span>Livraison</span><span>{o.frais === 0 ? 'Offerts' : o.frais.toFixed(2) + ' €'}</span></div>
-                    <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2"><span>Total</span><span>{total.toFixed(2)} €</span></div>
+                    <div className="flex justify-between text-xs text-gray-500"><span>Sous-total</span><span>{sousTotal.toFixed(2)} â‚¬</span></div>
+                    <div className="flex justify-between text-xs text-gray-500"><span>Livraison</span><span>{o.frais === 0 ? 'Offerts' : o.frais.toFixed(2) + ' â‚¬'}</span></div>
+                    <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2"><span>Total</span><span>{total.toFixed(2)} â‚¬</span></div>
                   </div>
                 </div>
                 <div className="flex gap-3 pb-2">
@@ -1213,7 +1213,7 @@ export default function PanelPage() {
                   {o.status !== 'done' && (
                     <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
                       onClick={() => { progress(o.id); setViewOrder(null) }}>
-                      {BL[o.status]} →
+                      {BL[o.status]} â†’
                     </button>
                   )}
                 </div>
@@ -1223,13 +1223,13 @@ export default function PanelPage() {
         )
       })()}
 
-      {/* ══ MODAL PRODUIT ══ */}
+      {/* â•â• MODAL PRODUIT â•â• */}
       {modalProd && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center" onClick={() => setModalProd(null)}>
           <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
-              <h2 className="font-serif text-lg font-black text-brun">{isNew ? '+ Nouveau produit' : '✏️ Modifier'}</h2>
-              <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setModalProd(null)}>✕</button>
+              <h2 className="font-serif text-lg font-black text-brun">{isNew ? '+ Nouveau produit' : 'âœï¸ Modifier'}</h2>
+              <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setModalProd(null)}>âœ•</button>
             </div>
             <div className="p-5 space-y-4">
               <div>
@@ -1245,14 +1245,14 @@ export default function PanelPage() {
                     </button>
                     {modalProd.photoUrl && (
                       <button className="bg-red-50 text-red-400 text-xs font-bold px-4 py-2 rounded-xl font-sans border border-red-200"
-                        onClick={() => setModalProd(f => f ? { ...f, photoUrl: null } : f)}>️ Supprimer</button>
+                        onClick={() => setModalProd(f => f ? { ...f, photoUrl: null } : f)}>ï¸ Supprimer</button>
                     )}
                   </div>
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-brun block mb-1.5">Icône</label>
+                <label className="text-xs font-bold text-brun block mb-1.5">IcÃ´ne</label>
                 <div className="flex flex-wrap gap-2">
                   {ICONS.map(ico => (
                     <button key={ico}
@@ -1261,7 +1261,7 @@ export default function PanelPage() {
                   ))}
                 </div>
               </div>
-              {[['nom', 'Nom *', 'Entrecôte Charolais'], ['desc', 'Description', '500g, persillé idéal']].map(([k, l, ph]) => (
+              {[['nom', 'Nom *', 'EntrecÃ´te Charolais'], ['desc', 'Description', '500g, persillÃ© idÃ©al']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
@@ -1271,7 +1271,7 @@ export default function PanelPage() {
                 </div>
               ))}
               <div className="grid grid-cols-2 gap-3">
-                {[['prix', 'Prix (€) *', '18.90'], ['stock', 'Stock', '10']].map(([k, l, ph]) => (
+                {[['prix', 'Prix (â‚¬) *', '18.90'], ['stock', 'Stock', '10']].map(([k, l, ph]) => (
                   <div key={k}>
                     <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
                     <input type="number" min="0"
@@ -1283,20 +1283,20 @@ export default function PanelPage() {
                 ))}
               </div>
 
-              {/* Catégorie + Type de vente */}
+              {/* CatÃ©gorie + Type de vente */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-1.5">Catégorie</label>
+                  <label className="text-xs font-bold text-brun block mb-1.5">CatÃ©gorie</label>
                   <select className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
                     value={modalProd.cat}
                     onChange={e => setModalProd(f => f ? { ...f, cat: e.target.value } : f)}>
-                    {['Bœuf','Veau','Agneau','Volaille','Porc','Entrée'].map(c => <option key={c} value={c}>{c}</option>)}
+                    {['BÅ“uf','Veau','Agneau','Volaille','Porc','EntrÃ©e'].map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1.5">Vendu</label>
                   <div className="flex flex-col gap-1.5">
-                    {[['pièce','🔢 À la pièce'],['poids','⚖️ Au poids']].map(([v,l]) => (
+                    {[['piÃ¨ce','ðŸ”¢ Ã€ la piÃ¨ce'],['poids','âš–ï¸ Au poids']].map(([v,l]) => (
                       <button key={v}
                         className={'py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                         onClick={() => setModalProd(f => f ? { ...f, venteType: v } : f)}>{l}</button>
@@ -1305,7 +1305,7 @@ export default function PanelPage() {
                 </div>
               </div>
 
-              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
+              {[['decoupes', 'âœ‚ï¸ DÃ©coupes', 'Standard, Fine, Ã‰paisse'], ['preparation', ' PrÃ©parations', 'Nature, MarinÃ©e, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
@@ -1314,14 +1314,14 @@ export default function PanelPage() {
                     onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
                 </div>
               ))}
-              {/* Allergènes obligatoires */}
+              {/* AllergÃ¨nes obligatoires */}
               <div>
                 <label className="text-xs font-bold text-brun block mb-1.5">
-                  ⚠️ Allergènes <span className="text-rouge-vif">*</span>
-                  <span className="text-gray-400 font-normal ml-1">(obligation légale)</span>
+                  âš ï¸ AllergÃ¨nes <span className="text-rouge-vif">*</span>
+                  <span className="text-gray-400 font-normal ml-1">(obligation lÃ©gale)</span>
                 </label>
                 <div className="flex flex-wrap gap-1.5">
-                  {['Gluten','Crustacés','Œufs','Poisson','Arachides','Soja','Lait','Fruits à coque','Céleri','Moutarde','Sésame','Sulfites','Lupin','Mollusques','Aucun'].map(a => {
+                  {['Gluten','CrustacÃ©s','Å’ufs','Poisson','Arachides','Soja','Lait','Fruits Ã  coque','CÃ©leri','Moutarde','SÃ©same','Sulfites','Lupin','Mollusques','Aucun'].map(a => {
                     const selected = (modalProd.allergenes || '').split(',').map(s => s.trim()).filter(Boolean).includes(a)
                     return (
                       <button key={a}
@@ -1336,13 +1336,13 @@ export default function PanelPage() {
                     )
                   })}
                 </div>
-                {!(modalProd.allergenes) && <p className="text-[10px] text-rouge-vif mt-1">⚠️ Sélectionnez au moins "Aucun"</p>}
+                {!(modalProd.allergenes) && <p className="text-[10px] text-rouge-vif mt-1">âš ï¸ SÃ©lectionnez au moins "Aucun"</p>}
               </div>
 
               <div className="flex gap-3 pt-2 pb-4">
                 <button className="flex-1 bg-gris-bd text-brun rounded-xl py-3 text-sm font-semibold font-sans" onClick={() => setModalProd(null)}>Annuler</button>
                 <button className="flex-[2] bg-brun text-white rounded-xl py-3 text-sm font-bold font-sans" onClick={saveProduit}>
-                  {isNew ? '✅ Créer' : '✅ Enregistrer'}
+                  {isNew ? 'âœ… CrÃ©er' : 'âœ… Enregistrer'}
                 </button>
               </div>
             </div>
@@ -1361,21 +1361,21 @@ export default function PanelPage() {
     </div>
   )
 
-// ── FAQ Item isolé (évite useState dans .map) ────────────────────────────────
+// â”€â”€ FAQ Item isolÃ© (Ã©vite useState dans .map) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PanelFaqItem({ faq, last }: { faq: { q: string; a: string }; last: boolean }) {
   const [open, setOpen] = useState(false)
   return (
     <div className={!last ? 'border-b border-gris-bd pb-3' : ''}>
       <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
         <p className="text-sm font-semibold text-brun">{faq.q}</p>
-        <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
+        <span className="text-gray-400 flex-shrink-0">{open ? 'â–´' : 'â–¾'}</span>
       </button>
       {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
     </div>
   )
 }
 
-// ── Navigation paramètres boucher ────────────────────────────────────────────
+// â”€â”€ Navigation paramÃ¨tres boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type ParamsSection = 'compte' | 'alertes' | 'paiements' | 'support' | 'cgu' | null
 
 function ParamsNav({ user, showToast, historique, logout, router }: {
@@ -1384,23 +1384,23 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
 }) {
   const [section, setSection] = useState<ParamsSection>(null)
 
-  // ── Avatar header ──────────────────────────────────────────────────────────
+  // â”€â”€ Avatar header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const header = (
     <div className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3 mb-4">
-      <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
+      <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">ðŸ”ª</div>
       <div className="flex-1 min-w-0">
         <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-        <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
+        <p className="text-xs text-gray-400 truncate">{user?.email} Â· Boucher</p>
       </div>
-      {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
+      {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÃ‰MO</span>}
     </div>
   )
 
-  // ── Sous-pages ─────────────────────────────────────────────────────────────
+  // â”€â”€ Sous-pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (section === 'compte') return (
     <div className="space-y-4">
       {header}
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Mon compte</button>
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>â† Mon compte</button>
       <BoucherProfilForm user={user} showToast={showToast} />
       <MdpSectionBoucher showToast={showToast} />
     </div>
@@ -1409,7 +1409,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
   if (section === 'alertes') return (
     <div className="space-y-4">
       {header}
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Alertes</button>
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>â† Alertes</button>
       <BoucherNotifsForm email={user?.email || ''} />
     </div>
   )
@@ -1417,7 +1417,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
   if (section === 'paiements') return (
     <div className="space-y-4">
       {header}
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Paiements</button>
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>â† Paiements</button>
       <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
       <div>
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
@@ -1429,18 +1429,18 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
   if (section === 'support') return (
     <div className="space-y-4">
       {header}
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Support</button>
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>â† Support</button>
       <div className="bg-brun rounded-2xl p-5 text-center">
-        <span className="text-4xl block mb-2">💬</span>
-        <p className="text-white font-bold text-sm mb-1">Réponse garantie sous 2h</p>
-        <p className="text-white/60 text-xs mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
-        <a href="mailto:boucheriesdelivery@gmail.com" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
+        <span className="text-4xl block mb-2">ðŸ’¬</span>
+        <p className="text-white font-bold text-sm mb-1">RÃ©ponse garantie sous 2h</p>
+        <p className="text-white/60 text-xs mb-3">Lunâ€“Ven 8hâ€“20h Â· Sam 9hâ€“18h</p>
+        <a href="mailto:boucheriesdelivery@gmail.com" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">âœ‰ï¸ Envoyer un email</a>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
         {[
-          { q: "Comment modifier mes produits ?", a: "Allez dans l'onglet Produits, appuyez sur ✏️ à côté du produit à modifier." },
-          { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectués chaque lundi sur votre compte Stripe Connect." },
-          { q: "Comment signaler un problème de livraison ?", a: "Contactez-nous par email avec le numéro de commande concerné." },
+          { q: "Comment modifier mes produits ?", a: "Allez dans l'onglet Produits, appuyez sur âœï¸ Ã  cÃ´tÃ© du produit Ã  modifier." },
+          { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectuÃ©s chaque lundi sur votre compte Stripe Connect." },
+          { q: "Comment signaler un problÃ¨me de livraison ?", a: "Contactez-nous par email avec le numÃ©ro de commande concernÃ©." },
           { q: "Comment changer mes horaires ?", a: "Allez dans l'onglet Boutique, section Horaires." },
         ].map((faq, i, arr) => (
           <PanelFaqItem key={i} faq={faq} last={i === arr.length - 1} />
@@ -1452,17 +1452,17 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
   if (section === 'cgu') return (
     <div className="space-y-4">
       {header}
-      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Conditions</button>
+      <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>â† Conditions</button>
       <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-        <p className="text-xs text-brun-clair font-semibold">Contrat partenaire boucher · En vigueur depuis le 13 mai 2026</p>
+        <p className="text-xs text-brun-clair font-semibold">Contrat partenaire boucher Â· En vigueur depuis le 13 mai 2026</p>
       </div>
       {[
-        { t: "1. Commission", c: "BoucheriesDelivery retient 15% sur chaque commande. Le boucher reçoit 85% du montant des produits, versé chaque lundi." },
-        { t: "2. Engagement", c: "Sans engagement de durée. Résiliation possible à tout moment depuis les paramètres. Prise d'effet sous 30 jours." },
-        { t: "3. Responsabilité", c: "Le boucher est seul responsable de la qualité, conformité sanitaire et traçabilité de ses produits." },
-        { t: "4. Allergènes", c: "Le boucher doit renseigner les 14 allergènes obligatoires sur chaque produit (obligation légale EU n°1169/2011)." },
-        { t: "5. Paiements", c: "Les paiements sont gérés par Stripe. BoucheriesDelivery ne stocke jamais les coordonnées bancaires." },
-        { t: "6. Propriété", c: "Les photos et descriptions publiées doivent appartenir au boucher ou être libres de droits." },
+        { t: "1. Commission", c: "BoucheriesDelivery retient 15% sur chaque commande. Le boucher reÃ§oit 85% du montant des produits, versÃ© chaque lundi." },
+        { t: "2. Engagement", c: "Sans engagement de durÃ©e. RÃ©siliation possible Ã  tout moment depuis les paramÃ¨tres. Prise d'effet sous 30 jours." },
+        { t: "3. ResponsabilitÃ©", c: "Le boucher est seul responsable de la qualitÃ©, conformitÃ© sanitaire et traÃ§abilitÃ© de ses produits." },
+        { t: "4. AllergÃ¨nes", c: "Le boucher doit renseigner les 14 allergÃ¨nes obligatoires sur chaque produit (obligation lÃ©gale EU nÂ°1169/2011)." },
+        { t: "5. Paiements", c: "Les paiements sont gÃ©rÃ©s par Stripe. BoucheriesDelivery ne stocke jamais les coordonnÃ©es bancaires." },
+        { t: "6. PropriÃ©tÃ©", c: "Les photos et descriptions publiÃ©es doivent appartenir au boucher ou Ãªtre libres de droits." },
       ].map((s, i) => (
         <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
@@ -1472,18 +1472,18 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
     </div>
   )
 
-  // ── Menu principal ─────────────────────────────────────────────────────────
+  // â”€â”€ Menu principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="space-y-4">
       {header}
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {[
-          { ico: '👤', label: 'Mon compte',   sub: 'Profil, email, téléphone, mot de passe', section: 'compte'   as ParamsSection },
-          { ico: '🔔', label: 'Alertes',       sub: 'Notifications commandes et stock',       section: 'alertes'  as ParamsSection },
-          { ico: '💳', label: 'Paiements',     sub: 'Stripe Connect, historique CA',           section: 'paiements'as ParamsSection },
-          { ico: '🆘', label: 'Support',       sub: 'FAQ et contact',                          section: 'support'  as ParamsSection },
-          { ico: '📋', label: 'CGU & Contrat', sub: "Conditions partenaire",                   section: 'cgu'      as ParamsSection },
+          { ico: 'ðŸ‘¤', label: 'Mon compte',   sub: 'Profil, email, tÃ©lÃ©phone, mot de passe', section: 'compte'   as ParamsSection },
+          { ico: 'ðŸ””', label: 'Alertes',       sub: 'Notifications commandes et stock',       section: 'alertes'  as ParamsSection },
+          { ico: 'ðŸ’³', label: 'Paiements',     sub: 'Stripe Connect, historique CA',           section: 'paiements'as ParamsSection },
+          { ico: 'ðŸ†˜', label: 'Support',       sub: 'FAQ et contact',                          section: 'support'  as ParamsSection },
+          { ico: 'ðŸ“‹', label: 'CGU & Contrat', sub: "Conditions partenaire",                   section: 'cgu'      as ParamsSection },
         ].map((item, i, arr) => (
           <button key={item.label}
             className={'w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-creme transition-colors font-sans ' + (i < arr.length - 1 ? 'border-b border-gris-bd' : '')}
@@ -1493,21 +1493,21 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
               <p className="text-sm font-semibold text-brun">{item.label}</p>
               <p className="text-xs text-gray-400 truncate">{item.sub}</p>
             </div>
-            <span className="text-gray-300 text-base flex-shrink-0">›</span>
+            <span className="text-gray-300 text-base flex-shrink-0">â€º</span>
           </button>
         ))}
       </div>
 
       <button className="w-full bg-rouge-pale text-rouge-vif font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-red-100"
         onClick={() => { logout(); router.push('/') }}>
-        🚪 Se déconnecter
+        ðŸšª Se dÃ©connecter
       </button>
       <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
     </div>
   )
 }
 
-// ── Changement de mot de passe boucher ────────────────────────────────────────
+// â”€â”€ Changement de mot de passe boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
   const [form, setForm] = useState({ ancien: '', nouveau: '', confirm: '' })
   const [error, setError] = useState('')
@@ -1515,20 +1515,20 @@ function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
 
   function valider() {
     if (!form.ancien) { setError('Saisissez votre mot de passe actuel'); return }
-    if (form.nouveau.length < 6) { setError('Minimum 6 caractères'); return }
+    if (form.nouveau.length < 6) { setError('Minimum 6 caractÃ¨res'); return }
     if (form.nouveau !== form.confirm) { setError('Les mots de passe ne correspondent pas'); return }
     setError('')
     setForm({ ancien: '', nouveau: '', confirm: '' })
     setOpen(false)
-    showToast('✅ Mot de passe modifié !')
+    showToast('âœ… Mot de passe modifiÃ© !')
   }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left font-sans" onClick={() => setOpen(o => !o)}>
-        <span className="text-xl">🔒</span>
+        <span className="text-xl">ðŸ”’</span>
         <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-xs text-gray-400">Modifier mon mot de passe</p></div>
-        <span className="text-gray-300">{open ? '▴' : '›'}</span>
+        <span className="text-gray-300">{open ? 'â–´' : 'â€º'}</span>
       </button>
       {open && (
         <div className="px-4 pb-4 space-y-3 border-t border-gris-bd pt-3">
@@ -1547,7 +1547,7 @@ function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
   )
 }
 
-// ── Formulaire profil boucher ─────────────────────────────────────────────────
+// â”€â”€ Formulaire profil boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: string) => void }) {
   const boucherStore = useBoucherStore()
   const { updateUser } = useAuth()
@@ -1567,7 +1567,7 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
   function enregistrer() {
     const newEmail = form.email.trim() || email
 
-    // Migrer les données si l'email a changé
+    // Migrer les donnÃ©es si l'email a changÃ©
     if (newEmail !== email) {
       boucherStore.migrateEmail(email, newEmail)
     }
@@ -1575,14 +1575,14 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
     // Sauvegarder dans le store local
     boucherStore.setBoucherProfil(newEmail, { ...form, email: newEmail })
 
-    // Mettre à jour le store auth — re-render immédiat partout
+    // Mettre Ã  jour le store auth â€” re-render immÃ©diat partout
     updateUser({
       nom: `${form.prenom} ${form.nom}`.trim(),
       email: newEmail,
       boucherieNom: form.boutique,
     })
 
-    // Sync Supabase — cross-device
+    // Sync Supabase â€” cross-device
     if (!user?.isDemo) {
       fetch('/api/bouchers', {
         method: 'POST',
@@ -1598,7 +1598,7 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
     }
 
     setSaved(true)
-    showToast('✅ Profil mis à jour !')
+    showToast('âœ… Profil mis Ã  jour !')
     setTimeout(() => setSaved(false), 2500)
   }
 
@@ -1609,7 +1609,7 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+          {[['prenom','PrÃ©nom'],['nom','Nom']].map(([k,l]) => (
             <div key={k}>
               <label className="text-xs font-bold text-brun block mb-1">{l}</label>
               <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
@@ -1617,29 +1617,29 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
             </div>
           ))}
         </div>
-        {[['email','Email'],['tel','Téléphone'],['boutique','Nom de la boutique']].map(([k,l]) => (
+        {[['email','Email'],['tel','TÃ©lÃ©phone'],['boutique','Nom de la boutique']].map(([k,l]) => (
           <div key={k}>
             <label className="text-xs font-bold text-brun block mb-1">{l}</label>
             <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
               value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
           </div>
         ))}
-        {saved && <p className="text-green-600 text-xs font-semibold">✅ Enregistré !</p>}
+        {saved && <p className="text-green-600 text-xs font-semibold">âœ… EnregistrÃ© !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={enregistrer}>
-          💾 Enregistrer
+          ðŸ’¾ Enregistrer
         </button>
       </div>
     </div>
   )
 }
 
-// ── Notifications boucher ─────────────────────────────────────────────────────
+// â”€â”€ Notifications boucher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BoucherNotifsForm({ email }: { email: string }) {
   const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
   const items = [
-    { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Notification push instantanée' },
-    { key: 'stock_faible', label: 'Stock faible',        sub: 'Alerte quand stock ≤ 3' },
-    { key: 'paiement',     label: 'Virement reçu',       sub: 'Confirmation chaque lundi' },
+    { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Notification push instantanÃ©e' },
+    { key: 'stock_faible', label: 'Stock faible',        sub: 'Alerte quand stock â‰¤ 3' },
+    { key: 'paiement',     label: 'Virement reÃ§u',       sub: 'Confirmation chaque lundi' },
     { key: 'rapport',      label: 'Rapport quotidien',   sub: 'CA et commandes chaque soir' },
   ]
   return (
@@ -1663,7 +1663,7 @@ function BoucherNotifsForm({ email }: { email: string }) {
   )
 }
 
-// ── Stripe paiement section ───────────────────────────────────────────────────
+// â”€â”€ Stripe paiement section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StripePaiementSection({ email, boutiqueName, showToast }: { email: string; boutiqueName?: string; showToast: (msg: string) => void }) {
   const boucherStore = useBoucherStore()
   const account = boucherStore.getStripeAccount(email)
@@ -1689,9 +1689,9 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
         window.location.href = data.onboardingUrl
         return
       }
-      showToast('❌ ' + (data.error || 'Erreur Stripe — contactez le support'))
+      showToast('âŒ ' + (data.error || 'Erreur Stripe â€” contactez le support'))
     } catch (e: any) {
-      showToast('❌ Erreur réseau : ' + (e?.message || 'réessayez'))
+      showToast('âŒ Erreur rÃ©seau : ' + (e?.message || 'rÃ©essayez'))
     } finally {
       setLoading(false)
     }
@@ -1699,11 +1699,11 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
 
   if (!account) return (
     <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3 text-center">
-      <span className="text-3xl block">💳</span>
-      <p className="text-sm font-semibold text-brun">Aucun compte Stripe lié</p>
+      <span className="text-3xl block">ðŸ’³</span>
+      <p className="text-sm font-semibold text-brun">Aucun compte Stripe liÃ©</p>
       <p className="text-xs text-gray-400">Configurez votre compte pour recevoir vos paiements chaque lundi.</p>
       <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={connecterNouveauCompte} disabled={loading}>
-        {loading ? '⏳ Chargement…' : '🔗 Connecter mon compte Stripe'}
+        {loading ? 'â³ Chargementâ€¦' : 'ðŸ”— Connecter mon compte Stripe'}
       </button>
     </div>
   )
@@ -1712,26 +1712,26 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       <div className="p-4 space-y-3">
         <div className={"rounded-xl p-3 flex items-start gap-3 " + (account.chargesEnabled && account.payoutsEnabled ? 'bg-green-50 border border-green-200' : 'bg-or-pale border border-or/20')}>
-          <span className="text-xl">{account.chargesEnabled && account.payoutsEnabled ? '✅' : '⏳'}</span>
+          <span className="text-xl">{account.chargesEnabled && account.payoutsEnabled ? 'âœ…' : 'â³'}</span>
           <div>
             <p className={"text-sm font-bold " + (account.chargesEnabled && account.payoutsEnabled ? 'text-green-700' : 'text-brun')}>
-              {account.chargesEnabled && account.payoutsEnabled ? 'Compte actif' : 'Vérification en cours'}
+              {account.chargesEnabled && account.payoutsEnabled ? 'Compte actif' : 'VÃ©rification en cours'}
             </p>
-            <p className="text-xs text-gray-400">{account.email} · Virements chaque lundi</p>
+            <p className="text-xs text-gray-400">{account.email} Â· Virements chaque lundi</p>
           </div>
         </div>
         {!confirming ? (
           <button className="w-full bg-rouge-pale text-rouge-vif border border-rouge-vif/20 py-2.5 rounded-xl text-xs font-bold font-sans" onClick={() => setConfirming(true)}>
-            🔄 Changer de compte Stripe
+            ðŸ”„ Changer de compte Stripe
           </button>
         ) : (
           <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-3 space-y-2">
-            <p className="text-xs font-bold text-rouge-vif">⚠️ Confirmer le changement ?</p>
-            <p className="text-xs text-gray-500">L'ancien compte sera dissocié. Les virements en attente ne seront pas affectés.</p>
+            <p className="text-xs font-bold text-rouge-vif">âš ï¸ Confirmer le changement ?</p>
+            <p className="text-xs text-gray-500">L'ancien compte sera dissociÃ©. Les virements en attente ne seront pas affectÃ©s.</p>
             <div className="flex gap-2">
               <button className="flex-1 bg-white border border-gray-200 text-brun text-xs font-bold py-2 rounded-xl font-sans" onClick={() => setConfirming(false)}>Annuler</button>
               <button className="flex-1 bg-rouge-vif text-white text-xs font-bold py-2 rounded-xl font-sans" onClick={connecterNouveauCompte} disabled={loading}>
-                {loading ? '⏳' : 'Confirmer'}
+                {loading ? 'â³' : 'Confirmer'}
               </button>
             </div>
           </div>
@@ -1741,7 +1741,7 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
   )
 }
 
-// ── CA Sélecteur ──────────────────────────────────────────────────────────────
+// â”€â”€ CA SÃ©lecteur â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CaSelector({ historique }: { historique: any[] }) {
   const [periode, setPeriode] = useState<'jour'|'semaine'|'mois'|'annee'>('jour')
 
@@ -1767,11 +1767,11 @@ function CaSelector({ historique }: { historique: any[] }) {
   const panierMoy = nbCmd > 0 ? ca / nbCmd : 0
   const fraisTotal = filtered.reduce((s, o) => s + o.frais, 0)
 
-  const PERIODES = [{ key: 'jour', label: "Aujourd'hui" },{ key: 'semaine', label: 'Semaine' },{ key: 'mois', label: 'Mois' },{ key: 'annee', label: 'Année' }]
+  const PERIODES = [{ key: 'jour', label: "Aujourd'hui" },{ key: 'semaine', label: 'Semaine' },{ key: 'mois', label: 'Mois' },{ key: 'annee', label: 'AnnÃ©e' }]
 
   return (
     <div className="space-y-3">
-      {/* Sélecteur */}
+      {/* SÃ©lecteur */}
       <div className="grid grid-cols-4 gap-1.5 bg-white rounded-2xl p-2 shadow-sm">
         {PERIODES.map(p => (
           <button key={p.key}
@@ -1784,19 +1784,19 @@ function CaSelector({ historique }: { historique: any[] }) {
 
       {/* CA principal */}
       <div className="bg-brun rounded-2xl p-5 text-center">
-        <p className="text-white/60 text-xs mb-1">Chiffre d'affaires · {PERIODES.find(p => p.key === periode)?.label}</p>
-        <p className="text-white font-black text-4xl">{ca.toFixed(2)} €</p>
-        {nbCmd === 0 && <p className="text-white/40 text-xs mt-2">Aucune commande sur cette période</p>}
+        <p className="text-white/60 text-xs mb-1">Chiffre d'affaires Â· {PERIODES.find(p => p.key === periode)?.label}</p>
+        <p className="text-white font-black text-4xl">{ca.toFixed(2)} â‚¬</p>
+        {nbCmd === 0 && <p className="text-white/40 text-xs mt-2">Aucune commande sur cette pÃ©riode</p>}
       </div>
 
       {/* Stats */}
       {nbCmd > 0 && (
         <div className="grid grid-cols-2 gap-2">
           {[
-            { ico:'📋', val: String(nbCmd),                   label:'Commandes' },
-            { ico:'🧺', val: panierMoy.toFixed(2) + ' €',     label:'Panier moyen' },
-            { ico:'💰', val: (ca * 0.85).toFixed(2) + ' €',   label:'Vos revenus (85%)' },
-            { ico:'🏷️', val: (ca * 0.15).toFixed(2) + ' €',  label:'Commission (15%)' },
+            { ico:'ðŸ“‹', val: String(nbCmd),                   label:'Commandes' },
+            { ico:'ðŸ§º', val: panierMoy.toFixed(2) + ' â‚¬',     label:'Panier moyen' },
+            { ico:'ðŸ’°', val: (ca * 0.85).toFixed(2) + ' â‚¬',   label:'Vos revenus (85%)' },
+            { ico:'ðŸ·ï¸', val: (ca * 0.15).toFixed(2) + ' â‚¬',  label:'Commission (15%)' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm text-center">
               <div className="text-lg mb-0.5">{s.ico}</div>
@@ -1820,9 +1820,9 @@ function CaSelector({ historique }: { historique: any[] }) {
               <div key={o.id} className={"px-4 py-3 flex items-center justify-between " + (i < filtered.length - 1 ? 'border-b border-gris-bd' : '')}>
                 <div>
                   <p className="text-sm font-bold text-brun">{o.id}</p>
-                  <p className="text-xs text-gray-400">{o.date} · {o.client}</p>
+                  <p className="text-xs text-gray-400">{o.date} Â· {o.client}</p>
                 </div>
-                <p className="text-sm font-black text-green-600">+{total.toFixed(2)} €</p>
+                <p className="text-sm font-black text-green-600">+{total.toFixed(2)} â‚¬</p>
               </div>
             )
           })}
