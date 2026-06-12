@@ -363,7 +363,6 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
             </div>
           ))}
         </div>
-        <PushSubscribeButton email={user?.email || null} role="client" />
       </div>
     </PageWrapper>
   )

@@ -1661,7 +1661,6 @@ function BoucherNotifsForm({ email }: { email: string }) {
           </div>
         ))}
       </div>
-      <PushSubscribeButton email={email} role="boucher" />
     </div>
   )
 }

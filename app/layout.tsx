@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
+import PushAutoSubscriber from '@/app/components/PushAutoSubscriber'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {children}
+        <PushAutoSubscriber />
         <Toaster
           position="bottom-center"
           toastOptions={{
