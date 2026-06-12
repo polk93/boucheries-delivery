@@ -13,8 +13,12 @@ async function signJWT(payload: object, privateKeyB64: string): Promise<string> 
   const header = { typ: 'JWT', alg: 'ES256' }
   const b64url = (obj: object) => btoa(JSON.stringify(obj))
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  const b64urlBuf = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  const b64urlBuf = (buf: ArrayBuffer) => {
+    const bytes = new Uint8Array(buf)
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  }
 
   const toSign = `${b64url(header)}.${b64url(payload)}`
 
