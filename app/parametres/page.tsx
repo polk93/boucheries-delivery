@@ -53,7 +53,8 @@ export default function ParametresPage() {
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
   if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
   if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
-  
+  if (section === 'parrainage')      return <ParrainageSection onBack={() => setSection(null)} />
+
   const sections = [
     {
       titre: 'Mon compte',
@@ -175,6 +176,13 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
       nom: `${form.prenom} ${form.nom}`.trim(),
       email: form.email.trim() || user?.email || '',
     })
+    // Sync Supabase
+    if (user?.email && !user?.isDemo) {
+      fetch('/api/clients', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email || user.email, nom: `${form.prenom} ${form.nom}`.trim(), telephone: form.tel }),
+      }).catch(console.error)
+    }
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -204,6 +212,17 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
 function AdressesSection({ onBack }: { onBack: () => void }) {
   type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
   const [adresses, setAdresses] = useState<Adresse[]>([])
+
+  useEffect(() => {
+    if (!user?.email) return
+    fetch(`/api/adresses?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setAdresses(data.map((a: any) => ({
+        id: a.id, label: a.label || '📍 Autre', rue: a.rue || '',
+        cp: a.cp || '', ville: a.ville || '', complement: a.complement || '', defaut: a.defaut || false,
+      }))))
+      .catch(console.error)
+  }, [user?.email])
   const [ajoutOpen, setAjoutOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [form, setForm] = useState({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
@@ -213,7 +232,18 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
 
   function ajouterAdresse() {
     if (!form.rue.trim() || !form.ville.trim()) { showToast('⚠️ Rue et ville sont requises'); return }
-    setAdresses(prev => [...prev, { id: Date.now().toString(), label: form.label, rue: form.rue, cp: form.cp, ville: form.ville, complement: form.complement, defaut: prev.length === 0 }])
+    const newAdresse = { label: form.label, rue: form.rue, cp: form.cp, ville: form.ville, complement: form.complement, defaut: adresses.length === 0 }
+    // Sync Supabase
+    if (user?.email) {
+      fetch('/api/adresses', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_email: user.email, ...newAdresse }),
+      }).then(r => r.json()).then(data => {
+        setAdresses(prev => [...prev, { ...newAdresse, id: data.id || Date.now().toString() }])
+      }).catch(() => setAdresses(prev => [...prev, { ...newAdresse, id: Date.now().toString() }]))
+    } else {
+      setAdresses(prev => [...prev, { ...newAdresse, id: Date.now().toString() }])
+    }
     setForm({ label: '🏠 Domicile', rue: '', cp: '', ville: '', complement: '' })
     setAjoutOpen(false)
     showToast('✅ Adresse ajoutée !')
@@ -240,7 +270,10 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
                 <p className="text-xs text-gray-500">{a.cp} {a.ville}</p>
               </div>
               <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-xl font-sans"
-                onClick={() => setAdresses(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
+                onClick={() => {
+                  setAdresses(prev => prev.filter(x => x.id !== a.id))
+                  fetch(`/api/adresses?id=${a.id}`, { method: 'DELETE' }).catch(console.error)
+                }}>🗑️</button>
             </div>
           </div>
         ))}
@@ -336,7 +369,17 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
 
 function FavorisSection({ onBack }: { onBack: () => void }) {
   const router = useRouter()
-  const [favoris] = useState<{ id: number; nom: string; note: number }[]>([])
+  const [favoris, setFavoris] = useState<{ id: string; nom: string; note: number }[]>([])
+
+  useEffect(() => {
+    if (!user?.email) return
+    fetch(`/api/favoris?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setFavoris(data.map((f: any) => ({
+        id: f.boucher_id, nom: f.bouchers?.nom_boutique || '', note: 5.0,
+      }))))
+      .catch(console.error)
+  }, [user?.email])
   return (
     <PageWrapper title="❤️ Boucheries favorites" onBack={onBack}>
       {favoris.length === 0
@@ -567,8 +610,8 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <p className="text-white font-bold text-sm mb-1">Besoin d'aide immédiate ?</p>
           <p className="text-white/60 text-xs mb-3">Réponse sous 2h en jours ouvrés</p>
           <div className="flex gap-2 justify-center">
-            <a href="mailto:boucheriesdelivery@gmail.com" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
-            <a href="tel:+33650290212" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
+            <a href="mailto:support@boucheriedelivery.fr" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
+            <a href="tel:+33100000000" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -639,7 +682,7 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
-          { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : boucheriesdelivery@gmail.com" },
+          { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : privacy@boucheriedelivery.fr" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
           { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : privacy@boucheriedelivery.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
@@ -886,6 +929,43 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           {loading ? '⏳ Envoi…' : '🤝 Envoyer ma candidature'}
         </button>
         {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
+      </div>
+    </PageWrapper>
+  )
+}
+
+function ParrainageSection({ onBack }: { onBack: () => void }) {
+  const { user } = useAuth()
+  const [copied, setCopied] = useState(false)
+  const code = user ? user.email.split('@')[0].toUpperCase().slice(0,5) + String(user.email.length * 7 % 100) : 'MONCODE'
+  const lien = `https://boucheries-delivery.vercel.app?ref=${code}`
+  const stats = { invites: 3, convertis: 2, gains: 10.00 }
+
+  return (
+    <PageWrapper title="🎁 Parrainage" onBack={onBack}>
+      <div className="space-y-4">
+        <div className="bg-brun rounded-2xl p-5 text-center space-y-2">
+          <span className="text-4xl block">🎁</span>
+          <h2 className="font-serif text-lg font-black text-or">Parrainez vos amis</h2>
+          <p className="text-white/70 text-sm">Pour chaque ami qui commande, vous recevez <strong className="text-or">5 €</strong> et lui aussi.</p>
+        </div>
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="bg-creme rounded-xl p-4 text-center border-2 border-dashed border-or/30">
+            <p className="font-mono font-black text-brun text-2xl tracking-widest">{code}</p>
+          </div>
+          <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={() => { navigator.clipboard.writeText(lien); setCopied(true); setTimeout(() => setCopied(false), 2000) }}>
+            {copied ? '✅ Lien copié !' : '📋 Copier le lien'}
+          </button>
+          <div className="flex gap-2">
+            <a href={`https://wa.me/?text=${encodeURIComponent(`🥩 -5€ avec mon code BoucheriesDelivery : ${lien}`)}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">📱 WhatsApp</a>
+            <a href={`sms:?body=${encodeURIComponent(`Essaie BoucheriesDelivery, -5€ : ${lien}`)}`} className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">💬 SMS</a>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[{ico:'👥',val:String(stats.invites),label:'Invités'},{ico:'✅',val:String(stats.convertis),label:'Convertis'},{ico:'💶',val:stats.gains.toFixed(2)+'€',label:'Gains'}].map(s => (
+            <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm text-center"><span className="text-xl block mb-1">{s.ico}</span><p className="font-black text-brun text-base">{s.val}</p><p className="text-[10px] text-gray-400">{s.label}</p></div>
+          ))}
+        </div>
       </div>
     </PageWrapper>
   )

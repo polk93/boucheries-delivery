@@ -249,6 +249,57 @@ export default function PanelPage() {
     return user?.isDemo ? HISTORIQUE_INIT : []
   })
 
+  // Charger commandes depuis Supabase
+  useEffect(() => {
+    if (!user || user.isDemo) return
+    fetch(`/api/commandes?boucher_email=${encodeURIComponent(user.email)}&type=actives`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (data.length > 0) {
+          const mapped = data.map((o: any) => ({
+            id: o.numero || o.id, client: o.client_nom || '', tel: o.client_tel || '',
+            adresse: o.adresse || '', creneau: o.creneau || '', date: o.created_at?.split('T')[0] || '',
+            heure: o.heure || '', lignes: o.lignes || [], frais: o.frais || 0,
+            status: o.status || 'new', modePaiement: o.mode_paiement || '', stripeId: o.stripe_id || '',
+            _supabase_id: o.id,
+          }))
+          setOrders(mapped)
+          boucherStore.setOrders(bid, mapped)
+        }
+      }).catch(console.error)
+    fetch(`/api/commandes?boucher_email=${encodeURIComponent(user.email)}&type=historique`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (data.length > 0) {
+          const mapped = data.map((o: any) => ({
+            id: o.numero || o.id, client: o.client_nom || '', tel: o.client_tel || '',
+            adresse: o.adresse || '', creneau: o.creneau || '', date: o.created_at?.split('T')[0] || '',
+            heure: o.heure || '', lignes: o.lignes || [], frais: o.frais || 0,
+            status: 'done', modePaiement: o.mode_paiement || '', stripeId: o.stripe_id || '',
+            _supabase_id: o.id,
+          }))
+          setHistorique(mapped)
+          boucherStore.setHistorique(bid, mapped)
+        }
+      }).catch(console.error)
+  }, [user?.email])
+
+  // Charger les promotions depuis Supabase
+  useEffect(() => {
+    if (!user || user.isDemo) return
+    fetch(`/api/promotions?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(promos => {
+        if (promos.length > 0) {
+          setBoutiquePersist((b: any) => ({ ...b, promotions: promos.map((p: any) => ({
+            id: p.id, titre: p.titre || '', description: p.description || '',
+            type: p.type || 'message', valeur: p.valeur || '',
+            dateDebut: p.date_debut || '', dateFin: p.date_fin || '', active: p.active,
+          }))}))
+        }
+      }).catch(console.error)
+  }, [user?.email])
+
   const [boutique, setBoutique] = useState<ReturnType<typeof makeInitBoutique>>(() => {
     const saved = boucherStore.getBoutique(myBoucherieId)
     return saved ? { ...makeInitBoutique(bRef), ...saved } : makeInitBoutique(bRef)
@@ -392,6 +443,17 @@ export default function PanelPage() {
 
   function progress(id: string) {
     const order = orders.find(o => o.id === id)
+    // Sync status Supabase
+    if (!user?.isDemo && (order as any)?._supabase_id) {
+      fetch('/api/commandes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: (order as any)._supabase_id,
+          status: order?.status === 'new' ? 'prep' : order?.status === 'prep' ? 'ready' : order?.status === 'ready' ? 'delivery' : 'done',
+        }),
+      }).catch(console.error)
+    }
     if (order?.status === 'new') {
       // Décrémenter stock automatiquement à l'acceptation
       setProduits(prev => {
@@ -551,9 +613,24 @@ export default function PanelPage() {
   }
 
   function addPromo() {
-    const newPromo: Promo = { id: Date.now().toString(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
-    setBoutiquePersist(b => ({ ...b, promotions: [...b.promotions, newPromo] }))
+    const newPromo: Promo = { id: 'new_' + Date.now(), titre: '', description: '', type: 'message', valeur: '', dateDebut: '', dateFin: '', active: true }
+    setBoutiquePersist((b: any) => ({ ...b, promotions: [...(b.promotions || []), newPromo] }))
     setBoutiqueEdited(true)
+    // Sync Supabase
+    if (!user?.isDemo && user?.email) {
+      fetch('/api/promotions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, ...newPromo }),
+      }).then(r => r.json()).then(data => {
+        if (data.id) {
+          setBoutiquePersist((b: any) => ({
+            ...b,
+            promotions: (b.promotions || []).map((p: any) => p.id === newPromo.id ? { ...p, id: data.id } : p)
+          }))
+        }
+      }).catch(console.error)
+    }
   }
 
   function updatePromo(idx: number, field: keyof Promo, value: string | boolean) {
