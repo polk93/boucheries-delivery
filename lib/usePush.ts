@@ -1,4 +1,3 @@
-@'
 'use client'
 import { useEffect } from 'react'
 
@@ -45,4 +44,3 @@ export function usePushNotifications(email: string | null, role: 'client' | 'bou
   useAutoPushSubscription(email, role)
   return { permission: 'default' as NotificationPermission, subscribed: true, loading: false }
 }
-'@ | Set-Content -Path "E:\app boucherie\boucherie-delivery\lib\usePush.ts" -Encoding UTF8
