@@ -348,20 +348,22 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
             </div>
           ))}
         </div>
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
-          {NOTIFS_DEMO.map((n, i) => (
-            <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-              <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
-                <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
-              </div>
-              {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
-            </div>
-          ))}
+      {user?.isDemo && (
+  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
+    {NOTIFS_DEMO.map((n, i) => (
+      <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+        <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
+          <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
         </div>
+        {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
+      </div>
+    ))}
+  </div>
+)}
       </div>
     </PageWrapper>
   )
