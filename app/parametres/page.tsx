@@ -53,7 +53,7 @@ export default function ParametresPage() {
   if (section === 'cgu')             return <CguSection onBack={() => setSection(null)} />
   if (section === 'livreur')         return <LivreurSection onBack={() => setSection(null)} />
   if (section === 'partenaire')      return <PartenaireSection onBack={() => setSection(null)} />
-  
+  if (section === 'parrainage')      return <ParrainageSection onBack={() => setSection(null)} />
 
   const sections = [
     {
@@ -210,7 +210,6 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
 }
 
 function AdressesSection({ onBack }: { onBack: () => void }) {
-  const { user } = useAuth()
   type Adresse = { id: string; label: string; rue: string; cp: string; ville: string; complement: string; defaut: boolean }
   const [adresses, setAdresses] = useState<Adresse[]>([])
 
@@ -369,7 +368,6 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
 }
 
 function FavorisSection({ onBack }: { onBack: () => void }) {
-  const { user } = useAuth()
   const router = useRouter()
   const [favoris, setFavoris] = useState<{ id: string; nom: string; note: number }[]>([])
 
@@ -612,8 +610,8 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <p className="text-white font-bold text-sm mb-1">Besoin d'aide immédiate ?</p>
           <p className="text-white/60 text-xs mb-3">Réponse sous 2h en jours ouvrés</p>
           <div className="flex gap-2 justify-center">
-            <a href="mailto:boucheriesdelivery@gmail.com" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
-            <a href="tel:+33650290212" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
+            <a href="mailto:support@boucheriedelivery.fr" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
+            <a href="tel:+33100000000" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -684,9 +682,9 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
-          { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : boucheriesdelivery@gmail.com" },
+          { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : privacy@boucheriedelivery.fr" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
-          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : boucheriesdelivery@gmail.com. Réclamation CNIL : www.cnil.fr" },
+          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : privacy@boucheriedelivery.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
@@ -796,57 +794,37 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
     </PageWrapper>
   )
 
+  // Étape 2 : sac isotherme + Stuart
   return (
-    <PageWrapper title="🛵 Votre dossier" onBack={() => setStep('info')}>
+    <PageWrapper title="🛵 Inscription livreur" onBack={() => setStep('info')}>
       <div className="space-y-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <h3 className="font-serif text-base font-bold text-brun">👤 Identité</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[['prenom','Prénom *'],['nom','Nom *']].map(([k,l]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" value={(form as any)[k]} onChange={e => setForm(f => ({...f,[k]:e.target.value}))} /></div>)}
-          </div>
-          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00'],['ville','Ville *','Paris'],['siret','SIRET *','123 456 789 00012']].map(([k,l,ph]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({...f,[k]:e.target.value}))} /></div>)}
-          <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante.</p></div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <h3 className="font-serif text-base font-bold text-brun">🚲 Véhicule</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {[['velo','🚲','Vélo'],['velo_elec','⚡','Vélo élec.'],['scooter','🛵','Scooter'],['voiture','🚗','Voiture']].map(([v,ico,l]) => <button key={v} className={'flex items-center gap-2 py-3 px-3 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (form.vehicule === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')} onClick={() => setForm(f => ({...f,vehicule:v}))}><span className="text-lg">{ico}</span>{l}</button>)}
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <h3 className="font-serif text-base font-bold text-brun">📎 Documents</h3>
-          <DocUpload label="🪪 Carte d'identité" sublabel="CNI ou passeport" required file={docs.cni} onChange={f => setDocs(d => ({...d,cni:f}))} />
-          <DocUpload label="📄 Justificatif SIRET" sublabel="Kbis ou avis INSEE" required file={docs.siret_doc} onChange={f => setDocs(d => ({...d,siret_doc:f}))} />
-          {needsPermis && <>
-            <DocUpload label="🚗 Permis de conduire" sublabel="Permis B en cours de validité" required file={docs.permis_doc} onChange={f => setDocs(d => ({...d,permis_doc:f}))} />
-            <DocUpload label="📋 Carte grise" sublabel="Certificat d'immatriculation" required file={docs.carte_grise} onChange={f => setDocs(d => ({...d,carte_grise:f}))} />
-          </>}
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <h3 className="font-serif text-base font-bold text-brun">📅 Disponibilités</h3>
-          <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="Ex: Lundi–Vendredi 11h–14h" value={form.disponibilite} onChange={e => setForm(f => ({...f,disponibilite:e.target.value}))} />
-        </div>
 
         {/* Question sac isotherme */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3">
-          <p className="text-sm font-bold text-brun">🧊 Avez-vous un sac isotherme ?</p>
-          <p className="text-xs text-gray-400">Obligatoire pour maintenir la chaîne du froid lors des livraisons.</p>
-          <div className="flex gap-3">
-            <button
-              className={'flex-1 py-3 rounded-xl border-2 text-sm font-bold font-sans transition-all ' + (sacIsotherme === 'oui' ? 'bg-green-500 border-green-500 text-white' : 'border-gray-200 text-gray-500')}
-              onClick={() => setSacIsotherme('oui')}>
-              ✅ Oui
-            </button>
-            <button
-              className={'flex-1 py-3 rounded-xl border-2 text-sm font-bold font-sans transition-all ' + (sacIsotherme === 'non' ? 'bg-rouge-vif border-rouge-vif text-white' : 'border-gray-200 text-gray-500')}
-              onClick={() => setSacIsotherme('non')}>
-              ❌ Non
-            </button>
+        {sacIsotherme === null && (
+          <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+            <p className="text-sm font-bold text-brun">🧊 Avez-vous un sac isotherme ?</p>
+            <p className="text-xs text-gray-400">Obligatoire pour maintenir la chaîne du froid lors des livraisons.</p>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 text-sm font-bold font-sans"
+                onClick={() => setSacIsotherme('oui')}>
+                ✅ Oui
+              </button>
+              <button
+                className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 text-sm font-bold font-sans"
+                onClick={() => setSacIsotherme('non')}>
+                ❌ Non
+              </button>
+            </div>
           </div>
-          {sacIsotherme === 'non' && (
-            <div className="bg-or-pale border border-or/20 rounded-xl p-3 space-y-2">
+        )}
+
+        {/* Pas de sac → lien Amazon */}
+        {sacIsotherme === 'non' && (
+          <div className="space-y-3">
+            <div className="bg-or-pale border border-or/20 rounded-xl p-4 space-y-2">
               <p className="text-xs font-bold text-brun">🛒 Commandez votre sac isotherme</p>
-              <p className="text-xs text-gray-500 leading-relaxed">Un sac isotherme professionnel est indispensable. Commandez-en un sur Amazon avant de soumettre votre candidature.</p>
+              <p className="text-xs text-gray-500 leading-relaxed">Un sac isotherme est obligatoire pour livrer des produits de boucherie. Commandez-en un sur Amazon avant de vous inscrire.</p>
               <a href="https://www.amazon.fr/s?k=sac+isotherme+livraison+professionnel&rh=p_36%3A1000-2000"
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full bg-or text-brun font-bold py-3 rounded-xl text-sm no-underline font-sans">
@@ -854,20 +832,39 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
               </a>
               <p className="text-xs text-gray-400 text-center">Environ 15-20€ · Livraison en 1-2 jours</p>
             </div>
-          )}
-        </div>
-
-        <button className="w-full bg-brun text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.prenom||!form.email||!form.tel||!form.ville||!form.siret||!form.disponibilite||!docValide()||loading||sacIsotherme !== 'oui'} onClick={soumettre}>
-          {loading ? '⏳ Envoi…' : '🛵 Envoyer mon dossier'}
-        </button>
-        {sacIsotherme !== 'oui' && sacIsotherme !== null && (
-          <p className="text-xs text-rouge-vif text-center">⚠️ Vous devez disposer d'un sac isotherme pour postuler</p>
+            <button className="w-full text-xs text-gray-400 font-sans py-2"
+              onClick={() => setSacIsotherme(null)}>← Retour</button>
+          </div>
         )}
-        {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
+
+        {/* Sac OK → Stuart */}
+        {sacIsotherme === 'oui' && (
+          <div className="space-y-4">
+            <div className="bg-brun rounded-2xl p-5 text-center space-y-2">
+              <span className="text-4xl block">🛵</span>
+              <h2 className="font-serif text-lg font-black text-or">Inscription via Stuart</h2>
+              <p className="text-white/70 text-sm leading-relaxed">
+                BoucheriesDelivery utilise Stuart pour gérer ses livraisons. Inscrivez-vous directement sur leur plateforme.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl p-4 shadow-sm space-y-2">
+              {['✅ Inscription 100% gratuite', '✅ Livrez quand vous voulez', '✅ Paiement hebdomadaire', '✅ Support 7j/7'].map(item => (
+                <p key={item} className="text-sm text-gray-600">{item}</p>
+              ))}
+            </div>
+            <a href="https://stuart.com/fr/devenir-livreur"
+              target="_blank" rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full bg-brun text-white font-bold py-4 rounded-2xl text-sm no-underline font-sans">
+              🛵 S'inscrire comme livreur Stuart →
+            </a>
+            <button className="w-full text-xs text-gray-400 font-sans py-2"
+              onClick={() => setSacIsotherme(null)}>← Retour</button>
+          </div>
+        )}
       </div>
     </PageWrapper>
   )
-}
+
 
 function PartenaireSection({ onBack }: { onBack: () => void }) {
   const { addBoucher } = useAccounts()
