@@ -7,6 +7,7 @@ import BottomNavBoucher from '@/components/ui/BottomNavBoucher'
 import AuthModal from '@/components/ui/AuthModal'
 import { BOUCHERIES, type Produit } from '@/lib/data'
 import { useBoucherStore } from '@/store/boucherStore'
+import PushSubscribeButton from '@/components/PushSubscribeButton'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ProduitEtendu extends Produit {
@@ -1411,7 +1412,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
     <div className="space-y-4">
       {header}
       <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Alertes</button>
-      <BoucherNotifsForm />
+      <BoucherNotifsForm email={user?.email || ''} />
     </div>
   )
 
@@ -1635,32 +1636,32 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
 }
 
 // ── Notifications boucher ─────────────────────────────────────────────────────
-function BoucherNotifsForm() {
-  import PushSubscribeButton from '@/components/PushSubscribeButton'
-// ...
-<PushSubscribeButton email={email} role="boucher" />
+function BoucherNotifsForm({ email }: { email: string }) {
   const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
   const items = [
-    { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Son + notification push instantanée' },
+    { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Notification push instantanée' },
     { key: 'stock_faible', label: 'Stock faible',        sub: 'Alerte quand stock ≤ 3' },
     { key: 'paiement',     label: 'Virement reçu',       sub: 'Confirmation chaque lundi' },
     { key: 'rapport',      label: 'Rapport quotidien',   sub: 'CA et commandes chaque soir' },
   ]
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-      {items.map((item, i) => (
-        <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-brun">{item.label}</p>
-            <p className="text-xs text-gray-400">{item.sub}</p>
+    <div className="space-y-3">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {items.map((item, i) => (
+          <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-brun">{item.label}</p>
+              <p className="text-xs text-gray-400">{item.sub}</p>
+            </div>
+            <button
+              className={"w-11 h-6 rounded-full relative transition-colors flex-shrink-0 " + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
+              onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
+              <span className={"absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
+            </button>
           </div>
-          <button
-            className={"w-11 h-6 rounded-full relative transition-colors flex-shrink-0 " + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
-            onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-            <span className={"absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
+      <PushSubscribeButton email={email} role="boucher" />
     </div>
   )
 }
