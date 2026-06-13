@@ -549,7 +549,7 @@ export default function PanelPage() {
           <button className="w-full bg-brun text-white py-3.5 rounded-xl font-bold text-sm font-sans hover:bg-rouge-vif transition-colors"
             onClick={() => setAuthOpen(true)}> Connexion Boucher</button>
           <button className="w-full mt-3 bg-white border border-gris-bd text-brun py-3 rounded-xl font-semibold text-sm font-sans"
-            onClick={() => router.push('/')}>← Retour à l'accueil</button>
+            onClick={() => router.push('/')}>← Retour</button>
         </div>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} defaultRole="boucher" />}
       </div>
@@ -1231,20 +1231,6 @@ export default function PanelPage() {
     </div>
   )
 
-// ── FAQ Item isolé (évite useState dans .map) ────────────────────────────────
-function PanelFaqItem({ faq, last }: { faq: { q: string; a: string }; last: boolean }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className={!last ? 'border-b border-gris-bd pb-3' : ''}>
-      <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
-        <p className="text-sm font-semibold text-brun">{faq.q}</p>
-        <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
-      </button>
-      {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
-    </div>
-  )
-}
-
 // ── Navigation paramètres boucher ────────────────────────────────────────────
 type ParamsSection = 'compte' | 'alertes' | 'paiements' | 'support' | 'cgu' | null
 
@@ -1312,9 +1298,18 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
           { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectués chaque lundi sur votre compte Stripe Connect." },
           { q: "Comment signaler un problème de livraison ?", a: "Contactez-nous par email avec le numéro de commande concerné." },
           { q: "Comment changer mes horaires ?", a: "Allez dans l'onglet Boutique, section Horaires." },
-        ].map((faq, i, arr) => (
-          <PanelFaqItem key={i} faq={faq} last={i === arr.length - 1} />
-        ))}
+        ].map((faq, i, arr) => {
+          const [open, setOpen] = useState(false)
+          return (
+            <div key={i} className={i < arr.length - 1 ? 'border-b border-gris-bd pb-3' : ''}>
+              <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
+                <p className="text-sm font-semibold text-brun">{faq.q}</p>
+                <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
+              </button>
+              {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
