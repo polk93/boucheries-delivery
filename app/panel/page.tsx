@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useSupabaseProduits } from '@/lib/useSupabase'
 import { sendPush } from '@/lib/usePush'
@@ -1006,26 +1006,7 @@ export default function PanelPage() {
 
             {boutiqueEdited && (
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
-                onClick={() => {
-  setBoutiqueEdited(false)
-  showToast('✅ Boutique mise à jour !')
-  if (!user?.isDemo && user?.email) {
-    fetch('/api/bouchers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: user.email,
-        nom_boutique: boutique.nom || user.boucherieNom || 'Ma Boucherie',
-        adresse: boutique.adresse || '',
-        description: boutique.desc || '',
-        horaires: boutique.horaires,
-        badge: (boutique as any).badge || '',
-        cover_photo: (boutique as any).coverPhoto || '',
-        ouvert: isBoutiqueOuverteNow(boutique.horaires),
-      }),
-    }).catch(console.error)
-  }
-}}>
+                onClick={() => { setBoutiqueEdited(false); showToast('✅ Boutique mise à jour !') }}>
                  Enregistrer les modifications
               </button>
             )}
