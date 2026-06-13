@@ -495,7 +495,12 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
                   onClick={() => setModal(b)}>
                   <div className="relative overflow-hidden">
                     <img src={b.img} alt={b.nom} className="w-full object-cover" style={{ height: 'clamp(130px, 35vw, 175px)' }} />
-                    {b.badge === 'Promo' && <span className="absolute top-2 left-2 bg-rouge-vif text-white text-[11px] font-bold px-2 py-0.5 rounded-lg">🏷️ Promo</span>}
+                   {b.badge && (
+  <span className="absolute top-2 left-2 text-[11px] font-bold px-2 py-0.5 rounded-lg"
+    style={{ background: b.badge === 'Promo' ? '#C0392B' : b.badge === 'Nouveau' ? '#C9A84C' : b.badge === 'Halal' ? '#27AE60' : b.badge === 'Bio' ? '#2ECC71' : b.badge === 'Premium' ? '#8E44AD' : b.badge === 'Populaire' ? '#E67E22' : '#3D2012', color: 'white' }}>
+    {b.badge === 'Promo' ? '🏷️' : b.badge === 'Nouveau' ? '✨' : b.badge === 'Halal' ? '☪️' : b.badge === 'Bio' ? '🌿' : b.badge === 'Premium' ? '⭐' : b.badge === 'Populaire' ? '🔥' : ''} {b.badge}
+  </span>
+)}
                     {b.badge === 'Nouveau' && <span className="absolute top-2 left-2 bg-or text-brun text-[11px] font-bold px-2 py-0.5 rounded-lg">✨ Nouveau</span>}
                     {!b.ouvert && <span className="absolute top-2 right-2 bg-black/65 text-red-400 text-[11px] font-bold px-2 py-0.5 rounded-lg">⛔ Fermé</span>}
                     {b.frais === 0 && b.ouvert && <span className="absolute bottom-2 right-2 bg-green-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg">Offerte</span>}
