@@ -1006,8 +1006,27 @@ export default function PanelPage() {
 
             {boutiqueEdited && (
               <button className="w-full bg-green-500 text-white font-bold py-3.5 rounded-2xl text-sm font-sans active:bg-green-600"
-                onClick={() => { setBoutiqueEdited(false); showToast('✅ Boutique mise à jour !') }}>
-                 Enregistrer les modifications
+                onClick={() => {
+                  setBoutiqueEdited(false)
+                  showToast('✅ Boutique mise à jour !')
+                  if (!user?.isDemo && user?.email) {
+                    fetch('/api/bouchers', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        email: user.email,
+                        nom_boutique: boutique.nom || user.boucherieNom || 'Ma Boucherie',
+                        adresse: boutique.adresse || '',
+                        description: boutique.desc || '',
+                        horaires: boutique.horaires,
+                        badge: (boutique as any).badge || '',
+                        cover_photo: (boutique as any).coverPhoto || '',
+                        ouvert: isBoutiqueOuverteNow(boutique.horaires),
+                      }),
+                    }).catch(console.error)
+                  }
+                }}>
+                💾 Enregistrer les modifications
               </button>
             )}
           </div>
@@ -1231,6 +1250,20 @@ export default function PanelPage() {
     </div>
   )
 
+// ── FAQ Item isolé (évite useState dans .map) ────────────────────────────────
+function PanelFaqItem({ faq, last }: { faq: { q: string; a: string }; last: boolean }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className={!last ? 'border-b border-gris-bd pb-3' : ''}>
+      <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
+        <p className="text-sm font-semibold text-brun">{faq.q}</p>
+        <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
+      </button>
+      {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
+    </div>
+  )
+}
+
 // ── Navigation paramètres boucher ────────────────────────────────────────────
 type ParamsSection = 'compte' | 'alertes' | 'paiements' | 'support' | 'cgu' | null
 
@@ -1298,18 +1331,9 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
           { q: "Comment recevoir mes paiements ?", a: "Les virements sont effectués chaque lundi sur votre compte Stripe Connect." },
           { q: "Comment signaler un problème de livraison ?", a: "Contactez-nous par email avec le numéro de commande concerné." },
           { q: "Comment changer mes horaires ?", a: "Allez dans l'onglet Boutique, section Horaires." },
-        ].map((faq, i, arr) => {
-          const [open, setOpen] = useState(false)
-          return (
-            <div key={i} className={i < arr.length - 1 ? 'border-b border-gris-bd pb-3' : ''}>
-              <button className="w-full flex justify-between items-start text-left gap-2 font-sans" onClick={() => setOpen(o => !o)}>
-                <p className="text-sm font-semibold text-brun">{faq.q}</p>
-                <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
-              </button>
-              {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
-            </div>
-          )
-        })}
+        ].map((faq, i, arr) => (
+          <PanelFaqItem key={i} faq={faq} last={i === arr.length - 1} />
+        ))}
       </div>
     </div>
   )
