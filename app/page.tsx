@@ -565,7 +565,6 @@ export default function HomePage() {
   }, [user])
 
   if (isBoucher()) return null
-
   // Tous les visiteurs voient le catalogue — connectés ou non
   // Non connecté → boutiques visibles en démo, panier désactivé
   // Compte démo / vrai compte → catalogue complet
