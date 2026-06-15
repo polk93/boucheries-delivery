@@ -469,7 +469,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
     <p className="text-sm leading-relaxed mb-2">
       Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
     </p>
-    <p className="text-base text-gray-300">
+    <p className="text-base text-gray-400">
       Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
     </p>
   </div>
