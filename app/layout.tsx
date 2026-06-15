@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: 'BoucherieDelivery — La meilleure viande livrée chez vous',
   description: 'Commandez chez les meilleures boucheries artisanales de votre quartier. Livraison rapide, découpe sur mesure.',
   manifest: '/manifest.json',
+  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon-192.png" type="image/png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="BoucherieDelivery" />
