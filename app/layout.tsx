@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: 'BoucherieDelivery — La meilleure viande livrée chez vous',
   description: 'Commandez chez les meilleures boucheries artisanales de votre quartier. Livraison rapide, découpe sur mesure.',
   manifest: '/manifest.json',
+  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

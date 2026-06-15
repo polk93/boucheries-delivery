@@ -5,6 +5,7 @@ import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
+import Switch from '@/components/Switch'
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
@@ -341,10 +342,10 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
                 <p className="text-sm font-semibold text-brun">{item.label}</p>
                 <p className="text-xs text-gray-400">{item.sub}</p>
               </div>
-              <button className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
-                onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${(prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
-              </button>
+              <Switch
+                checked={!!(prefs as any)[item.key]}
+                onChange={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}
+              />
             </div>
           ))}
         </div>
@@ -498,11 +499,6 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
   const [form, setForm] = useState({ numero: '', titulaire: '', expiry: '', cvv: '' })
   const [saved, setSaved] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const commissions = [
-    { ico: '🥩', label: 'Vente de produits', taux: '15%', desc: 'Commission sur chaque vente boucher' },
-    { ico: '✅', label: 'Paiement sécurisé', taux: '0%', desc: 'Frais de paiement Stripe inclus' },
-    { ico: '💶', label: 'Virement boucher', taux: '85%', desc: 'Reversé chaque lundi automatiquement' },
-  ]
 
   function validate() {
     const e: Record<string, string> = {}
@@ -528,22 +524,6 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="💳 Moyens de paiement" onBack={onBack}>
       <div className="space-y-4">
-        {/* Bloc commissions */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-            <p className="text-xs font-bold text-brun">💰 Commissions BoucheriesDelivery</p>
-          </div>
-          {commissions.map((c, i) => (
-            <div key={c.label} className={'flex items-center gap-3 px-4 py-3 ' + (i < commissions.length - 1 ? 'border-b border-gris-bd' : '')}>
-              <span className="text-xl flex-shrink-0">{c.ico}</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-brun">{c.label}</p>
-                <p className="text-xs text-gray-400">{c.desc}</p>
-              </div>
-              <span className="text-sm font-black text-brun">{c.taux}</span>
-            </div>
-          ))}
-        </div>
 
         {saved && <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center"><p className="text-green-700 text-sm font-semibold">✅ Carte ajoutée !</p></div>}
         {cartes.length === 0
