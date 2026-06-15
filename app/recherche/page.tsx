@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { BOUCHERIES } from '@/lib/data'
@@ -52,7 +52,7 @@ export default function RecherchePage() {
         <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
           {CATS.map(c => (
             <button key={c}
-              className={'px-3 py-1.5 rounded-full text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 transition-all ' + (cat === c ? 'bg-or text-brun' : 'bg-white/15 text-white/70')}
+              className={'px-3 py-1.5 rounded-full text-base font-bold font-sans whitespace-nowrap flex-shrink-0 transition-all ' + (cat === c ? 'bg-or text-brun' : 'bg-white/15 text-white/70')}
               onClick={() => setCat(c)}>{c}</button>
           ))}
         </div>
@@ -62,22 +62,22 @@ export default function RecherchePage() {
         {query === '' && cat === 'Tout' ? (
           // Suggestions populaires
           <div className="space-y-3">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recherches populaires</p>
+            <p className="text-base font-bold text-gray-400 uppercase tracking-wider">Recherches populaires</p>
             <div className="flex flex-wrap gap-2">
               {['Entrecôte', 'Wagyu', 'Agneau', 'Poulet fermier', 'Merguez', 'Côtes de veau', 'Faux-filet', 'Bavette'].map(s => (
                 <button key={s}
-                  className="bg-white border border-gris-bd text-brun text-xs font-semibold px-3 py-1.5 rounded-full font-sans"
+                  className="bg-white border border-gris-bd text-brun text-base font-semibold px-3 py-1.5 rounded-full font-sans"
                   onClick={() => setQuery(s)}>{s}</button>
               ))}
             </div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-4">Par catégorie</p>
+            <p className="text-base font-bold text-gray-400 uppercase tracking-wider mt-4">Par catégorie</p>
             <div className="grid grid-cols-3 gap-2">
               {[['🐄','Bœuf'],['🐑','Agneau'],['🐓','Volaille'],['🐷','Porc'],['🐮','Veau'],['🌿','Entrée']].map(([ico,c]) => (
                 <button key={c as string}
                   className="bg-white rounded-2xl p-3 text-center shadow-sm active:bg-creme"
                   onClick={() => setCat(c as string)}>
                   <span className="text-2xl block mb-1">{ico}</span>
-                  <span className="text-xs font-bold text-brun">{c}</span>
+                  <span className="text-base font-bold text-brun">{c}</span>
                 </button>
               ))}
             </div>
@@ -86,11 +86,11 @@ export default function RecherchePage() {
           <div className="text-center py-12 text-gray-400">
             <span className="text-4xl block mb-3">🔍</span>
             <p className="text-sm font-semibold">Aucun résultat pour "{query}"</p>
-            <p className="text-xs mt-1">Essayez avec un autre mot</p>
+            <p className="text-base mt-1">Essayez avec un autre mot</p>
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-xs text-gray-400">{results.length} produit{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}</p>
+            <p className="text-base text-gray-400">{results.length} produit{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}</p>
             {grouped.map(([bid, prods]) => {
               const b = BOUCHERIES.find(x => x.id === bid)!
               return (
@@ -99,8 +99,8 @@ export default function RecherchePage() {
                     className="w-full flex items-center gap-2 px-4 py-2.5 bg-or-pale border-b border-gris-bd text-left"
                     onClick={() => router.push('/')}>
                     <span className="text-sm font-bold text-brun">{b.nom}</span>
-                    <span className="text-xs text-or">⭐ {b.note}</span>
-                    <span className="text-xs text-gray-400 ml-auto">Voir la boutique ›</span>
+                    <span className="text-base text-or">⭐ {b.note}</span>
+                    <span className="text-base text-gray-400 ml-auto">Voir la boutique ›</span>
                   </button>
                   {prods.map((p, i) => (
                     <div key={p.id} className={'flex items-center gap-3 p-3 ' + (i < prods.length - 1 ? 'border-b border-gris-bd' : '')}>
@@ -109,7 +109,7 @@ export default function RecherchePage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-brun text-sm truncate">{p.nom}</p>
-                        <p className="text-xs text-gray-400 truncate">{p.desc}</p>
+                        <p className="text-base text-gray-400 truncate">{p.desc}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm font-black text-rouge-vif">{p.prix.toFixed(2)} €</p>
@@ -132,3 +132,4 @@ export default function RecherchePage() {
     </div>
   )
 }
+

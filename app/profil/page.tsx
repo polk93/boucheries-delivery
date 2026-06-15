@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 
@@ -26,7 +26,7 @@ export default function ProfilPage() {
             <div className="w-20 h-20 rounded-full bg-brun text-white text-4xl flex items-center justify-center mx-auto mb-3">👤</div>
             <p className="font-serif text-xl font-black text-brun">Jean Dupont</p>
             <p className="text-sm text-gray-400">jean@email.fr</p>
-            <span className="inline-block mt-2 bg-gris-bd text-brun-clair text-xs font-semibold px-3 py-1 rounded-full">🛒 Client</span>
+            <span className="inline-block mt-2 bg-gris-bd text-brun-clair text-base font-semibold px-3 py-1 rounded-full">🛒 Client</span>
           </div>
 
           {/* Rows */}
@@ -37,7 +37,7 @@ export default function ProfilPage() {
               <span className="text-xl">{r.ico}</span>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-brun">{r.label}</p>
-                <p className="text-xs text-gray-400">{r.sub}</p>
+                <p className="text-base text-gray-400">{r.sub}</p>
               </div>
               <span className="text-gray-300">›</span>
             </div>
@@ -53,3 +53,4 @@ export default function ProfilPage() {
     </div>
   )
 }
+

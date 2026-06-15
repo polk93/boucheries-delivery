@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { useAuth } from '@/store/auth'
 
@@ -44,7 +44,7 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
 
         {/* Code */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <p className="text-xs font-bold text-brun">Votre code personnel</p>
+          <p className="text-base font-bold text-brun">Votre code personnel</p>
           <div className="bg-creme rounded-xl p-4 text-center border-2 border-dashed border-or/30">
             <p className="font-mono font-black text-brun text-2xl tracking-widest">{code}</p>
           </div>
@@ -56,11 +56,11 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
           <div className="flex gap-2">
             <a href={`https://wa.me/?text=${encodeURIComponent(`🥩 Commande chez ton boucher artisan avec BoucheriesDelivery ! -5€ avec mon code : ${lien}`)}`}
               target="_blank" rel="noopener noreferrer"
-              className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">
+              className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-base font-bold text-center no-underline font-sans">
               📱 WhatsApp
             </a>
             <a href={`sms:?body=${encodeURIComponent(`Essaie BoucheriesDelivery, -5€ avec mon code : ${lien}`)}`}
-              className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">
+              className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl text-base font-bold text-center no-underline font-sans">
               💬 SMS
             </a>
           </div>
@@ -83,7 +83,7 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
 
         {/* Règles */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-2">
-          <p className="text-xs font-bold text-brun">Comment ça marche</p>
+          <p className="text-base font-bold text-brun">Comment ça marche</p>
           {[
             ['1️⃣', 'Partagez votre lien ou code à un ami'],
             ['2️⃣', 'Votre ami crée son compte et commande'],
@@ -92,7 +92,7 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
           ].map(([ico, t]) => (
             <div key={t as string} className="flex items-start gap-2">
               <span className="flex-shrink-0">{ico}</span>
-              <p className="text-xs text-gray-500">{t}</p>
+              <p className="text-base text-gray-500">{t}</p>
             </div>
           ))}
         </div>
@@ -100,3 +100,4 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
     </div>
   )
 }
+

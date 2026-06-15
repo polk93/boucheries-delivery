@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
@@ -55,7 +55,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
         <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
           <div>
             <h2 className="font-serif text-lg font-black text-brun">🧾 Reçu {o.numero}</h2>
-            <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
+            <p className="text-base text-gray-400">{o.date} à {o.heure}</p>
           </div>
           <button
             className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center flex-shrink-0"
@@ -69,13 +69,13 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
             <span className="text-xl">✅</span>
             <div>
               <p className="text-sm font-bold text-green-700">Commande livrée avec succès</p>
-              <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
+              <p className="text-base text-gray-400">Créneau : {o.creneau}</p>
             </div>
           </div>
 
           {/* Infos boucherie & livraison */}
           <div className="bg-creme rounded-2xl p-4 space-y-1">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détails de la commande</p>
+            <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Détails de la commande</p>
             <div className="flex items-start gap-2">
               <span className="text-base">🔪</span>
               <div>
@@ -96,7 +96,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
 
           {/* Articles */}
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
+            <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
             <div className="bg-white border border-gris-bd rounded-2xl overflow-hidden">
               {o.items.map((item, i) => (
                 <div key={i} className={`px-4 py-3 ${i < o.items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
@@ -106,7 +106,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
                       <p className="text-[11px] text-or font-semibold mt-0.5">
                         ✂️ {item.decoupe} · {item.preparation}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">{item.qty} × {item.prix.toFixed(2)} €</p>
+                      <p className="text-base text-gray-400 mt-0.5">{item.qty} × {item.prix.toFixed(2)} €</p>
                     </div>
                     <p className="text-sm font-black text-brun flex-shrink-0 ml-3">
                       {(item.prix * item.qty).toFixed(2)} €
@@ -119,7 +119,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
 
           {/* Total */}
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total</p>
+            <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Total</p>
             <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
               <div className="flex justify-between text-sm text-gray-500">
                 <span>Sous-total</span>
@@ -221,7 +221,7 @@ export default function CommandesPage() {
                   <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd">
                     <div>
                       <p className="font-bold text-brun text-sm">{o.numero}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-base text-gray-400">
                         {new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
                     </div>
@@ -231,14 +231,14 @@ export default function CommandesPage() {
                   {/* Infos */}
                   <div className="px-4 py-3 border-b border-gris-bd">
                     <p className="text-sm font-semibold text-brun-clair mb-1">🔪 {o.boucherie}</p>
-                    <p className="text-xs text-or font-semibold">🕐 {o.creneau}</p>
+                    <p className="text-base text-or font-semibold">🕐 {o.creneau}</p>
                   </div>
 
                   {/* Articles résumé */}
                   <div className="px-4 py-3 border-b border-gris-bd">
                     <div className="flex flex-wrap gap-1.5">
                       {o.items.map((it, i) => (
-                        <span key={i} className="bg-creme text-brun text-xs px-2.5 py-1 rounded-lg flex items-center gap-1">
+                        <span key={i} className="bg-creme text-brun text-base px-2.5 py-1 rounded-lg flex items-center gap-1">
                           {it.icon} {it.nom} ×{it.qty}
                           <span className="text-or text-[10px]">✂️</span>
                         </span>
@@ -250,18 +250,18 @@ export default function CommandesPage() {
                   <div className="flex justify-between items-center px-4 py-3">
                     <div>
                       <p className="font-bold text-brun text-sm">{total.toFixed(2)} €</p>
-                      <p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
+                      <p className="text-base text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
                     </div>
                     <div className="flex gap-2">
                       {/* Voir le reçu */}
                       <button
-                        className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                        className="bg-or-pale border border-or/30 text-brun-clair text-base font-bold px-3 py-2 rounded-xl font-sans"
                         onClick={() => setRecuOpen(o)}>
                         🧾 Reçu
                       </button>
                       {/* Re-commander */}
                       <button
-                        className="bg-rouge-vif text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                        className="bg-rouge-vif text-white text-base font-bold px-3 py-2 rounded-xl font-sans"
                         onClick={() => router.push('/')}>
                         🔄 Re-commander
                       </button>
@@ -281,3 +281,4 @@ export default function CommandesPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
@@ -55,16 +55,16 @@ export default function AdminPage() {
       <div className="bg-brun px-4 py-3.5 flex justify-between items-center">
         <div>
           <h1 className="font-serif text-base font-bold text-or">⚙️ Administration</h1>
-          <p className="text-white/50 text-xs">BoucheriesDelivery · Vue globale</p>
+          <p className="text-white/50 text-base">BoucheriesDelivery · Vue globale</p>
         </div>
-        <button className="text-white/60 text-xs" onClick={() => router.push('/')}>← Retour</button>
+        <button className="text-white/60 text-base" onClick={() => router.push('/')}>← Retour</button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 px-4 py-3 overflow-x-auto scrollbar-none">
         {[['overview','📊 Vue d\'ensemble'],['bouchers','🔪 Bouchers'],['commandes','📦 Commandes'],['promos','🏷️ Promos']].map(([k,l]) => (
           <button key={k}
-            className={'px-3 py-1.5 rounded-xl text-xs font-bold font-sans whitespace-nowrap flex-shrink-0 ' + (tab === k ? 'bg-brun text-white' : 'bg-white text-gray-500')}
+            className={'px-3 py-1.5 rounded-xl text-base font-bold font-sans whitespace-nowrap flex-shrink-0 ' + (tab === k ? 'bg-brun text-white' : 'bg-white text-gray-500')}
             onClick={() => setTab(k as any)}>{l}</button>
         ))}
       </div>
@@ -86,7 +86,7 @@ export default function AdminPage() {
                 <div key={s.label} className="bg-white rounded-2xl p-3 shadow-sm">
                   <span className="text-xl block mb-1">{s.ico}</span>
                   <p className="font-black text-brun text-lg">{s.val}</p>
-                  <p className="text-xs text-gray-400">{s.label}</p>
+                  <p className="text-base text-gray-400">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -100,7 +100,7 @@ export default function AdminPage() {
                 <div key={c.id} className={'px-4 py-3 flex items-center justify-between ' + (i < COMMANDES_RECENTES.length-1 ? 'border-b border-gris-bd' : '')}>
                   <div>
                     <p className="text-sm font-bold text-brun">{c.id} · {c.client}</p>
-                    <p className="text-xs text-gray-400">{c.boucher} · {c.date}</p>
+                    <p className="text-base text-gray-400">{c.boucher} · {c.date}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-black text-brun">{c.total.toFixed(2)}€</p>
@@ -122,7 +122,7 @@ export default function AdminPage() {
                 <span className="text-2xl">{b.produits[0]?.icon || '🔪'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-brun truncate">{b.nom}</p>
-                  <p className="text-xs text-gray-400">⭐ {b.note} · {b.produits.length} produits</p>
+                  <p className="text-base text-gray-400">⭐ {b.note} · {b.produits.length} produits</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">✅ Actif</span>
@@ -136,7 +136,7 @@ export default function AdminPage() {
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between">
               <p className="font-bold text-brun text-sm">Toutes les commandes</p>
-              <span className="text-xs text-gray-400">{COMMANDES_RECENTES.length} aujourd'hui</span>
+              <span className="text-base text-gray-400">{COMMANDES_RECENTES.length} aujourd'hui</span>
             </div>
             {COMMANDES_RECENTES.map((c, i) => (
               <div key={c.id} className={'px-4 py-3 ' + (i < COMMANDES_RECENTES.length-1 ? 'border-b border-gris-bd' : '')}>
@@ -144,9 +144,9 @@ export default function AdminPage() {
                   <p className="text-sm font-bold text-brun">{c.id} · {c.client}</p>
                   <span className={'text-[10px] font-bold px-2 py-0.5 rounded-full ' + SC[c.status]}>{SL[c.status]}</span>
                 </div>
-                <p className="text-xs text-gray-400">{c.boucher} · {c.date}</p>
+                <p className="text-base text-gray-400">{c.boucher} · {c.date}</p>
                 <div className="flex justify-between mt-1">
-                  <p className="text-xs text-gray-400">Commission : <span className="font-bold text-brun">{(c.total * 0.15).toFixed(2)}€</span></p>
+                  <p className="text-base text-gray-400">Commission : <span className="font-bold text-brun">{(c.total * 0.15).toFixed(2)}€</span></p>
                   <p className="text-sm font-black text-brun">{c.total.toFixed(2)}€</p>
                 </div>
               </div>
@@ -170,8 +170,8 @@ export default function AdminPage() {
                       {p.actif ? 'Actif' : 'Inactif'}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400">{p.desc}</p>
-                  <p className="text-xs text-gray-300">{p.utilisations} utilisations</p>
+                  <p className="text-base text-gray-400">{p.desc}</p>
+                  <p className="text-base text-gray-300">{p.utilisations} utilisations</p>
                 </div>
                 <span className="text-lg font-black text-rouge-vif">{p.reduction}</span>
               </div>
@@ -185,3 +185,4 @@ export default function AdminPage() {
     </div>
   )
 }
+

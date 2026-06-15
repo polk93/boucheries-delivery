@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import type { Boucherie, Produit } from '@/lib/data'
 
@@ -31,7 +31,7 @@ function CarteViande({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => 
         : <div className="w-full h-24 bg-gris-bd flex items-center justify-center text-4xl">{p.icon}</div>
       }
       <div className="p-2.5 flex flex-col flex-1">
-        <p className="text-xs font-bold text-brun leading-tight">{p.nom}</p>
+        <p className="text-base font-bold text-brun leading-tight">{p.nom}</p>
         <p className="text-[10px] text-gray-400 mt-0.5 leading-tight flex-1">{p.desc}</p>
         <p className={`text-[10px] font-semibold mt-1 flex items-center gap-1 ${si.cls}`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${si.dot}`}/>{si.label}
@@ -62,7 +62,7 @@ function CartePiece({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
         {p.icon}
       </div>
       <div className="p-2.5 flex flex-col flex-1">
-        <p className="text-xs font-bold text-brun leading-tight">{p.nom}</p>
+        <p className="text-base font-bold text-brun leading-tight">{p.nom}</p>
         <p className="text-[10px] text-gray-400 mt-0.5 leading-tight flex-1">{p.desc}</p>
         <p className={`text-[10px] font-semibold mt-1 flex items-center gap-1 ${si.cls}`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${si.dot}`}/>{si.label}
@@ -92,7 +92,7 @@ function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
         <span className="absolute top-1.5 right-1.5 bg-or text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">⚖️</span>
       </div>
       <div className="p-2.5 flex flex-col flex-1">
-        <p className="text-xs font-bold text-brun leading-tight">{p.nom}</p>
+        <p className="text-base font-bold text-brun leading-tight">{p.nom}</p>
         <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">{p.desc}</p>
         <p className={`text-[10px] font-semibold mt-1 flex items-center gap-1 ${si.cls}`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${si.dot}`}/>{si.label}
@@ -103,13 +103,13 @@ function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
             <div className="flex items-center gap-1.5 mb-1">
               <button onClick={() => setG(q => Math.max(50, q - 50))}
                 className="w-6 h-6 rounded-full border border-or/40 text-brun-clair font-bold text-sm flex items-center justify-center font-sans">−</button>
-              <span className="flex-1 text-center font-bold text-brun text-xs">{g} g</span>
+              <span className="flex-1 text-center font-bold text-brun text-base">{g} g</span>
               <button onClick={() => setG(q => Math.min(1000, q + 50))}
                 className="w-6 h-6 rounded-full border border-or/40 text-brun-clair font-bold text-sm flex items-center justify-center font-sans">+</button>
             </div>
             <div className="flex justify-between">
               <span className="text-[10px] text-gray-400">{p.prix.toFixed(2)} €/kg</span>
-              <span className="text-xs font-bold text-rouge-vif">{(p.prix * g / 1000).toFixed(2)} €</span>
+              <span className="text-base font-bold text-rouge-vif">{(p.prix * g / 1000).toFixed(2)} €</span>
             </div>
           </div>
         )}
@@ -133,7 +133,7 @@ function SectionEntrees({ produits, onAdd, ouvert }: { produits: Produit[]; onAd
     <div className="space-y-4">
       {/* En-tête */}
       <div className="flex items-center gap-2 py-1.5">
-        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Entrées</span>
+        <span className="text-base font-bold text-gray-500 uppercase tracking-wider">Entrées</span>
         <div className="flex-1 h-px bg-gris-bd" />
         <span className="text-[10px] text-gray-400">{produits.length} produit{produits.length > 1 ? 's' : ''}</span>
       </div>
@@ -260,7 +260,7 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
               return (
                 <div key={espece}>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{espece}</span>
+                    <span className="text-base font-bold text-gray-500 uppercase tracking-wider">{espece}</span>
                     <div className="flex-1 h-px bg-gris-bd" />
                     <span className="text-[10px] text-gray-400">{prods.length} produit{prods.length > 1 ? 's' : ''}</span>
                   </div>
@@ -285,7 +285,7 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
           {ESPECES.includes(filtre as any) && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{filtre}</span>
+                <span className="text-base font-bold text-gray-500 uppercase tracking-wider">{filtre}</span>
                 <div className="flex-1 h-px bg-gris-bd" />
                 <span className="text-[10px] text-gray-400">{getProds(filtre).length} produit{getProds(filtre).length > 1 ? 's' : ''}</span>
               </div>
@@ -308,3 +308,4 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
     </div>
   )
 }
+

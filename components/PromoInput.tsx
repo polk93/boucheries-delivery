@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 
 interface PromoResult {
@@ -48,8 +48,8 @@ export default function PromoInput({ montant, onApply, onRemove, appliedPromo }:
   if (appliedPromo) return (
     <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center justify-between">
       <div>
-        <p className="text-xs font-bold text-green-700">🏷️ {appliedPromo.code}</p>
-        <p className="text-xs text-green-600">{appliedPromo.description}</p>
+        <p className="text-base font-bold text-green-700">🏷️ {appliedPromo.code}</p>
+        <p className="text-base text-green-600">{appliedPromo.description}</p>
         <p className="text-sm font-black text-green-700">-{appliedPromo.reduction.toFixed(2)} €</p>
       </div>
       <button className="text-gray-400 text-lg font-bold" onClick={onRemove}>✕</button>
@@ -73,7 +73,8 @@ export default function PromoInput({ montant, onApply, onRemove, appliedPromo }:
           {loading ? '⏳' : 'Appliquer'}
         </button>
       </div>
-      {error && <p className="text-xs text-rouge-vif font-semibold">{error}</p>}
+      {error && <p className="text-base text-rouge-vif font-semibold">{error}</p>}
     </div>
   )
 }
+

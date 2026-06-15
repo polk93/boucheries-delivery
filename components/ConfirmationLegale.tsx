@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 
 interface ConfirmationLegaleProps {
@@ -32,20 +32,20 @@ export default function ConfirmationLegale({
             <div key={i} className="flex justify-between items-start text-sm">
               <div className="flex-1">
                 <p className="font-semibold text-brun">{item.icon} {item.nom}</p>
-                <p className="text-xs text-gray-400">×{item.quantite} · {item.decoupe || 'Standard'}</p>
+                <p className="text-base text-gray-400">×{item.quantite} · {item.decoupe || 'Standard'}</p>
               </div>
               <span className="font-bold text-brun ml-2">{(item.prix * item.quantite).toFixed(2)} €</span>
             </div>
           ))}
           <div className="border-t border-gris-bd pt-2 space-y-1.5 mt-2">
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-base text-gray-500">
               <span>Sous-total</span><span>{sousTotal.toFixed(2)} €</span>
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-base text-gray-500">
               <span>Livraison</span><span>{frais === 0 ? 'Offerte' : frais.toFixed(2) + ' €'}</span>
             </div>
             {reduction > 0 && (
-              <div className="flex justify-between text-xs text-green-600 font-semibold">
+              <div className="flex justify-between text-base text-green-600 font-semibold">
                 <span>🏷️ Réduction</span><span>-{reduction.toFixed(2)} €</span>
               </div>
             )}
@@ -65,15 +65,15 @@ export default function ConfirmationLegale({
             {mode === 'livraison' ? 'Livraison à domicile' : 'Click & Collect'}
           </p>
           {adresse && mode === 'livraison' && (
-            <p className="text-xs text-gray-400">{adresse.rue}, {adresse.ville}</p>
+            <p className="text-base text-gray-400">{adresse.rue}, {adresse.ville}</p>
           )}
         </div>
       </div>
 
       {/* Politique retour */}
       <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-        <p className="text-xs font-bold text-brun mb-1">ℹ️ Droit de rétractation</p>
-        <p className="text-xs text-gray-500 leading-relaxed">
+        <p className="text-base font-bold text-brun mb-1">ℹ️ Droit de rétractation</p>
+        <p className="text-base text-gray-500 leading-relaxed">
           Conformément à l'article L.221-28 du Code de la consommation, les denrées alimentaires périssables
           sont exclues du droit de rétractation de 14 jours. En cas de problème de qualité,
           contactez-nous dans les 2h suivant la livraison.
@@ -85,9 +85,9 @@ export default function ConfirmationLegale({
         <label className="flex items-start gap-3 cursor-pointer">
           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${cguAccepted ? 'bg-brun border-brun' : 'border-gray-300'}`}
             onClick={() => setCguAccepted(v => !v)}>
-            {cguAccepted && <span className="text-white text-xs font-bold">✓</span>}
+            {cguAccepted && <span className="text-white text-base font-bold">✓</span>}
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-base text-gray-500 leading-relaxed">
             J'accepte les <span className="text-brun font-semibold underline">Conditions Générales de Vente</span> et la
             <span className="text-brun font-semibold underline"> Politique de confidentialité</span> de BoucheriesDelivery. *
           </p>
@@ -96,9 +96,9 @@ export default function ConfirmationLegale({
         <label className="flex items-start gap-3 cursor-pointer">
           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${ageChecked ? 'bg-brun border-brun' : 'border-gray-300'}`}
             onClick={() => setAgeChecked(v => !v)}>
-            {ageChecked && <span className="text-white text-xs font-bold">✓</span>}
+            {ageChecked && <span className="text-white text-base font-bold">✓</span>}
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-base text-gray-500 leading-relaxed">
             Je confirme être majeur(e) et avoir l'autorité pour effectuer cet achat. *
           </p>
         </label>
@@ -118,3 +118,4 @@ export default function ConfirmationLegale({
     </div>
   )
 }
+

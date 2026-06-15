@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useBoucherStore } from '@/store/boucherStore'
@@ -64,25 +64,25 @@ function ReturnContent() {
                 : 'Votre compte est prêt. Vous recevrez vos courses et paiements dès validation.'}
             </p>
             <div className="bg-or-pale border border-or/20 rounded-xl p-3 text-left">
-              <p className="text-xs font-bold text-brun mb-2">{isBoucher ? '💶 Répartition automatique' : '💶 Votre rémunération'}</p>
+              <p className="text-base font-bold text-brun mb-2">{isBoucher ? '💶 Répartition automatique' : '💶 Votre rémunération'}</p>
               {isBoucher ? (
                 <div className="space-y-1">
-                  <div className="flex justify-between text-xs"><span className="text-brun font-semibold">Vous (boucher)</span><span className="text-green-600 font-bold">85% des produits</span></div>
-                  <div className="flex justify-between text-xs"><span className="text-gray-400">Commission plateforme</span><span className="text-gray-400">15%</span></div>
-                  <div className="flex justify-between text-xs border-t border-gris-bd pt-1 mt-1"><span className="text-gray-400">Virement</span><span className="text-gray-400">Chaque lundi</span></div>
+                  <div className="flex justify-between text-base"><span className="text-brun font-semibold">Vous (boucher)</span><span className="text-green-600 font-bold">85% des produits</span></div>
+                  <div className="flex justify-between text-base"><span className="text-gray-400">Commission plateforme</span><span className="text-gray-400">15%</span></div>
+                  <div className="flex justify-between text-base border-t border-gris-bd pt-1 mt-1"><span className="text-gray-400">Virement</span><span className="text-gray-400">Chaque lundi</span></div>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <div className="flex justify-between text-xs"><span className="text-brun font-semibold">Frais de livraison</span><span className="text-green-600 font-bold">70%</span></div>
-                  <div className="flex justify-between text-xs"><span className="text-brun font-semibold">Pourboires</span><span className="text-green-600 font-bold">100%</span></div>
-                  <div className="flex justify-between text-xs border-t border-gris-bd pt-1 mt-1"><span className="text-gray-400">Virement</span><span className="text-gray-400">Chaque lundi</span></div>
+                  <div className="flex justify-between text-base"><span className="text-brun font-semibold">Frais de livraison</span><span className="text-green-600 font-bold">70%</span></div>
+                  <div className="flex justify-between text-base"><span className="text-brun font-semibold">Pourboires</span><span className="text-green-600 font-bold">100%</span></div>
+                  <div className="flex justify-between text-base border-t border-gris-bd pt-1 mt-1"><span className="text-gray-400">Virement</span><span className="text-gray-400">Chaque lundi</span></div>
                 </div>
               )}
             </div>
             <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-left space-y-1">
-              <p className="text-xs font-bold text-green-700">✅ Paiements activés</p>
-              <p className="text-xs font-bold text-green-700">✅ Virements activés</p>
-              <p className="text-xs text-gray-400">{info?.businessName || info?.email || accountId}</p>
+              <p className="text-base font-bold text-green-700">✅ Paiements activés</p>
+              <p className="text-base font-bold text-green-700">✅ Virements activés</p>
+              <p className="text-base text-gray-400">{info?.businessName || info?.email || accountId}</p>
             </div>
             <button className="w-full bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
               onClick={() => router.push(isBoucher ? '/panel' : '/')}>
@@ -97,8 +97,8 @@ function ReturnContent() {
             <h1 className="font-serif text-xl font-black text-brun">Vérification en cours</h1>
             <p className="text-sm text-gray-400 leading-relaxed">Stripe vérifie vos informations. Email de confirmation sous 24–48h.</p>
             <div className="bg-or-pale border border-or/20 rounded-xl p-3 text-left space-y-1">
-              <p className="text-xs text-gray-500">Paiements : {info?.chargesEnabled ? '✅' : '⏳'}</p>
-              <p className="text-xs text-gray-500">Virements  : {info?.payoutsEnabled ? '✅' : '⏳'}</p>
+              <p className="text-base text-gray-500">Paiements : {info?.chargesEnabled ? '✅' : '⏳'}</p>
+              <p className="text-base text-gray-500">Virements  : {info?.payoutsEnabled ? '✅' : '⏳'}</p>
             </div>
             <button className="w-full bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans" onClick={() => router.push('/')}>Retour</button>
           </>
@@ -124,3 +124,4 @@ export default function ConnectReturnPage() {
     </Suspense>
   )
 }
+

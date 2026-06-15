@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { usePanier, type PanierItem } from '@/store/panier'
 import { BOUCHERIES } from '@/lib/data'
@@ -28,7 +28,7 @@ function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => voi
         <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
           <div>
             <h3 className="font-serif text-base font-black text-brun">{item.icon} {item.nom}</h3>
-            <p className="text-xs text-gray-400">{item.boucherie_nom} · {item.prix.toFixed(2)} € / unité</p>
+            <p className="text-base text-gray-400">{item.boucherie_nom} · {item.prix.toFixed(2)} € / unité</p>
           </div>
           <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center flex-shrink-0" onClick={onClose}>✕</button>
         </div>
@@ -37,25 +37,25 @@ function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => voi
 
           {/* Quantité */}
           <div>
-            <p className="text-xs font-bold text-brun mb-2">Quantité</p>
+            <p className="text-base font-bold text-brun mb-2">Quantité</p>
             <div className="flex items-center gap-4">
               <button className="w-10 h-10 rounded-full border-2 border-rouge-vif text-rouge-vif text-xl font-bold flex items-center justify-center active:bg-rouge-vif active:text-white transition-colors"
                 onClick={() => setQuantite(q => Math.max(0, q - 1))}>−</button>
               <span className="text-xl font-black text-brun w-6 text-center">{quantite}</span>
               <button className="w-10 h-10 rounded-full border-2 border-brun text-brun text-xl font-bold flex items-center justify-center active:bg-brun active:text-white transition-colors"
                 onClick={() => setQuantite(q => q + 1)}>+</button>
-              {quantite === 0 && <span className="text-xs text-rouge-vif font-semibold">→ Sera supprimé</span>}
+              {quantite === 0 && <span className="text-base text-rouge-vif font-semibold">→ Sera supprimé</span>}
             </div>
           </div>
 
           {/* Découpe */}
           {produit?.decoupes && produit.decoupes.length > 0 && (
             <div>
-              <p className="text-xs font-bold text-brun mb-2">✂️ Découpe</p>
+              <p className="text-base font-bold text-brun mb-2">✂️ Découpe</p>
               <div className="flex flex-wrap gap-2">
                 {produit.decoupes.map(d => (
                   <button key={d}
-                    className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${decoupe === d ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                    className={`px-3 py-1.5 rounded-full border text-base font-semibold transition-all ${decoupe === d ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
                     onClick={() => setDecoupe(d)}>{d}</button>
                 ))}
               </div>
@@ -65,11 +65,11 @@ function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => voi
           {/* Préparation */}
           {produit?.preparation && produit.preparation.length > 0 && (
             <div>
-              <p className="text-xs font-bold text-brun mb-2">🌿 Préparation</p>
+              <p className="text-base font-bold text-brun mb-2">🌿 Préparation</p>
               <div className="flex flex-wrap gap-2">
                 {produit.preparation.map(pr => (
                   <button key={pr}
-                    className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${preparation === pr ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                    className={`px-3 py-1.5 rounded-full border text-base font-semibold transition-all ${preparation === pr ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
                     onClick={() => setPreparation(pr)}>{pr}</button>
                 ))}
               </div>
@@ -78,7 +78,7 @@ function EditItemModal({ item, onClose }: { item: PanierItem; onClose: () => voi
 
           {/* Note boucher */}
           <div>
-            <p className="text-xs font-bold text-brun mb-2">📝 Note pour le boucher</p>
+            <p className="text-base font-bold text-brun mb-2">📝 Note pour le boucher</p>
             <textarea
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none"
               rows={2}
@@ -161,7 +161,7 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
               <div className="text-center py-10 text-gray-400">
                 <span className="text-4xl block mb-3">🥩</span>
                 <p className="text-sm font-semibold">Votre panier est vide</p>
-                <p className="text-xs mt-1">Ajoutez des produits depuis une boucherie.</p>
+                <p className="text-base mt-1">Ajoutez des produits depuis une boucherie.</p>
               </div>
             ) : (
               <div className="space-y-0">
@@ -203,13 +203,13 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
                       <div className="flex items-center gap-2">
                         {/* Modifier (découpe/préparation/note) */}
                         <button
-                          className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg active:bg-or active:text-white transition-colors font-sans flex items-center gap-1"
+                          className="bg-or-pale border border-or/30 text-brun-clair text-base font-bold px-2.5 py-1.5 rounded-lg active:bg-or active:text-white transition-colors font-sans flex items-center gap-1"
                           onClick={() => setEditItem(item)}>
                           ✏️ Modifier
                         </button>
                         {/* Supprimer */}
                         <button
-                          className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg active:bg-red-100 transition-colors font-sans"
+                          className="bg-red-50 border border-red-200 text-red-400 text-base font-bold px-2.5 py-1.5 rounded-lg active:bg-red-100 transition-colors font-sans"
                           onClick={() => removeItem(item.cart_key)}>
                           🗑️
                         </button>
@@ -226,11 +226,11 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
             <div className="flex-shrink-0 px-5 py-4 border-t border-gris-bd bg-white">
               {/* Totaux */}
               <div className="space-y-1 mb-3">
-                <div className="flex justify-between text-xs text-gray-400">
+                <div className="flex justify-between text-base text-gray-400">
                   <span>Sous-total ({items.reduce((s, i) => s + i.quantite, 0)} articles)</span>
                   <span>{sousTotal().toFixed(2)} €</span>
                 </div>
-                <div className="flex justify-between text-xs text-gray-400">
+                <div className="flex justify-between text-base text-gray-400">
                   <span>Livraison</span>
                   <span>{frais === 0 ? 'Offerte' : `${frais.toFixed(2)} €`}</span>
                 </div>
@@ -256,3 +256,4 @@ export default function PanierMobile({ onClose, onCommander }: { onClose: () => 
     </>
   )
 }
+

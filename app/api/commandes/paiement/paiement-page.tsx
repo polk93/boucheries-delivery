@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loadStripe } from '@stripe/stripe-js'
@@ -58,7 +58,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: (id: str
       >
         {loading ? '⏳ Traitement…' : `🔒 Payer ${total.toFixed(2)} €`}
       </button>
-      <p className="text-center text-xs text-gray-400">🔒 Paiement sécurisé par Stripe · SSL 256 bits</p>
+      <p className="text-center text-base text-gray-400">🔒 Paiement sécurisé par Stripe · SSL 256 bits</p>
     </form>
   )
 }
@@ -162,14 +162,14 @@ export default function PaiementPage() {
                 <div>
                   <p className="text-sm font-semibold text-brun">{item.icon} {item.nom} ×{item.quantite}</p>
                   {item.decoupe && <p className="text-[11px] text-or font-semibold">✂️ {item.decoupe}{item.preparation ? ` · ${item.preparation}` : ''}</p>}
-                  <p className="text-xs text-gray-400">{item.boucherie_nom}</p>
+                  <p className="text-base text-gray-400">{item.boucherie_nom}</p>
                 </div>
                 <span className="text-sm font-bold text-brun">{(item.prix * item.quantite).toFixed(2)} €</span>
               </div>
             ))}
             <div className="mt-4 pt-3 border-t-2 border-brun">
-              <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span></div>
-              <div className="flex justify-between text-xs text-gray-400 mb-2"><span>Livraison</span><span>{frais.toFixed(2)} €</span></div>
+              <div className="flex justify-between text-base text-gray-400 mb-1"><span>Sous-total</span><span>{sousTotal().toFixed(2)} €</span></div>
+              <div className="flex justify-between text-base text-gray-400 mb-2"><span>Livraison</span><span>{frais.toFixed(2)} €</span></div>
               <div className="flex justify-between text-base font-black text-brun"><span>Total</span><span className="text-rouge-vif">{total.toFixed(2)} €</span></div>
             </div>
             <button onClick={() => setStep(1)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm mt-5 hover:bg-rouge-vif transition-colors font-sans">
@@ -183,23 +183,23 @@ export default function PaiementPage() {
           <div className="bg-white rounded-2xl p-5 shadow-sm">
             <h2 className="font-serif text-lg font-bold text-brun mb-4">📍 Adresse de livraison</h2>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div><label className="text-xs font-bold text-brun block mb-1">Prénom</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Prénom</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="Jean" value={adresse.prenom} onChange={e => setAdresse(a => ({ ...a, prenom: e.target.value }))} /></div>
-              <div><label className="text-xs font-bold text-brun block mb-1">Nom</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Nom</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="Dupont" value={adresse.nom} onChange={e => setAdresse(a => ({ ...a, nom: e.target.value }))} /></div>
             </div>
-            <div className="mb-3"><label className="text-xs font-bold text-brun block mb-1">Adresse</label>
+            <div className="mb-3"><label className="text-base font-bold text-brun block mb-1">Adresse</label>
               <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="12 rue de la Roquette" value={adresse.adresse} onChange={e => setAdresse(a => ({ ...a, adresse: e.target.value }))} /></div>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div><label className="text-xs font-bold text-brun block mb-1">Code postal</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Code postal</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="75011" value={adresse.cp} onChange={e => setAdresse(a => ({ ...a, cp: e.target.value }))} /></div>
-              <div><label className="text-xs font-bold text-brun block mb-1">Ville</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Ville</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="Paris" value={adresse.ville} onChange={e => setAdresse(a => ({ ...a, ville: e.target.value }))} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-              <div><label className="text-xs font-bold text-brun block mb-1">Étage / Bât.</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Étage / Bât.</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="3e étage" value={adresse.etage} onChange={e => setAdresse(a => ({ ...a, etage: e.target.value }))} /></div>
-              <div><label className="text-xs font-bold text-brun block mb-1">Interphone</label>
+              <div><label className="text-base font-bold text-brun block mb-1">Interphone</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brun font-sans" placeholder="DUPONT" value={adresse.interphone} onChange={e => setAdresse(a => ({ ...a, interphone: e.target.value }))} /></div>
             </div>
             <button onClick={() => setStep(2)} className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm hover:bg-rouge-vif transition-colors font-sans">Continuer →</button>
@@ -219,7 +219,7 @@ export default function PaiementPage() {
                 </div>
               ))}
             </div>
-            <div className="bg-or-pale rounded-xl p-3 text-xs text-brun-clair mb-5">
+            <div className="bg-or-pale rounded-xl p-3 text-base text-brun-clair mb-5">
               💡 La livraison programmée vous permet de recevoir votre commande au moment idéal, avec la même fraîcheur garantie.
             </div>
             <button onClick={createCommande} disabled={loading}
@@ -257,7 +257,7 @@ export default function PaiementPage() {
             >
               <CheckoutForm total={total} onSuccess={handlePaySuccess} />
             </Elements>
-            <p className="text-center text-xs text-gray-300 mt-3">
+            <p className="text-center text-base text-gray-300 mt-3">
               Carte test : 4242 4242 4242 4242 · 12/27 · 123
             </p>
           </div>
@@ -266,3 +266,4 @@ export default function PaiementPage() {
     </div>
   )
 }
+

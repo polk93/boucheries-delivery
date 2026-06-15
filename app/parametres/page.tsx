@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
@@ -111,11 +111,11 @@ export default function ParametresPage() {
             <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Non connecté'}</p>
             {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">DÉMO</span>}
           </div>
-          <p className="text-xs text-gray-400 truncate">
+          <p className="text-base text-gray-400 truncate">
             {user ? `${user.email} · ${isBoucher() ? 'Boucher' : 'Client'}` : 'Connectez-vous pour accéder à vos données'}
           </p>
         </div>
-        {user && <button className="bg-creme border border-gris-bd text-brun text-xs font-semibold px-3 py-1.5 rounded-xl flex-shrink-0" onClick={() => setSection('profil')}>Modifier</button>}
+        {user && <button className="bg-creme border border-gris-bd text-brun text-base font-semibold px-3 py-1.5 rounded-xl flex-shrink-0" onClick={() => setSection('profil')}>Modifier</button>}
       </div>
       <div className="px-4 mt-4 space-y-4 max-w-lg mx-auto">
         {sections.map(sec => (
@@ -129,7 +129,7 @@ export default function ParametresPage() {
                   <span className="text-xl flex-shrink-0">{item.ico}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-brun">{item.label}</p>
-                    <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+                    <p className="text-base text-gray-400 truncate">{item.sub}</p>
                   </div>
                   <span className="text-gray-300 text-base flex-shrink-0">›</span>
                 </button>
@@ -144,14 +144,14 @@ export default function ParametresPage() {
         ) : (
           <div className="bg-white rounded-2xl p-4 shadow-sm border-2 border-rouge-vif">
             <p className="font-bold text-brun text-sm text-center mb-1">Confirmer la déconnexion ?</p>
-            <p className="text-xs text-gray-400 text-center mb-4">Vous devrez vous reconnecter pour passer commande.</p>
+            <p className="text-base text-gray-400 text-center mb-4">Vous devrez vous reconnecter pour passer commande.</p>
             <div className="flex gap-3">
               <button className="flex-1 bg-gris-bd text-brun font-semibold py-2.5 rounded-xl text-sm font-sans" onClick={() => setLogoutConfirm(false)}>Annuler</button>
               <button className="flex-1 bg-rouge-vif text-white font-bold py-2.5 rounded-xl text-sm font-sans" onClick={() => { logout(); setLogoutConfirm(false); router.push('/') }}>Déconnecter</button>
             </div>
           </div>
         )}
-        <p className="text-center text-xs text-gray-300 pb-2">BoucherieDelivery v1.0.0</p>
+        <p className="text-center text-base text-gray-300 pb-2">BoucherieDelivery v1.0.0</p>
       </div>
       <BottomNavClient currentPage="settings" />
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
@@ -190,17 +190,17 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
     <PageWrapper title="👤 Mon profil" onBack={onBack}>
       <div className="text-center mb-5">
         <div className="w-16 h-16 rounded-full bg-brun text-white text-3xl flex items-center justify-center mx-auto mb-2">👤</div>
-        <button className="text-xs text-or font-semibold">Changer la photo</button>
+        <button className="text-base text-or font-semibold">Changer la photo</button>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
         {[['prenom', 'Prénom', 'Jean'], ['nom', 'Nom', 'Dupont'], ['email', 'Email', 'vous@email.fr'], ['tel', 'Téléphone', '+33 6 00 00 00 00']].map(([k, l, ph]) => (
           <div key={k}>
-            <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+            <label className="text-base font-bold text-brun block mb-1">{l}</label>
             <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brun font-sans"
               placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
           </div>
         ))}
-        {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
+        {saved && <p className="text-green-600 text-base font-semibold text-center">✅ Modifications enregistrées !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
           onClick={enregistrer}>Enregistrer</button>
       </div>
@@ -266,10 +266,10 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
                   <p className="font-bold text-brun text-sm">{a.label}</p>
                   {a.defaut && <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">Défaut</span>}
                 </div>
-                <p className="text-xs text-gray-500">{a.rue}</p>
-                <p className="text-xs text-gray-500">{a.cp} {a.ville}</p>
+                <p className="text-base text-gray-500">{a.rue}</p>
+                <p className="text-base text-gray-500">{a.cp} {a.ville}</p>
               </div>
-              <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-xl font-sans"
+              <button className="bg-red-50 border border-red-200 text-red-400 text-base font-bold px-2.5 py-1.5 rounded-xl font-sans"
                 onClick={() => {
                   setAdresses(prev => prev.filter(x => x.id !== a.id))
                   fetch(`/api/adresses?id=${a.id}`, { method: 'DELETE' }).catch(console.error)
@@ -282,13 +282,13 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
             <h3 className="font-serif font-bold text-brun text-base">Nouvelle adresse</h3>
             <div className="flex flex-wrap gap-2">
               {LABELS.map(l => (
-                <button key={l} className={`px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ${form.label === l ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                <button key={l} className={`px-3 py-1.5 rounded-full border text-base font-semibold font-sans ${form.label === l ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
                   onClick={() => setForm(f => ({ ...f, label: l }))}>{l}</button>
               ))}
             </div>
             {[['rue','Rue et numéro *','12 rue de la Roquette'],['complement','Complément','Bât. A, 3e étage…'],['cp','Code postal','75011'],['ville','Ville *','Paris']].map(([k,l,ph]) => (
               <div key={k}>
-                <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+                <label className="text-base font-bold text-brun block mb-1">{l}</label>
                 <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                   placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
               </div>
@@ -334,12 +334,12 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     <PageWrapper title="🔔 Notifications" onBack={onBack}>
       <div className="space-y-4">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Préférences</p></div>
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-base font-bold text-brun">Préférences</p></div>
           {items.map((item, i) => (
             <div key={item.key} className={`flex items-center gap-3 px-4 py-3.5 ${i < items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-brun">{item.label}</p>
-                <p className="text-xs text-gray-400">{item.sub}</p>
+                <p className="text-base text-gray-400">{item.sub}</p>
               </div>
               <button className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
                 onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
@@ -350,13 +350,13 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
         </div>
       {user?.isDemo && (
   <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
+    <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-base font-bold text-brun">Récentes</p></div>
     {NOTIFS_DEMO.map((n, i) => (
       <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
         <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
+          <p className="text-base text-gray-400 mt-0.5">{n.sub}</p>
           <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
         </div>
         {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
@@ -389,8 +389,8 @@ function FavorisSection({ onBack }: { onBack: () => void }) {
         ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">❤️</span><p className="text-sm">Aucune boucherie favorite pour l'instant.</p></div>
         : favoris.map(f => (
           <div key={f.id} className="bg-white rounded-2xl p-4 shadow-sm mb-3 flex items-center justify-between">
-            <div><p className="font-bold text-brun text-sm">{f.nom}</p><p className="text-xs text-or">⭐ {f.note}</p></div>
-            <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-xl font-sans" onClick={() => router.push('/')}>Commander</button>
+            <div><p className="font-bold text-brun text-sm">{f.nom}</p><p className="text-base text-or">⭐ {f.note}</p></div>
+            <button className="bg-brun text-white text-base font-bold px-3 py-1.5 rounded-xl font-sans" onClick={() => router.push('/')}>Commander</button>
           </div>
         ))
       }
@@ -420,7 +420,7 @@ function CommandesSection({ onBack }: { onBack: () => void }) {
         {data.length > 0 && (
           <div className="flex gap-2">
             {(['toutes','encours','livrees'] as const).map((v) => (
-              <button key={v} className={'flex-1 py-2 rounded-xl text-xs font-bold font-sans border transition-all ' + (filtre === v ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gris-bd')}
+              <button key={v} className={'flex-1 py-2 rounded-xl text-base font-bold font-sans border transition-all ' + (filtre === v ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gris-bd')}
                 onClick={() => setFiltre(v)}>{v === 'toutes' ? 'Toutes' : v === 'encours' ? 'En cours' : 'Livrées'}</button>
             ))}
           </div>
@@ -430,26 +430,26 @@ function CommandesSection({ onBack }: { onBack: () => void }) {
           : filtered.map(o => (
             <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-center">
-                <div><span className="font-black text-brun text-sm">{o.id}</span><span className="text-gray-400 text-xs ml-2">{new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
+                <div><span className="font-black text-brun text-sm">{o.id}</span><span className="text-gray-400 text-base ml-2">{new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
                 <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + (o.status === 'done' ? 'bg-gray-100 text-gray-500' : o.status === 'delivery' ? 'bg-orange-100 text-orange-600' : o.status === 'ready' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600')}>
                   {o.status === 'done' ? '✅ Livrée' : o.status === 'delivery' ? '🛵 En livraison' : o.status === 'ready' ? '📦 Prête' : '🔪 En préparation'}
                 </span>
               </div>
               <div className="px-4 py-3 border-b border-gris-bd">
-                <p className="text-xs font-semibold text-brun-clair mb-1">🔪 {o.boucherie} · {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}</p>
-                <p className="text-xs text-or mb-2">🕐 {o.creneau}</p>
+                <p className="text-base font-semibold text-brun-clair mb-1">🔪 {o.boucherie} · {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}</p>
+                <p className="text-base text-or mb-2">🕐 {o.creneau}</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {o.items.map((it, i) => <span key={i} className="bg-creme text-brun text-xs px-2.5 py-1 rounded-lg">{it.icon} {it.nom} ×{it.qty}</span>)}
+                  {o.items.map((it, i) => <span key={i} className="bg-creme text-brun text-base px-2.5 py-1 rounded-lg">{it.icon} {it.nom} ×{it.qty}</span>)}
                 </div>
-                {o.status === 'delivery' && <div className="bg-or-pale border border-or/20 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">🛵</span><div><p className="text-xs font-bold text-brun">Votre livreur est en route</p><p className="text-[10px] text-gray-400">Arrivée estimée dans ~8 min</p></div></div>}
-                {o.status === 'ready' && <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">✅</span><div><p className="text-xs font-bold text-green-700">Votre commande est prête !</p><p className="text-[10px] text-gray-400">Présentez le {o.id} en caisse</p></div></div>}
+                {o.status === 'delivery' && <div className="bg-or-pale border border-or/20 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">🛵</span><div><p className="text-base font-bold text-brun">Votre livreur est en route</p><p className="text-[10px] text-gray-400">Arrivée estimée dans ~8 min</p></div></div>}
+                {o.status === 'ready' && <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">✅</span><div><p className="text-base font-bold text-green-700">Votre commande est prête !</p><p className="text-[10px] text-gray-400">Présentez le {o.id} en caisse</p></div></div>}
               </div>
               <div className="px-4 py-3 flex justify-between items-center">
-                <div><p className="font-bold text-brun text-sm">{o.total.toFixed(2)} €</p><p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p></div>
+                <div><p className="font-bold text-brun text-sm">{o.total.toFixed(2)} €</p><p className="text-base text-gray-400">dont {o.frais.toFixed(2)} € livraison</p></div>
                 <div className="flex gap-2">
-                  {o.status === 'delivery' && <button className="bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push(`/suivi?numero=${o.id}`)}>🗺️ Suivre</button>}
-                  {o.status === 'ready' && <button className="bg-green-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🗺️ Y aller</button>}
-                  <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🔄 Re-commander</button>
+                  {o.status === 'delivery' && <button className="bg-blue-500 text-white text-base font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push(`/suivi?numero=${o.id}`)}>🗺️ Suivre</button>}
+                  {o.status === 'ready' && <button className="bg-green-500 text-white text-base font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🗺️ Y aller</button>}
+                  <button className="bg-or-pale border border-or/30 text-brun-clair text-base font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🔄 Re-commander</button>
                 </div>
               </div>
             </div>
@@ -476,14 +476,14 @@ function AvisSection({ onBack }: { onBack: () => void }) {
             {avis.map(a => (
               <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-start mb-1">
-                  <div><p className="font-bold text-brun text-sm">{a.boucherie}</p><p className="text-xs text-gray-400">{a.produit}</p></div>
+                  <div><p className="font-bold text-brun text-sm">{a.boucherie}</p><p className="text-base text-gray-400">{a.produit}</p></div>
                   <div className="flex items-center gap-2">
                     <span className="text-or text-sm">{'⭐'.repeat(a.note)}</span>
-                    <button className="text-gray-300 text-xs" onClick={() => setAvis(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
+                    <button className="text-gray-300 text-base" onClick={() => setAvis(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">{a.texte}</p>
-                <p className="text-xs text-gray-300 mt-2">{new Date(a.date).toLocaleDateString('fr-FR')}</p>
+                <p className="text-base text-gray-300 mt-2">{new Date(a.date).toLocaleDateString('fr-FR')}</p>
               </div>
             ))}
           </div>
@@ -531,14 +531,14 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
         {/* Bloc commissions */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-            <p className="text-xs font-bold text-brun">💰 Commissions BoucheriesDelivery</p>
+            <p className="text-base font-bold text-brun">💰 Commissions BoucheriesDelivery</p>
           </div>
           {commissions.map((c, i) => (
             <div key={c.label} className={'flex items-center gap-3 px-4 py-3 ' + (i < commissions.length - 1 ? 'border-b border-gris-bd' : '')}>
               <span className="text-xl flex-shrink-0">{c.ico}</span>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-brun">{c.label}</p>
-                <p className="text-xs text-gray-400">{c.desc}</p>
+                <p className="text-base text-gray-400">{c.desc}</p>
               </div>
               <span className="text-sm font-black text-brun">{c.taux}</span>
             </div>
@@ -550,8 +550,8 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
           ? <div className="bg-white rounded-2xl p-5 shadow-sm text-center"><span className="text-4xl block mb-3">💳</span><p className="font-bold text-brun text-sm mb-1">Aucune carte enregistrée</p></div>
           : cartes.map(c => (
             <div key={c.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
-              <div className="w-12 h-8 bg-gradient-to-br from-brun to-brun-clair rounded-lg flex items-center justify-center text-white text-xs font-bold">{c.type === 'Visa' ? 'VISA' : 'MC'}</div>
-              <div className="flex-1"><p className="font-bold text-brun text-sm">{c.type} •••• {c.last4}</p><p className="text-xs text-gray-400">Expire {c.expiry}</p></div>
+              <div className="w-12 h-8 bg-gradient-to-br from-brun to-brun-clair rounded-lg flex items-center justify-center text-white text-base font-bold">{c.type === 'Visa' ? 'VISA' : 'MC'}</div>
+              <div className="flex-1"><p className="font-bold text-brun text-sm">{c.type} •••• {c.last4}</p><p className="text-base text-gray-400">Expire {c.expiry}</p></div>
               <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => prev.filter(x => x.id !== c.id))}>🗑️</button>
             </div>
           ))
@@ -562,25 +562,25 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
             <h3 className="font-serif font-bold text-brun text-base">Nouvelle carte</h3>
             {[['numero','Numéro','1234 5678 9012 3456'],['titulaire','Titulaire','JEAN DUPONT']].map(([k,l,ph]) => (
               <div key={k}>
-                <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+                <label className="text-base font-bold text-brun block mb-1">{l}</label>
                 <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors[k] ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
                   placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
-                {errors[k] && <p className="text-red-500 text-xs mt-0.5">{errors[k]}</p>}
+                {errors[k] && <p className="text-red-500 text-base mt-0.5">{errors[k]}</p>}
               </div>
             ))}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-brun block mb-1">Expiration</label>
+                <label className="text-base font-bold text-brun block mb-1">Expiration</label>
                 <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors.expiry ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
                   placeholder="MM/AA" maxLength={5} value={form.expiry}
                   onChange={e => { let v = e.target.value.replace(/\D/g,'').slice(0,4); if(v.length>=2) v=v.slice(0,2)+'/'+v.slice(2); setForm(f => ({...f, expiry: v})) }} />
-                {errors.expiry && <p className="text-red-500 text-xs mt-0.5">{errors.expiry}</p>}
+                {errors.expiry && <p className="text-red-500 text-base mt-0.5">{errors.expiry}</p>}
               </div>
               <div>
-                <label className="text-xs font-bold text-brun block mb-1">CVV</label>
+                <label className="text-base font-bold text-brun block mb-1">CVV</label>
                 <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors.cvv ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
                   placeholder="•••" maxLength={4} type="password" value={form.cvv} onChange={e => setForm(f => ({...f, cvv: e.target.value.replace(/\D/g,'').slice(0,4)}))} />
-                {errors.cvv && <p className="text-red-500 text-xs mt-0.5">{errors.cvv}</p>}
+                {errors.cvv && <p className="text-red-500 text-base mt-0.5">{errors.cvv}</p>}
               </div>
             </div>
             <div className="flex gap-3">
@@ -590,7 +590,7 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
           </div>
         )}
         <div className="bg-or-pale rounded-2xl p-3 border border-or/20">
-          <p className="text-xs text-brun-clair leading-relaxed">🔒 <strong>Paiement sécurisé par Stripe.</strong> Vos coordonnées bancaires ne sont jamais stockées sur nos serveurs.</p>
+          <p className="text-base text-brun-clair leading-relaxed">🔒 <strong>Paiement sécurisé par Stripe.</strong> Vos coordonnées bancaires ne sont jamais stockées sur nos serveurs.</p>
         </div>
       </div>
     </PageWrapper>
@@ -611,10 +611,10 @@ function SupportSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-4">
         <div className="bg-brun rounded-2xl p-4 text-center">
           <p className="text-white font-bold text-sm mb-1">Besoin d'aide immédiate ?</p>
-          <p className="text-white/60 text-xs mb-3">Réponse sous 2h en jours ouvrés</p>
+          <p className="text-white/60 text-base mb-3">Réponse sous 2h en jours ouvrés</p>
           <div className="flex gap-2 justify-center">
-            <a href="mailto:boucheriesdelivery@gmail.com" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
-            <a href="tel:+33650290212" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
+            <a href="mailto:boucheriesdelivery@gmail.com" className="bg-or text-brun text-base font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
+            <a href="tel:+33650290212" className="bg-white/20 text-white text-base font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -654,7 +654,7 @@ function ContactSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-4">
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <div>
-            <label className="text-xs font-bold text-brun block mb-2">Sujet</label>
+            <label className="text-base font-bold text-brun block mb-2">Sujet</label>
             <div className="space-y-1.5">
               {sujets.map(s => (
                 <label key={s.val} className={`flex items-center gap-3 p-2.5 rounded-xl border-2 cursor-pointer ${form.sujet === s.val ? 'border-brun bg-or-pale' : 'border-gray-100'}`}>
@@ -668,10 +668,10 @@ function ContactSection({ onBack }: { onBack: () => void }) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="text-xs font-bold text-brun block mb-1">Nom</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="Votre nom" value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} /></div>
-            <div><label className="text-xs font-bold text-brun block mb-1">Email</label><input type="email" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="vous@email.fr" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
+            <div><label className="text-base font-bold text-brun block mb-1">Nom</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="Votre nom" value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} /></div>
+            <div><label className="text-base font-bold text-brun block mb-1">Email</label><input type="email" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder="vous@email.fr" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
           </div>
-          <div><label className="text-xs font-bold text-brun block mb-1">Message</label><textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={4} placeholder="Décrivez votre demande…" value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} /></div>
+          <div><label className="text-base font-bold text-brun block mb-1">Message</label><textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={4} placeholder="Décrivez votre demande…" value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} /></div>
           <button className="w-full bg-rouge-vif text-white py-3 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.nom || !form.email || !form.message} onClick={() => setSent(true)}>✉️ Envoyer</button>
         </div>
       </div>
@@ -683,7 +683,7 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="🔒 Confidentialité" onBack={onBack}>
       <div className="space-y-3">
-        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-base text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
           { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : boucheriesdelivery@gmail.com" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
@@ -692,7 +692,7 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
-            <p className="text-xs text-gray-500 leading-relaxed">{s.c}</p>
+            <p className="text-base text-gray-500 leading-relaxed">{s.c}</p>
           </div>
         ))}
       </div>
@@ -704,7 +704,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="📋 CGU" onBack={onBack}>
       <div className="space-y-3">
-        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026</p></div>
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-base text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026</p></div>
         {[
           { t: "1. Objet", c: "Les CGU régissent l'utilisation de BoucherieDelivery." },
           { t: "2. Description du service", c: "Marketplace mettant en relation consommateurs et boucheries artisanales." },
@@ -715,7 +715,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
-            <p className="text-xs text-gray-500 leading-relaxed">{s.c}</p>
+            <p className="text-base text-gray-500 leading-relaxed">{s.c}</p>
           </div>
         ))}
       </div>
@@ -727,19 +727,19 @@ function DocUpload({ label, sublabel, required, file, onChange }: { label: strin
   return (
     <div>
       <div className="flex items-start justify-between mb-1">
-        <div><label className="text-xs font-bold text-brun">{label} {required && <span className="text-rouge-vif">*</span>}</label><p className="text-[10px] text-gray-400">{sublabel}</p></div>
+        <div><label className="text-base font-bold text-brun">{label} {required && <span className="text-rouge-vif">*</span>}</label><p className="text-[10px] text-gray-400">{sublabel}</p></div>
         {file && <span className="text-green-500 text-sm ml-2">✅</span>}
       </div>
       {file ? (
         <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5">
           <span className="text-green-600 text-sm">📄</span>
-          <span className="text-xs text-green-700 font-semibold flex-1 truncate">{file.name}</span>
-          <button className="text-gray-400 text-xs font-sans" onClick={() => onChange(null)}>✕</button>
+          <span className="text-base text-green-700 font-semibold flex-1 truncate">{file.name}</span>
+          <button className="text-gray-400 text-base font-sans" onClick={() => onChange(null)}>✕</button>
         </div>
       ) : (
         <label className="flex items-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-3 py-3 cursor-pointer hover:border-brun transition-all">
           <span className="text-xl">📎</span>
-          <span className="text-xs text-gray-400 font-semibold">Choisir un fichier (PDF, JPG, PNG)</span>
+          <span className="text-base text-gray-400 font-semibold">Choisir un fichier (PDF, JPG, PNG)</span>
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => onChange(e.target.files?.[0] || null)} />
         </label>
       )}
@@ -783,12 +783,12 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
   if (step === 'info') return (
     <PageWrapper title="🛵 Devenir livreur" onBack={onBack}>
       <div className="space-y-4">
-        <div className="bg-brun rounded-2xl p-5 text-center"><span className="text-4xl block mb-2">🛵</span><h2 className="font-serif text-lg font-black text-or mb-1">Livrez à votre rythme</h2><p className="text-white/70 text-xs">Gagnez un revenu flexible en livrant des produits artisanaux.</p></div>
+        <div className="bg-brun rounded-2xl p-5 text-center"><span className="text-4xl block mb-2">🛵</span><h2 className="font-serif text-lg font-black text-or mb-1">Livrez à votre rythme</h2><p className="text-white/70 text-base">Gagnez un revenu flexible en livrant des produits artisanaux.</p></div>
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <p className="font-bold text-brun text-sm mb-3">🧮 Simulateur de revenus</p>
           <div className="space-y-3">
-            <div><div className="flex justify-between mb-1"><label className="text-xs text-brun font-semibold">Heures / jour</label><span className="text-xs font-black text-brun">{hParJour}h</span></div><input type="range" min="1" max="10" step="0.5" value={hParJour} className="w-full accent-brun" onChange={e => setHParJour(parseFloat(e.target.value))} /></div>
-            <div><div className="flex justify-between mb-1"><label className="text-xs text-brun font-semibold">Jours / semaine</label><span className="text-xs font-black text-brun">{joursParSemaine}j</span></div><input type="range" min="1" max="7" step="1" value={joursParSemaine} className="w-full accent-brun" onChange={e => setJours(parseInt(e.target.value))} /></div>
+            <div><div className="flex justify-between mb-1"><label className="text-base text-brun font-semibold">Heures / jour</label><span className="text-base font-black text-brun">{hParJour}h</span></div><input type="range" min="1" max="10" step="0.5" value={hParJour} className="w-full accent-brun" onChange={e => setHParJour(parseFloat(e.target.value))} /></div>
+            <div><div className="flex justify-between mb-1"><label className="text-base text-brun font-semibold">Jours / semaine</label><span className="text-base font-black text-brun">{joursParSemaine}j</span></div><input type="range" min="1" max="7" step="1" value={joursParSemaine} className="w-full accent-brun" onChange={e => setJours(parseInt(e.target.value))} /></div>
             <div className="bg-creme rounded-xl p-3"><div className="flex justify-between text-sm font-black text-brun"><span>Revenu net estimé</span><span className="text-green-600">{revenus_net.toFixed(0)} €/mois</span></div></div>
           </div>
         </div>
@@ -806,7 +806,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
         {sacIsotherme === null && (
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
             <p className="text-sm font-bold text-brun">🧊 Avez-vous un sac isotherme ?</p>
-            <p className="text-xs text-gray-400">Obligatoire pour maintenir la chaîne du froid lors des livraisons.</p>
+            <p className="text-base text-gray-400">Obligatoire pour maintenir la chaîne du froid lors des livraisons.</p>
             <div className="flex gap-3">
               <button
                 className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 text-sm font-bold font-sans"
@@ -826,16 +826,16 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
         {sacIsotherme === 'non' && (
           <div className="space-y-3">
             <div className="bg-or-pale border border-or/20 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-bold text-brun">🛒 Commandez votre sac isotherme</p>
-              <p className="text-xs text-gray-500 leading-relaxed">Un sac isotherme est obligatoire pour livrer des produits de boucherie. Commandez-en un sur Amazon avant de vous inscrire.</p>
+              <p className="text-base font-bold text-brun">🛒 Commandez votre sac isotherme</p>
+              <p className="text-base text-gray-500 leading-relaxed">Un sac isotherme est obligatoire pour livrer des produits de boucherie. Commandez-en un sur Amazon avant de vous inscrire.</p>
               <a href="https://www.amazon.fr/s?k=sac+isotherme+livraison+professionnel&rh=p_36%3A1000-2000"
                 target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full bg-or text-brun font-bold py-3 rounded-xl text-sm no-underline font-sans">
                 🛒 Voir les sacs isothermes sur Amazon →
               </a>
-              <p className="text-xs text-gray-400 text-center">Environ 15-20€ · Livraison en 1-2 jours</p>
+              <p className="text-base text-gray-400 text-center">Environ 15-20€ · Livraison en 1-2 jours</p>
             </div>
-            <button className="w-full text-xs text-gray-400 font-sans py-2"
+            <button className="w-full text-base text-gray-400 font-sans py-2"
               onClick={() => setSacIsotherme(null)}>← Retour</button>
           </div>
         )}
@@ -860,7 +860,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
               className="flex items-center justify-center gap-2 w-full bg-brun text-white font-bold py-4 rounded-2xl text-sm no-underline font-sans">
               🛵 S'inscrire comme livreur Stuart →
             </a>
-            <button className="w-full text-xs text-gray-400 font-sans py-2"
+            <button className="w-full text-base text-gray-400 font-sans py-2"
               onClick={() => setSacIsotherme(null)}>← Retour</button>
           </div>
         )}
@@ -898,11 +898,11 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   if (step === 'info') return (
     <PageWrapper title="🔪 Devenir partenaire" onBack={onBack}>
       <div className="space-y-4">
-        <div className="bg-brun rounded-2xl p-5 text-center"><span className="text-4xl block mb-2">🔪</span><h2 className="font-serif text-lg font-black text-or mb-1">Rejoignez le réseau</h2><p className="text-white/70 text-xs">Développez votre CA sans changer votre façon de travailler.</p></div>
+        <div className="bg-brun rounded-2xl p-5 text-center"><span className="text-4xl block mb-2">🔪</span><h2 className="font-serif text-lg font-black text-or mb-1">Rejoignez le réseau</h2><p className="text-white/70 text-base">Développez votre CA sans changer votre façon de travailler.</p></div>
         <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2">
           <p className="font-bold text-green-700 text-sm">🎉 Inscription 100% gratuite</p>
-          <p className="text-xs text-green-700">✓ Aucun abonnement, aucun frais cachés</p>
-          <p className="text-xs text-green-700">✓ Commission uniquement sur les commandes réalisées</p>
+          <p className="text-base text-green-700">✓ Aucun abonnement, aucun frais cachés</p>
+          <p className="text-base text-green-700">✓ Commission uniquement sur les commandes réalisées</p>
         </div>
         <button className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans" onClick={() => setStep('form')}>🤝 Je veux rejoindre →</button>
       </div>
@@ -914,26 +914,27 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-4">
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Votre boucherie</h3>
-          {[['nom_boutique','Nom de la boucherie *','Boucherie Dupont'],['adresse','Adresse *','12 rue du Marché'],['ville','Ville *','Paris'],['specialites','Spécialités','Charolais, Wagyu…']].map(([k,l,ph]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
+          {[['nom_boutique','Nom de la boucherie *','Boucherie Dupont'],['adresse','Adresse *','12 rue du Marché'],['ville','Ville *','Paris'],['specialites','Spécialités','Charolais, Wagyu…']].map(([k,l,ph]) => <div key={k}><label className="text-base font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
           <div>
-            <label className="text-xs font-bold text-brun block mb-1">SIRET *</label>
+            <label className="text-base font-bold text-brun block mb-1">SIRET *</label>
             <div className="relative"><input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none font-mono pr-8 ${form.siret ? (siretOk ? 'border-green-400' : 'border-rouge-vif') : 'border-gray-200 focus:border-brun'}`} placeholder="123 456 789 00012" value={form.siret} onChange={e => setForm(f=>({...f,siret:e.target.value}))} />{form.siret && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">{siretOk ? '✅' : '❌'}</span>}</div>
           </div>
-          <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p></div>
+          <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-base font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-base text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p></div>
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
           <DocUpload label="📄 Kbis ou justificatif SIRET" sublabel="Extrait Kbis ou avis INSEE" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
         </div>
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Vos coordonnées</h3>
-          <div className="grid grid-cols-2 gap-3">{[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l} *</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}</div>
-          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00']].map(([k,l,ph]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
+          <div className="grid grid-cols-2 gap-3">{[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => <div key={k}><label className="text-base font-bold text-brun block mb-1">{l} *</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}</div>
+          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00']].map(([k,l,ph]) => <div key={k}><label className="text-base font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
         </div>
         <button className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.nom_boutique||!form.prenom||!form.email||!form.tel||!form.ville||!siretOk||!docs.siret_doc||loading} onClick={soumettre}>
           {loading ? '⏳ Envoi…' : '🤝 Envoyer ma candidature'}
         </button>
-        {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}
+        {error && <p className="text-center text-base text-rouge-vif">{error}</p>}
       </div>
     </PageWrapper>
   )
 }
+

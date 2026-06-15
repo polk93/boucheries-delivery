@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useRef } from 'react'
 
 interface EmailVerifyProps {
@@ -63,7 +63,7 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
         <div className="text-center">
           <span className="text-4xl block mb-2">📧</span>
           <h2 className="font-serif text-lg font-black text-brun">Vérifiez votre email</h2>
-          <p className="text-xs text-gray-400 mt-1">Nous devons vérifier <strong>{email}</strong></p>
+          <p className="text-base text-gray-400 mt-1">Nous devons vérifier <strong>{email}</strong></p>
         </div>
 
         {!sent ? (
@@ -81,7 +81,7 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
           <>
             <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
               <p className="text-sm text-green-700 font-semibold">✅ Code envoyé à {email}</p>
-              <p className="text-xs text-green-600 mt-0.5">Vérifiez votre boîte mail (et vos spams)</p>
+              <p className="text-base text-green-600 mt-0.5">Vérifiez votre boîte mail (et vos spams)</p>
             </div>
             <div>
               <input
@@ -93,13 +93,13 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
                 onChange={e => { setCode(e.target.value.replace(/\D/g, '')); setError('') }}
                 onKeyDown={e => e.key === 'Enter' && verifier()}
               />
-              {error && <p className="text-xs text-rouge-vif mt-1.5 text-center font-semibold">{error}</p>}
+              {error && <p className="text-base text-rouge-vif mt-1.5 text-center font-semibold">{error}</p>}
             </div>
             <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans disabled:bg-gray-300"
               onClick={verifier} disabled={loading || code.length !== 6}>
               {loading ? '⏳ Vérification…' : '✅ Confirmer'}
             </button>
-            <button className="w-full text-xs text-or font-semibold font-sans" onClick={envoyer} disabled={loading}>
+            <button className="w-full text-base text-or font-semibold font-sans" onClick={envoyer} disabled={loading}>
               🔄 Renvoyer le code
             </button>
           </>
@@ -108,3 +108,4 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
     </div>
   )
 }
+

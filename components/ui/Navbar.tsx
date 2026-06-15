@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 // components/ui/Navbar.tsx
 import { RefObject } from 'react'
 
@@ -19,7 +19,7 @@ export default function Navbar({ searchRef, searchQuery, setSearchQuery, setSear
         <span className="font-serif text-xl font-black text-or cursor-pointer whitespace-nowrap">
           Bouche<span className="text-white">rie</span>
         </span>
-        <button className="flex items-center gap-1 bg-white/10 border border-white/20 rounded-lg px-2.5 py-1.5 text-white text-xs cursor-pointer whitespace-nowrap">
+        <button className="flex items-center gap-1 bg-white/10 border border-white/20 rounded-lg px-2.5 py-1.5 text-white text-base cursor-pointer whitespace-nowrap">
           📍 Paris 11e ▾
         </button>
         <div ref={searchRef} className="flex-1 flex items-center bg-white/12 border border-white/20 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-or/50">
@@ -48,3 +48,4 @@ export default function Navbar({ searchRef, searchQuery, setSearchQuery, setSear
     </header>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { BOUCHERIES } from '@/lib/data'
@@ -69,15 +69,15 @@ function ConfirmationContent() {
             {isLivraison ? 'Un livreur Stuart prend en charge votre commande.' : 'Votre boucherie prépare tout pour vous.'}
           </p>
           <div className="bg-creme rounded-2xl px-4 py-3 inline-block">
-            <p className="text-xs text-gray-400 mb-0.5">Numéro de commande</p>
+            <p className="text-base text-gray-400 mb-0.5">Numéro de commande</p>
             <p className="font-serif text-2xl font-black text-brun">{numero}</p>
-            <p className="text-xs text-gray-400 mt-0.5">À présenter en caisse</p>
+            <p className="text-base text-gray-400 mt-0.5">À présenter en caisse</p>
           </div>
         </div>
 
         {/* Infos retrait */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+          <p className="text-base font-bold text-gray-400 uppercase tracking-wider">
             {isLivraison ? 'Détails de livraison' : 'Détails du retrait'}
           </p>
 
@@ -89,7 +89,7 @@ function ConfirmationContent() {
               <p className="text-sm font-bold text-brun">
                 {isLivraison ? 'Livraison Stuart' : boucherie?.nom || 'Votre boucherie'}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-base text-gray-400 mt-0.5">
                 {isLivraison ? 'Un livreur professionnel prend en charge votre commande' : infos.adresse}
               </p>
             </div>
@@ -100,7 +100,7 @@ function ConfirmationContent() {
               <span className="text-2xl flex-shrink-0">📱</span>
               <div>
                 <p className="text-sm font-bold text-blue-700">Suivi en temps réel</p>
-                <p className="text-xs text-gray-400 mt-0.5">Vous recevrez un SMS avec le lien de suivi Stuart dès qu'un livreur est assigné.</p>
+                <p className="text-base text-gray-400 mt-0.5">Vous recevrez un SMS avec le lien de suivi Stuart dès qu'un livreur est assigné.</p>
               </div>
             </div>
           )}
@@ -110,7 +110,7 @@ function ConfirmationContent() {
               <span className="text-2xl flex-shrink-0">🕐</span>
               <div>
                 <p className="text-sm font-bold text-brun">Prête à {heure}</p>
-                <p className="text-xs text-gray-500 mt-0.5">Vous recevrez une notification dès que c'est prêt</p>
+                <p className="text-base text-gray-500 mt-0.5">Vous recevrez une notification dès que c'est prêt</p>
               </div>
             </div>
           )}
@@ -118,14 +118,14 @@ function ConfirmationContent() {
 
           {!isLivraison && (
             <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">S'y rendre</p>
+              <p className="text-base font-bold text-gray-400 uppercase tracking-wider">S'y rendre</p>
               <a href={infos.maps} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full bg-blue-600 text-white rounded-xl px-4 py-4 font-bold text-sm active:bg-blue-700 transition-colors"
                 style={{ textDecoration: 'none' }}>
                 <span className="text-2xl">🗺️</span>
                 <div className="text-left">
                   <p className="font-bold text-sm">Ouvrir dans Google Maps</p>
-                  <p className="text-xs opacity-75 mt-0.5">{infos.adresse}</p>
+                  <p className="text-base opacity-75 mt-0.5">{infos.adresse}</p>
                 </div>
               </a>
               <a href={infos.waze} target="_blank" rel="noopener noreferrer"
@@ -134,7 +134,7 @@ function ConfirmationContent() {
                 <span className="text-2xl">🚗</span>
                 <div className="text-left">
                   <p className="font-bold text-sm">Naviguer avec Waze</p>
-                  <p className="text-xs opacity-75 mt-0.5">Itinéraire en temps réel</p>
+                  <p className="text-base opacity-75 mt-0.5">Itinéraire en temps réel</p>
                 </div>
               </a>
             </div>
@@ -160,3 +160,4 @@ export default function ConfirmationPage() {
     </Suspense>
   )
 }
+

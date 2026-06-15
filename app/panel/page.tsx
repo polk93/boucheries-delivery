@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useSupabaseProduits } from '@/lib/useSupabase'
 import { sendPush } from '@/lib/usePush'
@@ -564,11 +564,11 @@ export default function PanelPage() {
       <div className="bg-brun px-4 py-3.5 flex justify-between items-center sticky top-0 z-10">
         <div>
           <span className="font-serif text-base font-black text-or"> {myBoucherie?.nom || 'Votre boucherie'}</span>
-          <p className="text-white/55 text-xs mt-0.5">
+          <p className="text-white/55 text-base mt-0.5">
             {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · {user.nom}
           </p>
         </div>
-        <button className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-xs font-semibold"
+        <button className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-base font-semibold"
           onClick={() => { logout(); router.push('/') }}>
           Déconnexion
         </button>
@@ -583,12 +583,12 @@ export default function PanelPage() {
           <div className="space-y-3">
             <div className="flex gap-2">
               <button
-                className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
+                className={'flex-1 py-2.5 rounded-xl text-base font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(false)}>
                  En cours ({orders.length})
               </button>
               <button
-                className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
+                className={'flex-1 py-2.5 rounded-xl text-base font-bold font-sans border ' + (showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
                 onClick={() => setShowHistorique(true)}>
                 ️ Historique ({historique.length})
               </button>
@@ -610,15 +610,15 @@ export default function PanelPage() {
                       <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-center">
                         <div>
                           <span className="font-black text-brun text-sm">{o.id}</span>
-                          <span className="text-gray-400 text-xs ml-2">{o.heure}</span>
+                          <span className="text-gray-400 text-base ml-2">{o.heure}</span>
                         </div>
                         <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + SC[o.status]}>{SL[o.status]}</span>
                       </div>
                       <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-start">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
-                          <p className="text-xs text-gray-400"> {o.adresse}</p>
-                          <p className="text-xs text-or font-semibold mt-0.5"> {o.creneau}</p>
+                          <p className="text-base text-gray-400"> {o.adresse}</p>
+                          <p className="text-base text-or font-semibold mt-0.5"> {o.creneau}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-black text-rouge-vif">{total.toFixed(2)} €</p>
@@ -629,31 +629,31 @@ export default function PanelPage() {
                           <div key={i} className={'flex items-start gap-2 py-2 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
                             <span className="text-base flex-shrink-0">{l.icon}</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
+                              <p className="text-base font-bold text-brun">{l.produit} <span className="text-gray-400 font-normal">×{l.qty}</span></p>
                               <p className="text-[11px] text-or font-semibold">✂️ {l.decoupe} · {l.preparation}</p>
                               {l.note ? <p className="text-[11px] text-gray-400 italic"> {l.note}</p> : null}
                             </div>
-                            <span className="text-xs font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
+                            <span className="text-base font-bold text-brun flex-shrink-0">{(l.prix * l.qty).toFixed(2)} €</span>
                           </div>
                         ))}
                       </div>
                       <div className="px-4 py-3 border-t border-gris-bd flex gap-2">
-                        <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                        <button className="flex-1 bg-or-pale border border-or/30 text-brun-clair text-base font-bold py-2 rounded-xl font-sans"
                           onClick={() => setViewOrder(o)}> Récap</button>
-                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
+                        <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-base font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
                         {o.status === 'new' ? (
                           <>
-                            <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
+                            <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-base font-bold py-2 rounded-xl font-sans"
                               onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
                               Refuser
                             </button>
-                            <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                            <button className="flex-1 bg-brun text-white text-base font-bold py-2 rounded-xl font-sans"
                               onClick={() => progress(o.id)}>
                               ✅ Accepter
                             </button>
                           </>
                         ) : o.status !== 'done' ? (
-                          <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
+                          <button className="flex-1 bg-brun text-white text-base font-bold py-2 rounded-xl font-sans"
                             onClick={() => progress(o.id)}>{BL[o.status]} →</button>
                         ) : null}
                       </div>
@@ -677,19 +677,19 @@ export default function PanelPage() {
                       <div className="px-4 py-3 bg-gris-bd flex justify-between items-center">
                         <div>
                           <span className="font-black text-brun text-sm">{o.id}</span>
-                          <span className="text-gray-400 text-xs ml-2">{o.date} · {o.heure}</span>
+                          <span className="text-gray-400 text-base ml-2">{o.date} · {o.heure}</span>
                         </div>
                         <span className="bg-green-100 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full">✅ Livrée</span>
                       </div>
                       <div className="px-4 py-3 flex justify-between items-center border-b border-gris-bd">
                         <div>
                           <p className="text-sm font-bold text-brun">{o.client}</p>
-                          <p className="text-xs text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
+                          <p className="text-base text-gray-400">{o.lignes.length} article{o.lignes.length > 1 ? 's' : ''}</p>
                         </div>
                         <p className="text-sm font-black text-brun">{total.toFixed(2)} €</p>
                       </div>
                       <div className="px-4 py-3">
-                        <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-xs font-bold py-2 rounded-xl font-sans"
+                        <button className="w-full bg-or-pale border border-or/30 text-brun-clair text-base font-bold py-2 rounded-xl font-sans"
                           onClick={() => setViewOrder(o)}> Voir le récapitulatif</button>
                       </div>
                     </div>
@@ -705,9 +705,9 @@ export default function PanelPage() {
             <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
               <div>
                 <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
-                <p className="text-xs text-gray-400">{myProduits.filter(p => (p as any).actif !== false).length} produit{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} actif{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} · {myProduits.length} total</p>
+                <p className="text-base text-gray-400">{myProduits.filter(p => (p as any).actif !== false).length} produit{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} actif{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} · {myProduits.length} total</p>
               </div>
-              <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
+              <button className="bg-brun text-white text-base font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
             </div>
             {myProduits.length === 0
               ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
@@ -743,7 +743,7 @@ export default function PanelPage() {
                     }
                     <div className="flex-1 min-w-0">
                       <p className={'font-bold text-sm truncate ' + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
-                      <p className="text-xs text-gray-400 truncate">{p.desc}</p>
+                      <p className="text-base text-gray-400 truncate">{p.desc}</p>
                     </div>
                     {/* Toggle bien aligné à droite */}
                     <button
@@ -754,14 +754,14 @@ export default function PanelPage() {
                   </div>
                   {/* Ligne 2 : prix + stock + actions */}
                   <div className="flex items-center gap-2 mt-2 pl-[56px]">
-                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
+                    <span className="text-base font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
                     <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
                       {p.stock === 0 ? 'Rupture' : String(p.stock)}
                     </span>
                     {!p.photoUrl && <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷</span>}
                     <div className="flex items-center gap-1.5 ml-auto">
-                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                      <button className="bg-or-pale border border-or/30 text-brun-clair text-base font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
+                      <button className="bg-red-50 border border-red-200 text-red-400 text-base font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
                     </div>
                   </div>
                 </div>
@@ -777,7 +777,7 @@ export default function PanelPage() {
 
             {/* Aperçu */}
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
+              <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Aperçu côté client</p>
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border-2 border-or/30">
                 <div className="w-full h-28 flex items-center justify-center relative overflow-hidden">
                   {(boutique as any).coverPhoto
@@ -795,9 +795,9 @@ export default function PanelPage() {
                 <div className="p-3">
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-serif text-sm font-bold text-brun">{boutique.nom || 'Nom de votre boutique'}</span>
-                    <span className="text-xs text-or">⭐ —</span>
+                    <span className="text-base text-or">⭐ —</span>
                   </div>
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
+                  <p className="text-base text-gray-400 mb-2 line-clamp-2">{boutique.desc || 'Votre description apparaîtra ici…'}</p>
                   <div className="flex justify-between items-center pt-2 border-t border-gris-bd">
                     <span className="text-[11px] text-gray-400"> ~30 min ·  Click &amp; Collect</span>
                     <span className="bg-brun text-white text-[11px] font-semibold px-3 py-1 rounded-lg">Voir</span>
@@ -814,7 +814,7 @@ export default function PanelPage() {
               <div className="p-4 space-y-3">
                 {([['nom', 'Nom de la boutique', 'Boucherie Dupont'], ['tel', 'Téléphone', '01 23 45 67 89'], ['email', 'Email', 'contact@maboucherie.fr'], ['adresse', 'Adresse', '12 rue du Marché']] as const).map(([k, l, ph]) => (
                   <div key={k}>
-                    <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+                    <label className="text-base font-bold text-brun block mb-1">{l}</label>
                     <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                       placeholder={ph}
                       value={boutique[k] as string}
@@ -822,7 +822,7 @@ export default function PanelPage() {
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-1">Description</label>
+                  <label className="text-base font-bold text-brun block mb-1">Description</label>
                   <textarea className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun resize-none" rows={3}
                     placeholder="Vos spécialités, votre histoire…"
                     value={boutique.desc}
@@ -835,7 +835,7 @@ export default function PanelPage() {
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
                 <p className="font-bold text-brun text-sm">️ Promotions</p>
-                <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={addPromo}>+ Ajouter</button>
+                <button className="bg-brun text-white text-base font-bold px-3 py-1.5 rounded-lg font-sans" onClick={addPromo}>+ Ajouter</button>
               </div>
               {boutique.promotions.length === 0
                 ? <div className="p-5 text-center text-gray-400"><span className="text-3xl block mb-2">️</span><p className="text-sm">Aucune promotion active.</p></div>
@@ -848,14 +848,14 @@ export default function PanelPage() {
                               onClick={() => updatePromo(idx, 'active', !promo.active)}>
                               <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (promo.active ? 'translate-x-5' : 'translate-x-0.5')} />
                             </button>
-                            <span className={'text-xs font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
+                            <span className={'text-base font-bold ' + (promo.active ? 'text-green-600' : 'text-gray-400')}>{promo.active ? 'Active' : 'Inactive'}</span>
                           </div>
-                          <button className="text-red-400 text-xs font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
+                          <button className="text-red-400 text-base font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg font-sans"
                             onClick={() => removePromo(idx)}>️</button>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {['message', 'reduction', 'livraison', 'offre'].map(val => (
-                            <button key={val} className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                            <button key={val} className={'px-3 py-1.5 rounded-full border text-base font-semibold font-sans ' + (promo.type === val ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                               onClick={() => updatePromo(idx, 'type', val)}>{val}</button>
                           ))}
                         </div>
@@ -868,8 +868,8 @@ export default function PanelPage() {
                         {promo.titre ? (
                           <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-2.5">
                             <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Aperçu client</p>
-                            <p className="text-xs text-rouge-vif font-bold">{promo.titre}</p>
-                            {promo.description ? <p className="text-xs text-gray-500 mt-0.5">{promo.description}</p> : null}
+                            <p className="text-base text-rouge-vif font-bold">{promo.titre}</p>
+                            {promo.description ? <p className="text-base text-gray-500 mt-0.5">{promo.description}</p> : null}
                           </div>
                         ) : null}
                       </div>
@@ -887,7 +887,7 @@ export default function PanelPage() {
 
                 {/* Photo de couverture cliquable */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">📸 Photo de couverture</label>
+                  <label className="text-base font-bold text-brun block mb-2">📸 Photo de couverture</label>
                   <label className="block cursor-pointer">
                     <input type="file" accept="image/*" className="hidden" onChange={e => {
                       const file = e.target.files?.[0]
@@ -907,7 +907,7 @@ export default function PanelPage() {
                           </div>
                       }
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                        <p className="text-white text-xs font-bold">📷 Cliquer pour changer</p>
+                        <p className="text-white text-base font-bold">📷 Cliquer pour changer</p>
                       </div>
                     </div>
                   </label>
@@ -915,7 +915,7 @@ export default function PanelPage() {
 
                 {/* Badge sur la carte */}
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-2">🏷️ Badge sur la carte</label>
+                  <label className="text-base font-bold text-brun block mb-2">🏷️ Badge sur la carte</label>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { val: '',          label: 'Aucun',    ico: '—' },
@@ -930,7 +930,7 @@ export default function PanelPage() {
                       const selected = current === val
                       return (
                         <button key={val}
-                          className={'px-3 py-1.5 rounded-full border text-xs font-semibold font-sans transition-all ' + (selected ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                          className={'px-3 py-1.5 rounded-full border text-base font-semibold font-sans transition-all ' + (selected ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                           onClick={() => { setBoutiquePersist((b: any) => ({ ...b, badge: val, promo: val === 'Promo' })); setBoutiqueEdited(true) }}>
                           {ico} {label}
                         </button>
@@ -958,7 +958,7 @@ export default function PanelPage() {
                           <span className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (h.ouvert ? 'translate-x-5' : 'translate-x-0.5')} />
                         </button>
                         <span className={'text-sm font-bold flex-1 ' + (h.ouvert ? 'text-brun' : 'text-gray-300')}>{label}</span>
-                        {!h.ouvert && <span className="text-xs text-gray-400 italic">Fermé</span>}
+                        {!h.ouvert && <span className="text-base text-gray-400 italic">Fermé</span>}
                       </div>
                       {h.ouvert && (
                         <div className="space-y-2 pl-4 border-l-2 border-gris-bd ml-3">
@@ -967,32 +967,32 @@ export default function PanelPage() {
                               onClick={() => updateHoraire(key, 'matin', !h.matin)}>
                               <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.matin ? 'translate-x-4' : 'translate-x-0.5')} />
                             </button>
-                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.matin ? 'text-brun' : 'text-gray-300')}>Matin</span>
+                            <span className={'text-base font-semibold w-14 flex-shrink-0 ' + (h.matin ? 'text-brun' : 'text-gray-300')}>Matin</span>
                             {h.matin ? (
                               <div className="flex items-center gap-1.5 flex-1">
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-base font-sans outline-none focus:border-brun min-w-0"
                                   value={h.matinDebut} onChange={e => updateHoraire(key, 'matinDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                <span className="text-base text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-base font-sans outline-none focus:border-brun min-w-0"
                                   value={h.matinFin} onChange={e => updateHoraire(key, 'matinFin', e.target.value)} />
                               </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé le matin</span>}
+                            ) : <span className="text-base text-gray-300 italic">Fermé le matin</span>}
                           </div>
                           <div className="flex items-center gap-2">
                             <button className={'w-8 h-4 rounded-full relative transition-colors flex-shrink-0 ' + (h.am ? 'bg-or' : 'bg-gray-200')}
                               onClick={() => updateHoraire(key, 'am', !h.am)}>
                               <span className={'absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ' + (h.am ? 'translate-x-4' : 'translate-x-0.5')} />
                             </button>
-                            <span className={'text-xs font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
+                            <span className={'text-base font-semibold w-14 flex-shrink-0 ' + (h.am ? 'text-brun' : 'text-gray-300')}>Après-m.</span>
                             {h.am ? (
                               <div className="flex items-center gap-1.5 flex-1">
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-base font-sans outline-none focus:border-brun min-w-0"
                                   value={h.amDebut} onChange={e => updateHoraire(key, 'amDebut', e.target.value)} />
-                                <span className="text-xs text-gray-300">→</span>
-                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-xs font-sans outline-none focus:border-brun min-w-0"
+                                <span className="text-base text-gray-300">→</span>
+                                <input type="time" className="flex-1 border border-gray-200 rounded-lg px-2 py-1 text-base font-sans outline-none focus:border-brun min-w-0"
                                   value={h.amFin} onChange={e => updateHoraire(key, 'amFin', e.target.value)} />
                               </div>
-                            ) : <span className="text-xs text-gray-300 italic">Fermé l'après-midi</span>}
+                            ) : <span className="text-base text-gray-300 italic">Fermé l'après-midi</span>}
                           </div>
                         </div>
                       )}
@@ -1049,7 +1049,7 @@ export default function PanelPage() {
               <div className="flex justify-between items-center px-5 py-4 border-b border-gris-bd sticky top-0 bg-white z-10">
                 <div>
                   <h2 className="font-serif text-lg font-black text-brun"> Récap {o.id}</h2>
-                  <p className="text-xs text-gray-400">{o.date} à {o.heure}</p>
+                  <p className="text-base text-gray-400">{o.date} à {o.heure}</p>
                 </div>
                 <button className="bg-gris-bd rounded-full w-8 h-8 text-sm flex items-center justify-center" onClick={() => setViewOrder(null)}>✕</button>
               </div>
@@ -1060,17 +1060,17 @@ export default function PanelPage() {
                     <p className={'text-sm font-bold ' + (o.status === 'done' ? 'text-green-700' : 'text-brun')}>
                       {o.status === 'done' ? 'Commande livrée' : 'En cours — ' + SL[o.status]}
                     </p>
-                    <p className="text-xs text-gray-400">Créneau : {o.creneau}</p>
+                    <p className="text-base text-gray-400">Créneau : {o.creneau}</p>
                   </div>
                 </div>
                 <div className="bg-creme rounded-2xl p-4">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
+                  <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Client</p>
                   <p className="text-sm font-bold text-brun">{o.client}</p>
-                  <p className="text-xs text-gray-500 mt-0.5"> {o.tel}</p>
-                  <p className="text-xs text-gray-500 mt-0.5"> {o.adresse}</p>
+                  <p className="text-base text-gray-500 mt-0.5"> {o.tel}</p>
+                  <p className="text-base text-gray-500 mt-0.5"> {o.adresse}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
+                  <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Articles</p>
                   <div className="bg-white border border-gris-bd rounded-2xl overflow-hidden">
                     {o.lignes.map((l, i) => (
                       <div key={i} className={'px-4 py-3 ' + (i < o.lignes.length - 1 ? 'border-b border-gris-bd' : '')}>
@@ -1081,7 +1081,7 @@ export default function PanelPage() {
                             {l.note ? <p className="text-[11px] text-gray-400 italic mt-0.5"> {l.note}</p> : null}
                           </div>
                           <div className="text-right flex-shrink-0 ml-3">
-                            <p className="text-xs text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
+                            <p className="text-base text-gray-400">{l.qty} × {l.prix.toFixed(2)} €</p>
                             <p className="text-sm font-black text-brun">{(l.prix * l.qty).toFixed(2)} €</p>
                           </div>
                         </div>
@@ -1090,10 +1090,10 @@ export default function PanelPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
+                  <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-2">Détail financier</p>
                   <div className="bg-white border border-gris-bd rounded-2xl p-4 space-y-2">
-                    <div className="flex justify-between text-xs text-gray-500"><span>Sous-total</span><span>{sousTotal.toFixed(2)} €</span></div>
-                    <div className="flex justify-between text-xs text-gray-500"><span>Livraison</span><span>{o.frais === 0 ? 'Offerts' : o.frais.toFixed(2) + ' €'}</span></div>
+                    <div className="flex justify-between text-base text-gray-500"><span>Sous-total</span><span>{sousTotal.toFixed(2)} €</span></div>
+                    <div className="flex justify-between text-base text-gray-500"><span>Livraison</span><span>{o.frais === 0 ? 'Offerts' : o.frais.toFixed(2) + ' €'}</span></div>
                     <div className="flex justify-between text-sm font-black text-brun border-t border-gris-bd pt-2"><span>Total</span><span>{total.toFixed(2)} €</span></div>
                   </div>
                 </div>
@@ -1122,18 +1122,18 @@ export default function PanelPage() {
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="text-xs font-bold text-brun block mb-2"> Photo</label>
+                <label className="text-base font-bold text-brun block mb-2"> Photo</label>
                 <div className="flex items-center gap-3">
                   {modalProd.photoUrl
                     ? <img src={modalProd.photoUrl} alt="Photo" className="w-20 h-20 rounded-xl object-cover border border-gris-bd" />
                     : <div className="w-20 h-20 rounded-xl bg-or-pale flex items-center justify-center text-3xl border-2 border-dashed border-or/30">{modalProd.icon}</div>
                   }
                   <div className="flex flex-col gap-2">
-                    <button className="bg-brun text-white text-xs font-bold px-4 py-2 rounded-xl font-sans" onClick={() => fileRef.current?.click()}>
+                    <button className="bg-brun text-white text-base font-bold px-4 py-2 rounded-xl font-sans" onClick={() => fileRef.current?.click()}>
                       {modalProd.photoUrl ? ' Changer' : ' Ajouter'}
                     </button>
                     {modalProd.photoUrl && (
-                      <button className="bg-red-50 text-red-400 text-xs font-bold px-4 py-2 rounded-xl font-sans border border-red-200"
+                      <button className="bg-red-50 text-red-400 text-base font-bold px-4 py-2 rounded-xl font-sans border border-red-200"
                         onClick={() => setModalProd(f => f ? { ...f, photoUrl: null } : f)}>️ Supprimer</button>
                     )}
                   </div>
@@ -1141,7 +1141,7 @@ export default function PanelPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-brun block mb-1.5">Icône</label>
+                <label className="text-base font-bold text-brun block mb-1.5">Icône</label>
                 <div className="flex flex-wrap gap-2">
                   {ICONS.map(ico => (
                     <button key={ico}
@@ -1152,7 +1152,7 @@ export default function PanelPage() {
               </div>
               {[['nom', 'Nom *', 'Entrecôte Charolais'], ['desc', 'Description', '500g, persillé idéal']].map(([k, l, ph]) => (
                 <div key={k}>
-                  <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                  <label className="text-base font-bold text-brun block mb-1.5">{l}</label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                     placeholder={ph}
                     value={(modalProd as any)[k]}
@@ -1162,7 +1162,7 @@ export default function PanelPage() {
               <div className="grid grid-cols-2 gap-3">
                 {[['prix', 'Prix (€) *', '18.90'], ['stock', 'Stock', '10']].map(([k, l, ph]) => (
                   <div key={k}>
-                    <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                    <label className="text-base font-bold text-brun block mb-1.5">{l}</label>
                     <input type="number" min="0"
                       className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                       placeholder={ph}
@@ -1175,7 +1175,7 @@ export default function PanelPage() {
               {/* Catégorie + Type de vente */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-1.5">Catégorie</label>
+                  <label className="text-base font-bold text-brun block mb-1.5">Catégorie</label>
                   <select className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
                     value={modalProd.cat}
                     onChange={e => setModalProd(f => f ? { ...f, cat: e.target.value } : f)}>
@@ -1183,11 +1183,11 @@ export default function PanelPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-brun block mb-1.5">Vendu</label>
+                  <label className="text-base font-bold text-brun block mb-1.5">Vendu</label>
                   <div className="flex flex-col gap-1.5">
                     {[['pièce','🔢 À la pièce'],['poids','⚖️ Au poids']].map(([v,l]) => (
                       <button key={v}
-                        className={'py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
+                        className={'py-2 rounded-xl border-2 text-base font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                         onClick={() => setModalProd(f => f ? { ...f, venteType: v } : f)}>{l}</button>
                     ))}
                   </div>
@@ -1196,7 +1196,7 @@ export default function PanelPage() {
 
               {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
                 <div key={k}>
-                  <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
+                  <label className="text-base font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
                   <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                     placeholder={ph}
                     value={(modalProd as any)[k]}
@@ -1205,7 +1205,7 @@ export default function PanelPage() {
               ))}
               {/* Allergènes obligatoires */}
               <div>
-                <label className="text-xs font-bold text-brun block mb-1.5">
+                <label className="text-base font-bold text-brun block mb-1.5">
                   ⚠️ Allergènes <span className="text-rouge-vif">*</span>
                   <span className="text-gray-400 font-normal ml-1">(obligation légale)</span>
                 </label>
@@ -1259,7 +1259,7 @@ function PanelFaqItem({ faq, last }: { faq: { q: string; a: string }; last: bool
         <p className="text-sm font-semibold text-brun">{faq.q}</p>
         <span className="text-gray-400 flex-shrink-0">{open ? '▴' : '▾'}</span>
       </button>
-      {open && <p className="text-xs text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
+      {open && <p className="text-base text-gray-500 mt-2 leading-relaxed">{faq.a}</p>}
     </div>
   )
 }
@@ -1279,7 +1279,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
       <div className="w-12 h-12 rounded-full bg-brun text-white text-2xl flex items-center justify-center flex-shrink-0">🔪</div>
       <div className="flex-1 min-w-0">
         <p className="font-bold text-brun text-sm truncate">{user?.nom || 'Mon compte'}</p>
-        <p className="text-xs text-gray-400 truncate">{user?.email} · Boucher</p>
+        <p className="text-base text-gray-400 truncate">{user?.email} · Boucher</p>
       </div>
       {user?.isDemo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
     </div>
@@ -1322,8 +1322,8 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
       <div className="bg-brun rounded-2xl p-5 text-center">
         <span className="text-4xl block mb-2">💬</span>
         <p className="text-white font-bold text-sm mb-1">Réponse garantie sous 2h</p>
-        <p className="text-white/60 text-xs mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
-        <a href="mailto:support@boucheriedelivery.fr" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
+        <p className="text-white/60 text-base mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
+        <a href="mailto:support@boucheriedelivery.fr" className="inline-block bg-or text-brun text-base font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
         {[
@@ -1343,7 +1343,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
       {header}
       <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Conditions</button>
       <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-        <p className="text-xs text-brun-clair font-semibold">Contrat partenaire boucher · En vigueur depuis le 13 mai 2026</p>
+        <p className="text-base text-brun-clair font-semibold">Contrat partenaire boucher · En vigueur depuis le 13 mai 2026</p>
       </div>
       {[
         { t: "1. Commission", c: "BoucheriesDelivery retient 15% sur chaque commande. Le boucher reçoit 85% du montant des produits, versé chaque lundi." },
@@ -1355,7 +1355,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
       ].map((s, i) => (
         <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
-          <p className="text-xs text-gray-500 leading-relaxed">{s.c}</p>
+          <p className="text-base text-gray-500 leading-relaxed">{s.c}</p>
         </div>
       ))}
     </div>
@@ -1380,7 +1380,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
             <span className="text-xl flex-shrink-0">{item.ico}</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-brun">{item.label}</p>
-              <p className="text-xs text-gray-400 truncate">{item.sub}</p>
+              <p className="text-base text-gray-400 truncate">{item.sub}</p>
             </div>
             <span className="text-gray-300 text-base flex-shrink-0">›</span>
           </button>
@@ -1391,7 +1391,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
         onClick={() => { logout(); router.push('/') }}>
         🚪 Se déconnecter
       </button>
-      <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+      <p className="text-center text-base text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
     </div>
   )
 }
@@ -1416,19 +1416,19 @@ function MdpSectionBoucher({ showToast }: { showToast: (m: string) => void }) {
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left font-sans" onClick={() => setOpen(o => !o)}>
         <span className="text-xl">🔒</span>
-        <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-xs text-gray-400">Modifier mon mot de passe</p></div>
+        <div className="flex-1"><p className="text-sm font-semibold text-brun">Mot de passe</p><p className="text-base text-gray-400">Modifier mon mot de passe</p></div>
         <span className="text-gray-300">{open ? '▴' : '›'}</span>
       </button>
       {open && (
         <div className="px-4 pb-4 space-y-3 border-t border-gris-bd pt-3">
           {[['ancien','Mot de passe actuel'],['nouveau','Nouveau mot de passe'],['confirm','Confirmer']].map(([k,l]) => (
             <div key={k}>
-              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <label className="text-base font-bold text-brun block mb-1">{l}</label>
               <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                 value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
             </div>
           ))}
-          {error && <p className="text-xs text-rouge-vif">{error}</p>}
+          {error && <p className="text-base text-rouge-vif">{error}</p>}
           <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={valider}>Modifier</button>
         </div>
       )}
@@ -1480,13 +1480,13 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
       <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
-        <p className="text-xs font-bold text-brun">Informations personnelles</p>
+        <p className="text-base font-bold text-brun">Informations personnelles</p>
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-3">
           {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
             <div key={k}>
-              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <label className="text-base font-bold text-brun block mb-1">{l}</label>
               <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
                 value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
             </div>
@@ -1494,12 +1494,12 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
         </div>
         {[['email','Email'],['tel','Téléphone'],['boutique','Nom de la boutique']].map(([k,l]) => (
           <div key={k}>
-            <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+            <label className="text-base font-bold text-brun block mb-1">{l}</label>
             <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
               value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
           </div>
         ))}
-        {saved && <p className="text-green-600 text-xs font-semibold">✅ Enregistré !</p>}
+        {saved && <p className="text-green-600 text-base font-semibold">✅ Enregistré !</p>}
         <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={enregistrer}>
           💾 Enregistrer
         </button>
@@ -1523,7 +1523,7 @@ function BoucherNotifsForm() {
         <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
           <div className="flex-1">
             <p className="text-sm font-semibold text-brun">{item.label}</p>
-            <p className="text-xs text-gray-400">{item.sub}</p>
+            <p className="text-base text-gray-400">{item.sub}</p>
           </div>
           <button
             className={"w-11 h-6 rounded-full relative transition-colors flex-shrink-0 " + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
@@ -1574,7 +1574,7 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
     <div className="bg-white rounded-2xl shadow-sm p-4 space-y-3 text-center">
       <span className="text-3xl block">💳</span>
       <p className="text-sm font-semibold text-brun">Aucun compte Stripe lié</p>
-      <p className="text-xs text-gray-400">Configurez votre compte pour recevoir vos paiements chaque lundi.</p>
+      <p className="text-base text-gray-400">Configurez votre compte pour recevoir vos paiements chaque lundi.</p>
       <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={connecterNouveauCompte} disabled={loading}>
         {loading ? '⏳ Chargement…' : '🔗 Connecter mon compte Stripe'}
       </button>
@@ -1590,20 +1590,20 @@ function StripePaiementSection({ email, boutiqueName, showToast }: { email: stri
             <p className={"text-sm font-bold " + (account.chargesEnabled && account.payoutsEnabled ? 'text-green-700' : 'text-brun')}>
               {account.chargesEnabled && account.payoutsEnabled ? 'Compte actif' : 'Vérification en cours'}
             </p>
-            <p className="text-xs text-gray-400">{account.email} · Virements chaque lundi</p>
+            <p className="text-base text-gray-400">{account.email} · Virements chaque lundi</p>
           </div>
         </div>
         {!confirming ? (
-          <button className="w-full bg-rouge-pale text-rouge-vif border border-rouge-vif/20 py-2.5 rounded-xl text-xs font-bold font-sans" onClick={() => setConfirming(true)}>
+          <button className="w-full bg-rouge-pale text-rouge-vif border border-rouge-vif/20 py-2.5 rounded-xl text-base font-bold font-sans" onClick={() => setConfirming(true)}>
             🔄 Changer de compte Stripe
           </button>
         ) : (
           <div className="bg-rouge-pale border border-rouge-vif/20 rounded-xl p-3 space-y-2">
-            <p className="text-xs font-bold text-rouge-vif">⚠️ Confirmer le changement ?</p>
-            <p className="text-xs text-gray-500">L'ancien compte sera dissocié. Les virements en attente ne seront pas affectés.</p>
+            <p className="text-base font-bold text-rouge-vif">⚠️ Confirmer le changement ?</p>
+            <p className="text-base text-gray-500">L'ancien compte sera dissocié. Les virements en attente ne seront pas affectés.</p>
             <div className="flex gap-2">
-              <button className="flex-1 bg-white border border-gray-200 text-brun text-xs font-bold py-2 rounded-xl font-sans" onClick={() => setConfirming(false)}>Annuler</button>
-              <button className="flex-1 bg-rouge-vif text-white text-xs font-bold py-2 rounded-xl font-sans" onClick={connecterNouveauCompte} disabled={loading}>
+              <button className="flex-1 bg-white border border-gray-200 text-brun text-base font-bold py-2 rounded-xl font-sans" onClick={() => setConfirming(false)}>Annuler</button>
+              <button className="flex-1 bg-rouge-vif text-white text-base font-bold py-2 rounded-xl font-sans" onClick={connecterNouveauCompte} disabled={loading}>
                 {loading ? '⏳' : 'Confirmer'}
               </button>
             </div>
@@ -1657,9 +1657,9 @@ function CaSelector({ historique }: { historique: any[] }) {
 
       {/* CA principal */}
       <div className="bg-brun rounded-2xl p-5 text-center">
-        <p className="text-white/60 text-xs mb-1">Chiffre d'affaires · {PERIODES.find(p => p.key === periode)?.label}</p>
+        <p className="text-white/60 text-base mb-1">Chiffre d'affaires · {PERIODES.find(p => p.key === periode)?.label}</p>
         <p className="text-white font-black text-4xl">{ca.toFixed(2)} €</p>
-        {nbCmd === 0 && <p className="text-white/40 text-xs mt-2">Aucune commande sur cette période</p>}
+        {nbCmd === 0 && <p className="text-white/40 text-base mt-2">Aucune commande sur cette période</p>}
       </div>
 
       {/* Stats */}
@@ -1684,8 +1684,8 @@ function CaSelector({ historique }: { historique: any[] }) {
       {nbCmd > 0 && (
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between">
-            <p className="text-xs font-bold text-brun">Transactions</p>
-            <p className="text-xs text-gray-400">{nbCmd} commande{nbCmd > 1 ? 's' : ''}</p>
+            <p className="text-base font-bold text-brun">Transactions</p>
+            <p className="text-base text-gray-400">{nbCmd} commande{nbCmd > 1 ? 's' : ''}</p>
           </div>
           {filtered.map((o, i) => {
             const total = o.lignes.reduce((s: number, l: any) => s + l.prix * l.qty, 0) + o.frais
@@ -1693,7 +1693,7 @@ function CaSelector({ historique }: { historique: any[] }) {
               <div key={o.id} className={"px-4 py-3 flex items-center justify-between " + (i < filtered.length - 1 ? 'border-b border-gris-bd' : '')}>
                 <div>
                   <p className="text-sm font-bold text-brun">{o.id}</p>
-                  <p className="text-xs text-gray-400">{o.date} · {o.client}</p>
+                  <p className="text-base text-gray-400">{o.date} · {o.client}</p>
                 </div>
                 <p className="text-sm font-black text-green-600">+{total.toFixed(2)} €</p>
               </div>

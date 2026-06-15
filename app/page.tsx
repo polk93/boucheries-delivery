@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
@@ -49,7 +49,7 @@ function PageNonConnecte() {
           <span className="text-or">Boucheries</span><span className="text-white"> Delivery</span>
         </span>
         <button
-          className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-xs font-semibold"
+          className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-base font-semibold"
           onClick={() => setAuthOpen(true)}>
           Se connecter
         </button>
@@ -66,7 +66,7 @@ function PageNonConnecte() {
         </p>
         <div className="flex flex-wrap gap-1.5">
           {['🏆 Artisans sélectionnés', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Découpe sur mesure'].map(t => (
-            <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
+            <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-base font-medium">{t}</span>
           ))}
         </div>
       </section>
@@ -81,7 +81,7 @@ function PageNonConnecte() {
             <h2 className="font-serif text-lg font-black text-brun mb-1">
               Découvrez les boucheries<br />près de chez vous
             </h2>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-base text-gray-400 leading-relaxed">
               Connectez-vous pour accéder au catalogue, personnaliser vos découpes et passer commande.
             </p>
           </div>
@@ -103,13 +103,13 @@ function PageNonConnecte() {
           {/* Boutons démo */}
           <div className="grid grid-cols-2 gap-2">
             <button
-              className="flex flex-col items-center gap-1 py-3 bg-or-pale border border-or/30 rounded-xl text-xs font-bold text-brun-clair font-sans hover:bg-or hover:text-white transition-all active:scale-95"
+              className="flex flex-col items-center gap-1 py-3 bg-or-pale border border-or/30 rounded-xl text-base font-bold text-brun-clair font-sans hover:bg-or hover:text-white transition-all active:scale-95"
               onClick={() => login(DEMO_CLIENT)}>
               <span className="text-lg">🛒</span>
               Démo Client
             </button>
             <button
-              className="flex flex-col items-center gap-1 py-3 bg-brun/5 border border-brun/20 rounded-xl text-xs font-bold text-brun font-sans hover:bg-brun hover:text-white transition-all active:scale-95"
+              className="flex flex-col items-center gap-1 py-3 bg-brun/5 border border-brun/20 rounded-xl text-base font-bold text-brun font-sans hover:bg-brun hover:text-white transition-all active:scale-95"
               onClick={() => login(DEMO_BOUCHER)}>
               <span className="text-lg">🔪</span>
               Démo Boucher
@@ -128,7 +128,7 @@ function PageNonConnecte() {
           ].map(a => (
             <div key={a.titre} className="bg-white rounded-2xl p-3 shadow-sm">
               <span className="text-xl block mb-1">{a.ico}</span>
-              <p className="font-bold text-brun text-xs">{a.titre}</p>
+              <p className="font-bold text-brun text-base">{a.titre}</p>
               <p className="text-gray-400 text-[10px]">{a.desc}</p>
             </div>
           ))}
@@ -317,7 +317,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
               <ellipse cx="102" cy="135" rx="10" ry="6" fill="#E74C3C"/>
             </svg>
             <span className="font-serif text-sm font-black text-or leading-tight hidden xs:block">
-              Boucheries<br/><span className="text-white text-xs font-bold">Delivery</span>
+              Boucheries<br/><span className="text-white text-base font-bold">Delivery</span>
             </span>
           </div>
 
@@ -365,7 +365,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
                       <img src={b.img} alt={b.nom} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-brun text-sm truncate">{b.nom}</p>
-                        <p className="text-xs text-gray-400">⭐ {b.note} · {b.livraison}</p>
+                        <p className="text-base text-gray-400">⭐ {b.note} · {b.livraison}</p>
                       </div>
                       <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{userPos ? `${getFrais(b).toFixed(2)} €` : (b.frais === 0 ? 'Gratuit' : `${b.frais.toFixed(2)} €`)}</span>
                     </div>
@@ -376,7 +376,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
                       <div className="w-10 h-10 rounded-lg bg-or-pale flex items-center justify-center text-xl flex-shrink-0">{p.icon}</div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-brun text-sm truncate">{p.nom}</p>
-                        <p className="text-xs text-gray-400 truncate">{(p as any).boucherie?.nom}</p>
+                        <p className="text-base text-gray-400 truncate">{(p as any).boucherie?.nom}</p>
                       </div>
                       <span className="text-rouge-vif font-bold text-sm flex-shrink-0">{p.prix.toFixed(2)} €</span>
                     </div>
@@ -389,8 +389,8 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
       {/* Géoloc refusée */}
       {geoStatus === 'denied' && (
         <div className="bg-orange-50 border-b border-orange-200 px-4 py-2 flex items-center justify-between">
-          <p className="text-xs text-orange-700">📍 Activez la géolocalisation pour trouver les boucheries proches.</p>
-          <button className="text-xs font-bold text-orange-600 ml-3 flex-shrink-0" onClick={requestGeo}>Activer</button>
+          <p className="text-base text-orange-700">📍 Activez la géolocalisation pour trouver les boucheries proches.</p>
+          <button className="text-base font-bold text-orange-600 ml-3 flex-shrink-0" onClick={requestGeo}>Activer</button>
         </div>
       )}
 
@@ -405,7 +405,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
             <p className="text-white/70 text-sm mb-3">Les boucheries artisanales de votre quartier, livrées en moins de 45 min.</p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               {['🏆 Artisans', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Sur mesure'].map(t => (
-                <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
+                <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-base font-medium">{t}</span>
               ))}
             </div>
             <button
@@ -436,10 +436,10 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
         <div className="max-w-2xl mx-auto flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 items-center">
           {['Tous', 'Livraison rapide', 'Gratuit', 'Bio', 'Halal', 'Premium'].map(f => (
             <button key={f}
-              className={`border rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+              className={`border rounded-full px-3 py-1 text-base font-medium whitespace-nowrap flex-shrink-0 transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
               onClick={() => setFilterActive(f)}>{f}</button>
           ))}
-          <select className="ml-1 border border-gray-200 rounded-lg px-2 py-1 text-xs text-brun bg-white outline-none flex-shrink-0"
+          <select className="ml-1 border border-gray-200 rounded-lg px-2 py-1 text-base text-brun bg-white outline-none flex-shrink-0"
             value={sortBy} onChange={e => setSortBy(e.target.value)}>
             {userPos && <option value="distance">📍 Proches</option>}
             <option value="note">⭐ Notés</option>
@@ -450,7 +450,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
             <div className="flex gap-1 ml-1 flex-shrink-0">
               {[2, 5, 10].map(r => (
                 <button key={r}
-                  className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap transition-all ${rayonKm === r ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
+                  className={`text-base px-2 py-0.5 rounded-full border whitespace-nowrap transition-all ${rayonKm === r ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}
                   onClick={() => setRayonKm(r)}>{r}km</button>
               ))}
             </div>
@@ -469,7 +469,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
     <p className="text-sm leading-relaxed mb-2">
       Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
     </p>
-    <p className="text-xs text-gray-300">
+    <p className="text-base text-gray-300">
       Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
     </p>
   </div>
@@ -477,8 +477,8 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
 
         {userPos && filtered.length > 0 && (
           <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mb-3 flex justify-between items-center">
-            <p className="text-xs text-green-700 font-semibold">📍 {filtered.length} boucherie{filtered.length > 1 ? 's' : ''} à moins de {rayonKm} km</p>
-            <button className="text-xs text-green-600 font-bold ml-2" onClick={() => setRayonKm(r => Math.min(r + 5, 20))}>Élargir</button>
+            <p className="text-base text-green-700 font-semibold">📍 {filtered.length} boucherie{filtered.length > 1 ? 's' : ''} à moins de {rayonKm} km</p>
+            <button className="text-base text-green-600 font-bold ml-2" onClick={() => setRayonKm(r => Math.min(r + 5, 20))}>Élargir</button>
           </div>
         )}
 
@@ -509,9 +509,9 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
                   <div className="p-3">
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-serif text-sm font-bold text-brun flex-1 mr-2 leading-tight">{b.nom}</span>
-                      <span className="text-xs font-semibold text-or flex-shrink-0">⭐ {b.note}</span>
+                      <span className="text-base font-semibold text-or flex-shrink-0">⭐ {b.note}</span>
                     </div>
-                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">{b.desc}</p>
+                    <p className="text-base text-gray-400 mb-2 line-clamp-2">{b.desc}</p>
                     <div className="flex flex-wrap gap-1 mb-2">
                       {b.tags.slice(0, 3).map((t: string) => <span key={t} className="bg-gris-bd text-brun-clair text-[10px] font-medium px-1.5 py-0.5 rounded">{t}</span>)}
                     </div>
@@ -571,3 +571,4 @@ export default function HomePage() {
   // Compte démo / vrai compte → catalogue complet
   return <PageCatalogue showBoutiques={isDemo()} />
 }
+

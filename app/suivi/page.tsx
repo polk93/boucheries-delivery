@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { Suspense, useEffect, useRef, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import BottomNavClient from '@/components/ui/BottomNavClient'
@@ -194,7 +194,7 @@ function SuiviContent() {
         <button onClick={() => router.push('/')} className="text-white text-xl bg-transparent border-none cursor-pointer">←</button>
         <div className="flex-1">
           <h1 className="font-serif text-base font-bold text-or">🛵 Suivi de commande</h1>
-          <p className="text-white/60 text-xs">{numero} · {boucherie.nom}</p>
+          <p className="text-white/60 text-base">{numero} · {boucherie.nom}</p>
         </div>
         {pos?.demo && <span className="bg-or/20 border border-or/40 text-or text-[9px] font-bold px-2 py-0.5 rounded-full">DÉMO</span>}
       </div>
@@ -204,8 +204,8 @@ function SuiviContent() {
         <span className="text-2xl">{statut?.ico}</span>
         <div className="flex-1">
           <p className="text-white font-bold text-sm">{statut?.label}</p>
-          {!livré && pos && <p className="text-white/80 text-xs">Arrivée estimée : {formatEta(pos.etaMin)}</p>}
-          {livré  && <p className="text-white/80 text-xs">Merci de votre confiance !</p>}
+          {!livré && pos && <p className="text-white/80 text-base">Arrivée estimée : {formatEta(pos.etaMin)}</p>}
+          {livré  && <p className="text-white/80 text-base">Merci de votre confiance !</p>}
         </div>
         {!livré && pos && pos.etaMin > 0 && (
           <div className="bg-white/20 rounded-xl px-3 py-2 text-center flex-shrink-0 min-w-[52px]">
@@ -240,7 +240,7 @@ function SuiviContent() {
         {/* Bouton recentrer */}
         {mapReady && pos && (
           <button
-            className="absolute bottom-3 right-3 bg-white rounded-xl shadow-lg px-3 py-2 text-xs font-bold text-brun font-sans"
+            className="absolute bottom-3 right-3 bg-white rounded-xl shadow-lg px-3 py-2 text-base font-bold text-brun font-sans"
             onClick={() => mapboxRef.current?.flyTo({ center: [pos.lng, pos.lat], zoom: 15, duration: 800 })}>
             🛵 Centrer
           </button>
@@ -256,10 +256,10 @@ function SuiviContent() {
             <div className="w-10 h-10 bg-brun rounded-full flex items-center justify-center text-xl flex-shrink-0">🛵</div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-brun truncate">{pos.livreurNom}</p>
-              <p className="text-xs text-gray-400">Votre livreur · {formatEta(pos.etaMin)}</p>
+              <p className="text-base text-gray-400">Votre livreur · {formatEta(pos.etaMin)}</p>
             </div>
             <a href="tel:+33600000000"
-              className="bg-brun text-white text-xs font-bold px-3 py-2 rounded-xl font-sans flex-shrink-0"
+              className="bg-brun text-white text-base font-bold px-3 py-2 rounded-xl font-sans flex-shrink-0"
               style={{ textDecoration: 'none' }}>
               📞
             </a>
@@ -268,7 +268,7 @@ function SuiviContent() {
 
         {/* Progression */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Progression</p>
+          <p className="text-base font-bold text-gray-400 uppercase tracking-wider mb-3">Progression</p>
           <div className="space-y-3">
             {STATUTS.map((s, i) => (
               <div key={s.id} className="flex items-center gap-3">
@@ -298,7 +298,7 @@ function SuiviContent() {
           <span className="text-xl flex-shrink-0 mt-0.5">🔪</span>
           <div>
             <p className="text-sm font-bold text-brun">{boucherie.nom}</p>
-            <p className="text-xs text-gray-400">{boucherie.adresse}</p>
+            <p className="text-base text-gray-400">{boucherie.adresse}</p>
           </div>
         </div>
 
@@ -356,3 +356,4 @@ function SuiviGate() {
 
   return <SuiviContent />
 }
+
