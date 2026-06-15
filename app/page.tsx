@@ -483,10 +483,20 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
         )}
 
         {filtered.length === 0
-          ? <div className="text-center py-14 text-gray-400">
-              <span className="text-5xl block mb-3">🔍</span>
-              <p className="font-semibold text-sm mb-2">Aucune boucherie trouvée</p>
-              {userPos && <button className="text-sm text-or font-bold" onClick={() => setRayonKm(r => r + 5)}>Élargir le rayon</button>}
+         ? <div className="text-center py-16 text-gray-400">
+              <span className="text-5xl block mb-4">🔪</span>
+              <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
+              <p className="text-sm leading-relaxed mb-2">
+                Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
+              </p>
+              <p className="text-xs text-gray-400 mb-4">
+                Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
+              </p>
+              {userPos && (
+                <button className="text-sm text-or font-bold" onClick={() => setRayonKm(r => r + 5)}>
+                  Élargir le rayon
+                </button>
+              )}
             </div>
           : <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
               {filtered.map(b => (
