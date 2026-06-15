@@ -5,6 +5,7 @@ import BottomNavClient from '@/components/ui/BottomNavClient'
 import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
+import Switch from '@/components/Switch'
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
@@ -341,10 +342,10 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
                 <p className="text-sm font-semibold text-brun">{item.label}</p>
                 <p className="text-xs text-gray-400">{item.sub}</p>
               </div>
-              <button className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${(prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200'}`}
-                onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${(prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
-              </button>
+              <Switch
+                checked={!!(prefs as any)[item.key]}
+                onChange={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}
+              />
             </div>
           ))}
         </div>
