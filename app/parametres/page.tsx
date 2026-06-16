@@ -703,29 +703,6 @@ function CguSection({ onBack }: { onBack: () => void }) {
   )
 }
 
-function DocUpload({ label, sublabel, required, file, onChange }: { label: string; sublabel: string; required?: boolean; file: File | null; onChange: (f: File | null) => void }) {
-  return (
-    <div>
-      <div className="flex items-start justify-between mb-1">
-        <div><label className="text-xs font-bold text-brun">{label} {required && <span className="text-rouge-vif">*</span>}</label><p className="text-[10px] text-gray-400">{sublabel}</p></div>
-        {file && <span className="text-green-500 text-sm ml-2">✅</span>}
-      </div>
-      {file ? (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5">
-          <span className="text-green-600 text-sm">📄</span>
-          <span className="text-xs text-green-700 font-semibold flex-1 truncate">{file.name}</span>
-          <button className="text-gray-400 text-xs font-sans" onClick={() => onChange(null)}>✕</button>
-        </div>
-      ) : (
-        <label className="flex items-center gap-2 border-2 border-dashed border-gray-200 rounded-xl px-3 py-3 cursor-pointer hover:border-brun transition-all">
-          <span className="text-xl">📎</span>
-          <span className="text-xs text-gray-400 font-semibold">Choisir un fichier (PDF, JPG, PNG)</span>
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => onChange(e.target.files?.[0] || null)} />
-        </label>
-      )}
-    </div>
-  )
-}
 
 function LivreurSection({ onBack }: { onBack: () => void }) {
   const [step, setStep] = useState<'info'|'form'>('info')
@@ -855,10 +832,45 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   const { addBoucher } = useAccounts()
   const [step, setStep] = useState<'info'|'form'>('info')
   const [form, setForm] = useState({ prenom:'', nom:'', email:'', tel:'', nom_boutique:'', adresse:'', ville:'', siret:'', specialites:'', message:'' })
-  const [docs, setDocs] = useState<Record<string,File|null>>({ siret_doc: null })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [siretVerif, setSiretVerif] = useState<'idle'|'loading'|'ok'|'error'>('idle')
+  const [siretMsg, setSiretMsg] = useState('')
+  const [officialName, setOfficialName] = useState('')
   const siretOk = /^\d{14}$/.test(form.siret.replace(/\s/g,''))
+
+  // Réinitialiser la vérification si le boucher modifie le SIRET ou le nom
+  useEffect(() => {
+    setSiretVerif('idle')
+    setSiretMsg('')
+    setOfficialName('')
+  }, [form.nom_boutique, form.siret])
+
+  async function verifierSiret() {
+    if (!siretOk || !form.nom_boutique.trim()) return
+    setSiretVerif('loading')
+    setSiretMsg('')
+    setOfficialName('')
+    try {
+      const res = await fetch('/api/verify-siret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siret: form.siret.replace(/\s/g,''), nom_boutique: form.nom_boutique }),
+      })
+      const data = await res.json()
+      if (data.verified) {
+        setSiretVerif('ok')
+        setOfficialName(data.officialName || '')
+      } else {
+        setSiretVerif('error')
+        setSiretMsg(data.error || 'Le SIRET ou le nom ne correspond pas au registre officiel.')
+        setOfficialName(data.officialName || '')
+      }
+    } catch {
+      setSiretVerif('error')
+      setSiretMsg('Erreur réseau. Vérifiez votre connexion et réessayez.')
+    }
+  }
 
   async function soumettre() {
     setLoading(true); setError('')
@@ -894,22 +906,91 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-4">
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Votre boucherie</h3>
-          {[['nom_boutique','Nom de la boucherie *','Boucherie Dupont'],['adresse','Adresse *','12 rue du Marché'],['ville','Ville *','Paris'],['specialites','Spécialités','Charolais, Wagyu…']].map(([k,l,ph]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
+          {[['nom_boutique','Nom de la boucherie *','Boucherie Dupont'],['adresse','Adresse *','12 rue du Marché'],['ville','Ville *','Paris'],['specialites','Spécialités','Charolais, Wagyu…']].map(([k,l,ph]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />
+            </div>
+          ))}
+
+          {/* Champ SIRET */}
           <div>
             <label className="text-xs font-bold text-brun block mb-1">SIRET *</label>
-            <div className="relative"><input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none font-mono pr-8 ${form.siret ? (siretOk ? 'border-green-400' : 'border-rouge-vif') : 'border-gray-200 focus:border-brun'}`} placeholder="123 456 789 00012" value={form.siret} onChange={e => setForm(f=>({...f,siret:e.target.value}))} />{form.siret && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">{siretOk ? '✅' : '❌'}</span>}</div>
+            <div className="relative">
+              <input
+                className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none font-mono pr-8 ${form.siret ? (siretOk ? 'border-green-400' : 'border-rouge-vif') : 'border-gray-200 focus:border-brun'}`}
+                placeholder="123 456 789 00012"
+                value={form.siret}
+                onChange={e => setForm(f=>({...f,siret:e.target.value}))}
+              />
+              {form.siret && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">{siretOk ? '✅' : '❌'}</span>}
+            </div>
           </div>
-          <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p><p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p></div>
+
+          {/* Bouton de vérification SIRET */}
+          {siretOk && form.nom_boutique.trim() && siretVerif === 'idle' && (
+            <button
+              className="w-full text-xs bg-brun/10 text-brun font-bold py-2.5 rounded-xl font-sans flex items-center justify-center gap-2"
+              onClick={verifierSiret}
+            >
+              🔍 Vérifier dans le registre officiel des entreprises
+            </button>
+          )}
+          {siretVerif === 'loading' && (
+            <div className="flex items-center gap-2 text-xs text-gray-500 py-1">
+              <span className="inline-block animate-spin">⏳</span> Vérification en cours…
+            </div>
+          )}
+          {siretVerif === 'ok' && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3 space-y-0.5">
+              <p className="text-xs font-bold text-green-700">✅ Entreprise vérifiée dans le registre officiel</p>
+              {officialName && <p className="text-[11px] text-green-600">Nom officiel : {officialName}</p>}
+            </div>
+          )}
+          {siretVerif === 'error' && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3 space-y-1.5">
+              <p className="text-xs font-bold text-red-700">❌ Vérification échouée</p>
+              <p className="text-[11px] text-red-600 leading-relaxed">{siretMsg}</p>
+              {officialName && <p className="text-[11px] text-gray-500">Nom trouvé dans le registre : <strong>{officialName}</strong></p>}
+              <button className="text-[11px] text-brun font-bold font-sans underline" onClick={verifierSiret}>Réessayer</button>
+            </div>
+          )}
+
+          <div className="bg-or-pale border border-or/20 rounded-xl p-3">
+            <p className="text-xs font-bold text-brun mb-1">💳 Coordonnées bancaires (IBAN)</p>
+            <p className="text-xs text-gray-500">Votre IBAN sera collecté directement par <strong>Stripe</strong> lors de l'étape suivante. Virements automatiques chaque lundi.</p>
+          </div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <DocUpload label="📄 Kbis ou justificatif SIRET" sublabel="Extrait Kbis ou avis INSEE" required file={docs.siret_doc} onChange={f => setDocs(d=>({...d,siret_doc:f}))} />
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+
+<div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h3 className="font-serif text-base font-bold text-brun">Vos coordonnées</h3>
-          <div className="grid grid-cols-2 gap-3">{[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l} *</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}</div>
-          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00']].map(([k,l,ph]) => <div key={k}><label className="text-xs font-bold text-brun block mb-1">{l}</label><input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /></div>)}
+          <div className="grid grid-cols-2 gap-3">
+            {[['prenom','Prénom'],['nom','Nom']].map(([k,l]) => (
+              <div key={k}>
+                <label className="text-xs font-bold text-brun block mb-1">{l} *</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />
+              </div>
+            ))}
+          </div>
+          {[['email','Email *','vous@email.fr'],['tel','Téléphone *','+33 6 00 00 00 00']].map(([k,l,ph]) => (
+            <div key={k}>
+              <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+              <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun" placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />
+            </div>
+          ))}
         </div>
-        <button className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300" disabled={!form.nom_boutique||!form.prenom||!form.email||!form.tel||!form.ville||!siretOk||!docs.siret_doc||loading} onClick={soumettre}>
+
+        {siretVerif !== 'ok' && siretOk && form.nom_boutique && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <p className="text-xs text-amber-700">Vous devez vérifier votre SIRET avant de pouvoir envoyer votre candidature.</p>
+          </div>
+        )}
+
+        <button
+          className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 disabled:cursor-not-allowed"
+          disabled={!form.nom_boutique||!form.prenom||!form.email||!form.tel||!form.ville||!siretOk||siretVerif!=='ok'||loading}
+          onClick={soumettre}
+        >
           {loading ? '⏳ Envoi…' : '🤝 Envoyer ma candidature'}
         </button>
         {error && <p className="text-center text-xs text-rouge-vif">{error}</p>}

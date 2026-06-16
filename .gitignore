@@ -9,3 +9,4 @@ out/
 java.txt
 .env.local
 .env
+.vercel

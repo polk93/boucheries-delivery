@@ -15,24 +15,38 @@ export async function GET(req: NextRequest) {
     const email = searchParams.get('email')
 
     if (email) {
-      const { data, error } = await supabase
-        .from('bouchers').select('*, produits(*)').eq('email', email).single()
+      const { data: boucher, error } = await supabase
+        .from('bouchers').select('*').eq('email', email).single()
       if (error) {
         console.error('[bouchers GET email]', error)
         return NextResponse.json({ error: error.message }, { status: 404 })
       }
-      return NextResponse.json(data)
+      const { data: produits } = boucher?.id
+        ? await supabase.from('produits').select('*').eq('boucher_id', boucher.id)
+        : { data: [] }
+      return NextResponse.json({ ...boucher, produits: produits || [] })
     }
 
-    const { data, error } = await supabase
-      .from('bouchers').select('*, produits(*)')
-      .eq('actif', true).order('created_at', { ascending: true })
+    const { data: bouchersRaw, error: bouchersErr } = await supabase
+      .from('bouchers')
+      .select('*')
 
-    if (error) {
-      console.error('[bouchers GET all]', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (bouchersErr) {
+      console.error('[bouchers GET all]', bouchersErr)
+      return NextResponse.json({ error: bouchersErr.message }, { status: 500 })
     }
-    return NextResponse.json(data || [])
+
+    const boucherIds = (bouchersRaw || []).map((b: any) => b.id).filter(Boolean)
+    const { data: produitsRaw } = boucherIds.length
+      ? await supabase.from('produits').select('*').in('boucher_id', boucherIds)
+      : { data: [] }
+
+    const result = (bouchersRaw || []).map((boucher: any) => ({
+      ...boucher,
+      produits: (produitsRaw || []).filter((p: any) => p.boucher_id === boucher.id),
+    }))
+
+    return NextResponse.json(result)
   } catch (err: any) {
     console.error('[bouchers GET catch]', err)
     return NextResponse.json({ error: err.message }, { status: 500 })
