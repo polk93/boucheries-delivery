@@ -159,6 +159,7 @@ const SF = ['new', 'prep', 'ready', 'delivery', 'done']
 const BL: Record<string, string> = { new: 'Préparer', prep: 'Prête', ready: 'Livrer', delivery: 'Confirmer' }
 const ICONS = ['', '', '️', '', '', '', '', '', '', '', '', '⭐']
 const JOURS: Array<[string, string]> = [['lun','Lun'],['mar','Mar'],['mer','Mer'],['jeu','Jeu'],['ven','Ven'],['sam','Sam'],['dim','Dim']]
+const CATS_DEFAULT = ['Agneau', 'Bœuf', 'Entrée', 'Porc', 'Veau', 'Volaille']
 
 const HORAIRE_DEFAULT: HoraireJour = { ouvert: true, matin: true, matinDebut: '08:00', matinFin: '13:00', am: true, amDebut: '15:00', amFin: '19:30' }
 const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
@@ -260,6 +261,11 @@ export default function PanelPage() {
   const [isNew, setIsNew] = useState(false)
 
   const myProduits = produits.filter(p => p.boucherieId === myBoucherieId)
+
+  const [filterCat, setFilterCat] = useState<string>('all')
+  const [newCatName, setNewCatName] = useState('')
+  const [customCats, setCustomCats] = useState<string[]>(() => boucherStore.getCategories(myBoucherieId))
+  const allCats = [...CATS_DEFAULT, ...customCats.filter(c => !CATS_DEFAULT.includes(c))]
 
   // Enregistrer le boucher dans Supabase dès la connexion (si pas démo)
   useEffect(() => {
@@ -391,16 +397,31 @@ export default function PanelPage() {
   function openEdit(p: ProduitEtendu) {
     setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '' })
     setIsNew(false)
+    setNewCatName('')
   }
 
   function openNew() {
     setModalProd(emptyForm(myBoucherieId))
     setIsNew(true)
+    setNewCatName('')
   }
 
   async function saveProduit() {
     if (!modalProd) return
     if (!modalProd.nom.trim() || !modalProd.prix.trim()) { showToast('⚠️ Nom et prix obligatoires'); return }
+
+    // Résoudre la catégorie (nouvelle ou existante)
+    let finalCat = modalProd.cat
+    if (finalCat === '__new__') {
+      const trimmed = newCatName.trim()
+      if (!trimmed) { showToast('⚠️ Entrez un nom de catégorie'); return }
+      finalCat = trimmed
+      if (!customCats.includes(trimmed)) {
+        const updated = [...customCats, trimmed]
+        setCustomCats(updated)
+        boucherStore.setCategories(myBoucherieId, updated)
+      }
+    }
 
     const profil = boucherStore.getBoucherProfil(user?.email || '')
     const boucherieNom = profil?.boutique || user?.boucherieNom || user?.nom || 'Ma Boucherie'
@@ -419,12 +440,12 @@ export default function PanelPage() {
             id: data?.id || ('local_' + Date.now()),
             nom: modalProd.nom, desc: modalProd.desc,
             prix: parseFloat(modalProd.prix) || 0,
-            icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0,
+            icon: modalProd.icon, stock: parseFloat(modalProd.stock) || 0,
             photo: modalProd.photoUrl, photoUrl: modalProd.photoUrl,
             decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
             preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
             boucherieId: myBoucherieId, boucherieNom,
-            cat: modalProd.cat as any, venteType: modalProd.venteType as any,
+            cat: finalCat as any, venteType: modalProd.venteType as any,
             poids: modalProd.poids,
           } as any
           setProduits(prev => {
@@ -447,12 +468,12 @@ export default function PanelPage() {
         id: 'local_' + Date.now(),
         nom: modalProd.nom, desc: modalProd.desc,
         prix: parseFloat(modalProd.prix) || 0,
-        icon: modalProd.icon, stock: parseInt(modalProd.stock) || 0,
+        icon: modalProd.icon, stock: parseFloat(modalProd.stock) || 0,
         photo: modalProd.photoUrl, photoUrl: modalProd.photoUrl,
         decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         boucherieId: modalProd.boucherieId, boucherieNom,
-        cat: modalProd.cat as any, venteType: modalProd.venteType as any,
+        cat: finalCat as any, venteType: modalProd.venteType as any,
       }
       setProduits(prev => {
         const next = [...prev, newProd]
@@ -470,7 +491,9 @@ export default function PanelPage() {
           desc: modalProd.desc,
           prix: parseFloat(modalProd.prix) || p.prix,
           icon: modalProd.icon,
-          stock: parseInt(modalProd.stock) || 0,
+          stock: parseFloat(modalProd.stock) || 0,
+          cat: finalCat as any,
+          venteType: modalProd.venteType as any,
           photoUrl: modalProd.photoUrl,
           photo: modalProd.photoUrl,
           decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
@@ -700,76 +723,129 @@ export default function PanelPage() {
         )}
 
         {/* ══ PRODUITS ══ */}
-        {tab === 'produits' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="flex justify-between items-center px-4 py-3 border-b border-gris-bd bg-or-pale">
-              <div>
-                <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
-                <p className="text-xs text-gray-400">{myProduits.filter(p => (p as any).actif !== false).length} produit{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} actif{myProduits.filter(p => (p as any).actif !== false).length > 1 ? 's' : ''} · {myProduits.length} total</p>
-              </div>
-              <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
-            </div>
-            {myProduits.length === 0
-              ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
-              : myProduits.map((p, i) => {
-                const isActif = (p as any).actif !== false
+        {tab === 'produits' && (() => {
+          const actifCount = myProduits.filter(p => (p as any).actif !== false).length
+          const filtered = myProduits
+            .filter(p => filterCat === 'all' || String(p.cat) === filterCat)
+            .sort((a, b) => {
+              const catA = String(a.cat || 'Autre')
+              const catB = String(b.cat || 'Autre')
+              const cmp = catA.localeCompare(catB, 'fr')
+              if (cmp !== 0) return cmp
+              return a.nom.localeCompare(b.nom, 'fr')
+            })
 
-                function toggleActif() {
-                  const newActif = !isActif
-                  // Mettre à jour localement
-                  setProduits(prev => {
-                    const next = prev.map(x => x.id === p.id ? { ...x, actif: newActif } : x)
-                    boucherStore.setProduits(myBoucherieId, next)
-                    return next
-                  })
-                  // Sync Supabase
-                  if (!user?.isDemo) {
-                    fetch('/api/produits', {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ id: p.id, actif: newActif }),
-                    }).catch(console.error)
-                  }
-                  showToast(newActif ? '✅ Produit activé' : '⏸️ Produit masqué')
+          // Grouper par catégorie
+          const groups: { cat: string; prods: typeof filtered }[] = []
+          filtered.forEach(p => {
+            const cat = String(p.cat || 'Autre')
+            const last = groups[groups.length - 1]
+            if (!last || last.cat !== cat) groups.push({ cat, prods: [p] })
+            else last.prods.push(p)
+          })
+
+          function ProduitRow({ p }: { p: typeof filtered[0] }) {
+            const isActif = (p as any).actif !== false
+            function toggleActif() {
+              const newActif = !isActif
+              setProduits(prev => {
+                const next = prev.map(x => x.id === p.id ? { ...x, actif: newActif } : x)
+                boucherStore.setProduits(myBoucherieId, next)
+                return next
+              })
+              if (!user?.isDemo) {
+                fetch('/api/produits', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, actif: newActif }) }).catch(console.error)
+              }
+              showToast(newActif ? '✅ Produit activé' : '⏸️ Produit masqué')
+            }
+            const isKg = String((p as any).venteType) === 'poids'
+            const stockLabel = p.stock === 0 ? 'Rupture' : isKg ? `${p.stock} kg` : `${p.stock} u`
+            const stockCls = p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600'
+            return (
+              <div className={"flex items-center gap-3 px-4 py-3 border-b border-gris-bd" + (!isActif ? ' opacity-50' : '')}>
+                {/* Photo ou placeholder */}
+                {p.photoUrl
+                  ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0 w-11 h-11" />
+                  : <div className="rounded-xl bg-or-pale flex items-center justify-center text-xl flex-shrink-0 w-11 h-11">🥩</div>
                 }
-
-                return (
-                <div key={p.id} className={'p-3 transition-opacity ' + (i < myProduits.length - 1 ? 'border-b border-gris-bd' : '') + (!isActif ? ' opacity-50' : '')}>
-                  {/* Ligne 1 : photo + nom + toggle */}
-                  <div className="flex items-center gap-2.5">
-                    {p.photoUrl
-                      ? <img src={p.photoUrl} alt={p.nom} className="rounded-xl object-cover flex-shrink-0" style={{ width: 48, height: 48 }} />
-                      : <div className="rounded-xl bg-or-pale flex items-center justify-center text-xl flex-shrink-0" style={{ width: 48, height: 48 }}>{p.icon}</div>
-                    }
-                    <div className="flex-1 min-w-0">
-                      <p className={'font-bold text-sm truncate ' + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
-                      <p className="text-xs text-gray-400 truncate">{p.desc}</p>
-                    </div>
-                    {/* Toggle bien aligné à droite */}
-                    <button
-                      className={'w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ' + (isActif ? 'bg-green-400' : 'bg-gray-200')}
-                      onClick={toggleActif}>
-                      <span className={'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ' + (isActif ? 'translate-x-5' : 'translate-x-0.5')} />
-                    </button>
-                  </div>
-                  {/* Ligne 2 : prix + stock + actions */}
-                  <div className="flex items-center gap-2 mt-2 pl-[56px]">
-                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
-                    <span className={'text-[10px] font-bold px-1.5 py-0.5 rounded-full ' + (p.stock === 0 ? 'bg-red-100 text-red-500' : p.stock <= 4 ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600')}>
-                      {p.stock === 0 ? 'Rupture' : String(p.stock)}
-                    </span>
+                {/* Nom + infos */}
+                <div className="flex-1 min-w-0">
+                  <p className={"font-bold text-sm truncate " + (isActif ? 'text-brun' : 'text-gray-400 line-through')}>{p.nom}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                    <span className="text-xs font-bold text-rouge-vif">{p.prix.toFixed(2)} €{isKg ? '/kg' : ''}</span>
+                    <span className={"text-[10px] font-bold px-1.5 py-0.5 rounded-full " + stockCls}>{stockLabel}</span>
                     {!p.photoUrl && <span className="text-[10px] bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full font-bold">📷</span>}
-                    <div className="flex items-center gap-1.5 ml-auto">
-                      <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
-                      <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
-                    </div>
                   </div>
                 </div>
-                )
-              })
-            }
-          </div>
-        )}
+                {/* Actions + toggle */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
+                  <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isActif}
+                    onClick={toggleActif}
+                    style={{
+                      width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
+                      cursor: 'pointer', flexShrink: 0, position: 'relative',
+                      backgroundColor: isActif ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
+                      transition: 'background-color 0.2s', outline: 'none',
+                    }}>
+                    <span style={{
+                      display: 'block', width: 20, height: 20, borderRadius: '50%',
+                      backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
+                      transform: isActif ? 'translateX(20px)' : 'translateX(0px)',
+                      transition: 'transform 0.2s',
+                    }} />
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-gris-bd bg-or-pale">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <p className="font-bold text-brun text-sm">{myBoucherie?.nom}</p>
+                    <p className="text-xs text-gray-400">{actifCount} actif{actifCount > 1 ? 's' : ''} · {myProduits.length} total</p>
+                  </div>
+                  <button className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-lg font-sans" onClick={openNew}>+ Ajouter</button>
+                </div>
+                {myProduits.length > 0 && (
+                  <select
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs text-brun bg-white outline-none focus:border-brun font-sans"
+                    value={filterCat}
+                    onChange={e => setFilterCat(e.target.value)}>
+                    <option value="all">Toutes les catégories ({myProduits.length})</option>
+                    {allCats.filter(c => myProduits.some(p => String(p.cat) === c)).map(c => (
+                      <option key={c} value={c}>{c} ({myProduits.filter(p => String(p.cat) === c).length})</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              {/* Liste groupée */}
+              {myProduits.length === 0
+                ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
+                : filtered.length === 0
+                  ? <div className="text-center py-8 text-gray-400 text-sm">Aucun produit dans cette catégorie</div>
+                  : groups.map(({ cat, prods }) => (
+                      <div key={cat}>
+                        {filterCat === 'all' && (
+                          <div className="px-4 py-1.5 bg-gris-bd border-b border-gray-100">
+                            <p className="text-[11px] font-bold text-brun-clair uppercase tracking-wider">{cat}</p>
+                          </div>
+                        )}
+                        {prods.map(p => <ProduitRow key={p.id} p={p} />)}
+                      </div>
+                    ))
+              }
+            </div>
+          )
+        })()}
 
         {/* ══ BOUTIQUE ══ */}
         {tab === 'boutique' && (
@@ -1126,7 +1202,7 @@ export default function PanelPage() {
                 <div className="flex items-center gap-3">
                   {modalProd.photoUrl
                     ? <img src={modalProd.photoUrl} alt="Photo" className="w-20 h-20 rounded-xl object-cover border border-gris-bd" />
-                    : <div className="w-20 h-20 rounded-xl bg-or-pale flex items-center justify-center text-3xl border-2 border-dashed border-or/30">{modalProd.icon}</div>
+                    : <div className="w-20 h-20 rounded-xl bg-or-pale flex items-center justify-center text-3xl border-2 border-dashed border-or/30">🥩</div>
                   }
                   <div className="flex flex-col gap-2">
                     <button className="bg-brun text-white text-xs font-bold px-4 py-2 rounded-xl font-sans" onClick={() => fileRef.current?.click()}>
@@ -1140,16 +1216,6 @@ export default function PanelPage() {
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
                 </div>
               </div>
-              <div>
-                <label className="text-xs font-bold text-brun block mb-1.5">Icône</label>
-                <div className="flex flex-wrap gap-2">
-                  {ICONS.map(ico => (
-                    <button key={ico}
-                      className={'w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all font-sans ' + (modalProd.icon === ico ? 'bg-brun scale-110' : 'bg-gris-bd')}
-                      onClick={() => setModalProd(f => f ? { ...f, icon: ico } : f)}>{ico}</button>
-                  ))}
-                </div>
-              </div>
               {[['nom', 'Nom *', 'Entrecôte Charolais'], ['desc', 'Description', '500g, persillé idéal']].map(([k, l, ph]) => (
                 <div key={k}>
                   <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
@@ -1160,16 +1226,26 @@ export default function PanelPage() {
                 </div>
               ))}
               <div className="grid grid-cols-2 gap-3">
-                {[['prix', 'Prix (€) *', '18.90'], ['stock', 'Stock', '10']].map(([k, l, ph]) => (
-                  <div key={k}>
-                    <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
-                    <input type="number" min="0"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                      placeholder={ph}
-                      value={(modalProd as any)[k]}
-                      onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
-                  </div>
-                ))}
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1.5">Prix (€) *</label>
+                  <input type="number" min="0" step="0.01"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                    placeholder="18.90"
+                    value={modalProd.prix}
+                    onChange={e => setModalProd(f => f ? { ...f, prix: e.target.value } : f)} />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-brun block mb-1.5">
+                    {modalProd.venteType === 'poids' ? 'Stock (kg)' : 'Stock (unités)'}
+                  </label>
+                  <input
+                    type="number" min="0"
+                    step={modalProd.venteType === 'poids' ? '0.1' : '1'}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
+                    placeholder={modalProd.venteType === 'poids' ? '2.5' : '10'}
+                    value={modalProd.stock}
+                    onChange={e => setModalProd(f => f ? { ...f, stock: e.target.value } : f)} />
+                </div>
               </div>
 
               {/* Catégorie + Type de vente */}
@@ -1179,13 +1255,22 @@ export default function PanelPage() {
                   <select className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun bg-white"
                     value={modalProd.cat}
                     onChange={e => setModalProd(f => f ? { ...f, cat: e.target.value } : f)}>
-                    {['Bœuf','Veau','Agneau','Volaille','Porc','Entrée'].map(c => <option key={c} value={c}>{c}</option>)}
+                    {allCats.map(c => <option key={c} value={c}>{c}</option>)}
+                    <option value="__new__">+ Nouvelle catégorie…</option>
                   </select>
+                  {modalProd.cat === '__new__' && (
+                    <input
+                      className="mt-1.5 w-full border border-brun rounded-xl px-3 py-2 text-sm font-sans outline-none focus:border-brun"
+                      placeholder="Nom de la catégorie"
+                      autoFocus
+                      value={newCatName}
+                      onChange={e => setNewCatName(e.target.value)} />
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-bold text-brun block mb-1.5">Vendu</label>
                   <div className="flex flex-col gap-1.5">
-                    {[['pièce','🔢 À la pièce'],['poids','⚖️ Au poids']].map(([v,l]) => (
+                    {[['pièce','À la pièce'],['poids','Au poids']].map(([v,l]) => (
                       <button key={v}
                         className={'py-2 rounded-xl border-2 text-xs font-bold font-sans transition-all ' + (modalProd.venteType === v ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500')}
                         onClick={() => setModalProd(f => f ? { ...f, venteType: v } : f)}>{l}</button>
@@ -1526,9 +1611,22 @@ function BoucherNotifsForm() {
             <p className="text-xs text-gray-400">{item.sub}</p>
           </div>
           <button
-            className={"w-11 h-6 rounded-full relative transition-colors flex-shrink-0 " + ((prefs as any)[item.key] ? 'bg-green-400' : 'bg-gray-200')}
-            onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}>
-            <span className={"absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + ((prefs as any)[item.key] ? 'translate-x-5' : 'translate-x-0.5')} />
+            type="button"
+            role="switch"
+            aria-checked={(prefs as any)[item.key]}
+            onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}
+            style={{
+              width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
+              cursor: 'pointer', flexShrink: 0, position: 'relative',
+              backgroundColor: (prefs as any)[item.key] ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
+              transition: 'background-color 0.2s', outline: 'none',
+            }}>
+            <span style={{
+              display: 'block', width: 20, height: 20, borderRadius: '50%',
+              backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
+              transform: (prefs as any)[item.key] ? 'translateX(20px)' : 'translateX(0px)',
+              transition: 'transform 0.2s',
+            }} />
           </button>
         </div>
       ))}
