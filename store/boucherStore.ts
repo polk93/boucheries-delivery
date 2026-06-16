@@ -27,6 +27,7 @@ interface BoucherStore {
   boutiques:      Record<string, any>
   isOpen:         Record<string, boolean>
   registry:       Record<string, number>  // email → boucherieId
+  categories:     Record<string, string[]> // boucherieId → custom categories
 
   // Produits
   getProduits:   (bid: number) => ProduitSave[]
@@ -34,6 +35,10 @@ interface BoucherStore {
   addProduit:    (bid: number, p: ProduitSave) => void
   updateProduit: (bid: number, id: string, u: Partial<ProduitSave>) => void
   removeProduit: (bid: number, id: string) => void
+
+  // Catégories personnalisées
+  getCategories: (bid: number) => string[]
+  setCategories: (bid: number, cats: string[]) => void
 
   // Stripe
   getStripeAccount:   (email: string) => StripeAccountInfo | null
@@ -72,7 +77,7 @@ export const useBoucherStore = create<BoucherStore>()(
   persist(
     (set, get) => ({
       produits: {}, stripeAccounts: {}, profils: {},
-      orders: {}, historique: {}, boutiques: {}, isOpen: {}, registry: {},
+      orders: {}, historique: {}, boutiques: {}, isOpen: {}, registry: {}, categories: {},
 
       getProduits:   (bid) => get().produits[String(bid)] || [],
       setProduits:   (bid, p) => set(s => ({ produits: { ...s.produits, [String(bid)]: p } })),
@@ -98,6 +103,9 @@ export const useBoucherStore = create<BoucherStore>()(
 
       getIsOpen: (bid) => get().isOpen[bid] ?? null,
       setIsOpen: (bid, val) => set(s => ({ isOpen: { ...s.isOpen, [bid]: val } })),
+
+      getCategories: (bid) => get().categories[String(bid)] || [],
+      setCategories: (bid, cats) => set(s => ({ categories: { ...s.categories, [String(bid)]: cats } })),
 
       registerBoucher: (email, bid) =>
         set(s => ({ registry: { ...s.registry, [email]: bid } })),
