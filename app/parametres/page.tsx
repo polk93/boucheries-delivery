@@ -349,28 +349,34 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
 }
 
 function NotifsSection({ onBack }: { onBack: () => void }) {
-  const { user } = useAuth()
-  const [prefs, setPrefs] = useState({
-    livraison: false, promos: false, nouveaux: false, rappels: false, rapport: false,
+  const { user, notifPrefs, setNotifPrefs } = useAuth()
+
+  const DEMO_PREFS = { livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false }
+
+  // Initialise depuis le cache Zustand (disponible immédiatement), sinon valeurs démo
+  const [prefs, setPrefs] = useState<Record<string, boolean>>(() => {
+    if (user?.isDemo) return DEMO_PREFS
+    return Object.keys(notifPrefs).length > 0 ? notifPrefs : DEMO_PREFS
   })
+
   useEffect(() => {
-    if (!user?.email || user.isDemo) {
-      setPrefs({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
-      return
-    }
+    if (!user?.email || user.isDemo) return
     fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0)
+        if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0) {
           setPrefs(data.notifs_prefs)
+          setNotifPrefs(data.notifs_prefs)
+        }
       })
       .catch(() => {})
-  }, [user?.email])
+  }, [user?.email, user?.isDemo])
 
   function toggle(key: string) {
-    const updated = { ...prefs, [key]: !(prefs as any)[key] }
+    const updated = { ...prefs, [key]: !prefs[key] }
     setPrefs(updated)
     if (user?.email && !user.isDemo) {
+      setNotifPrefs(updated)
       fetch('/api/clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

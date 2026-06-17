@@ -11,14 +11,18 @@ export interface User {
   boucherieNom?: string
 }
 
+export type NotifPrefs = Record<string, boolean>
+
 interface AuthStore {
   user: User | null
-  login:      (user: User) => void
-  logout:     () => void
-  updateUser: (updates: Partial<User>) => void
-  isClient:   () => boolean
-  isBoucher:  () => boolean
-  isDemo:     () => boolean
+  notifPrefs: NotifPrefs
+  login:          (user: User) => void
+  logout:         () => void
+  updateUser:     (updates: Partial<User>) => void
+  setNotifPrefs:  (prefs: NotifPrefs) => void
+  isClient:       () => boolean
+  isBoucher:      () => boolean
+  isDemo:         () => boolean
 }
 
 export const DEMO_CLIENT: User = {
@@ -47,17 +51,18 @@ export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
       user: null,
-      login:      (user) => set({ user }),
-      logout:     () => set({ user: null }),
-      // Met à jour les champs du user connecté sans déconnecter
-      updateUser: (updates) => {
+      notifPrefs: {},
+      login:         (user) => set({ user }),
+      logout:        () => set({ user: null, notifPrefs: {} }),
+      updateUser:    (updates) => {
         const current = get().user
         if (!current) return
         set({ user: { ...current, ...updates } })
       },
-      isClient:   () => get().user?.role === 'client',
-      isBoucher:  () => get().user?.role === 'boucher',
-      isDemo:     () => get().user?.isDemo === true,
+      setNotifPrefs: (prefs) => set({ notifPrefs: prefs }),
+      isClient:      () => get().user?.role === 'client',
+      isBoucher:     () => get().user?.role === 'boucher',
+      isDemo:        () => get().user?.isDemo === true,
     }),
     { name: 'boucherie-auth' }
   )
