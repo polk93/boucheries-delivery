@@ -1595,7 +1595,28 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
 
 // ── Notifications boucher ─────────────────────────────────────────────────────
 function BoucherNotifsForm() {
+  const { user } = useAuth()
   const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
+
+  useEffect(() => {
+    if (!user?.email) return
+    fetch(`/api/bouchers?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0) setPrefs(data.notifs_prefs) })
+      .catch(() => {})
+  }, [user?.email])
+
+  function togglePref(key: string) {
+    const updated = { ...prefs, [key]: !(prefs as any)[key] }
+    setPrefs(updated)
+    if (user?.email) {
+      fetch('/api/bouchers', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, notifs_prefs: updated }),
+      }).catch(console.error)
+    }
+  }
+
   const items = [
     { key: 'nouvelle_cmd', label: 'Nouvelle commande',  sub: 'Son + notification push instantanée' },
     { key: 'stock_faible', label: 'Stock faible',        sub: 'Alerte quand stock ≤ 3' },
@@ -1614,7 +1635,7 @@ function BoucherNotifsForm() {
             type="button"
             role="switch"
             aria-checked={(prefs as any)[item.key]}
-            onClick={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}
+            onClick={() => togglePref(item.key)}
             style={{
               width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
               cursor: 'pointer', flexShrink: 0, position: 'relative',
