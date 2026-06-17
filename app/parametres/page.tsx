@@ -187,25 +187,37 @@ export default function ParametresPage() {
 
 function ProfilSection({ onBack }: { onBack: () => void }) {
   const { user, updateUser } = useAuth()
-  const [form, setForm] = useState({
-    prenom: user?.nom?.split(' ')[0] || '',
-    nom: user?.nom?.split(' ').slice(1).join(' ') || '',
-    email: user?.email || '',
-    tel: '',
-  })
+  const [form, setForm] = useState({ prenom: '', nom: '', email: user?.email || '', tel: '' })
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.email || user.isDemo) {
+      setForm({ prenom: user?.nom?.split(' ')[0] || '', nom: user?.nom?.split(' ').slice(1).join(' ') || '', email: user?.email || '', tel: '' })
+      setLoading(false)
+      return
+    }
+    fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          const parts = (data.nom || '').split(' ')
+          setForm({ prenom: parts[0] || '', nom: parts.slice(1).join(' ') || '', email: data.email || user.email, tel: data.telephone || '' })
+        } else {
+          setForm({ prenom: user.nom?.split(' ')[0] || '', nom: user.nom?.split(' ').slice(1).join(' ') || '', email: user.email, tel: '' })
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [user?.email])
 
   function enregistrer() {
-    // Met à jour le store auth — re-render automatique partout
-    updateUser({
-      nom: `${form.prenom} ${form.nom}`.trim(),
-      email: form.email.trim() || user?.email || '',
-    })
-    // Sync Supabase
-    if (user?.email && !user?.isDemo) {
+    const email = form.email.trim() || user?.email || ''
+    updateUser({ nom: `${form.prenom} ${form.nom}`.trim(), email })
+    if (email && !user?.isDemo) {
       fetch('/api/clients', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email || user.email, nom: `${form.prenom} ${form.nom}`.trim(), telephone: form.tel }),
+        body: JSON.stringify({ email, nom: `${form.prenom} ${form.nom}`.trim(), telephone: form.tel }),
       }).catch(console.error)
     }
     setSaved(true)
@@ -216,19 +228,21 @@ function ProfilSection({ onBack }: { onBack: () => void }) {
     <PageWrapper title="👤 Mon profil" onBack={onBack}>
       <div className="text-center mb-5">
         <div className="w-16 h-16 rounded-full bg-brun text-white text-3xl flex items-center justify-center mx-auto mb-2">👤</div>
-        <button className="text-xs text-or font-semibold">Changer la photo</button>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-        {[['prenom', 'Prénom', 'Jean'], ['nom', 'Nom', 'Dupont'], ['email', 'Email', 'vous@email.fr'], ['tel', 'Téléphone', '+33 6 00 00 00 00']].map(([k, l, ph]) => (
-          <div key={k}>
-            <label className="text-xs font-bold text-brun block mb-1">{l}</label>
-            <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brun font-sans"
-              placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
-          </div>
-        ))}
-        {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
-        <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans"
-          onClick={enregistrer}>Enregistrer</button>
+        {loading ? <p className="text-center text-gray-400 text-sm py-4">Chargement…</p> : (
+          <>
+            {[['prenom', 'Prénom', 'Jean'], ['nom', 'Nom', 'Dupont'], ['email', 'Email', 'vous@email.fr'], ['tel', 'Téléphone', '+33 6 00 00 00 00']].map(([k, l, ph]) => (
+              <div key={k}>
+                <label className="text-xs font-bold text-brun block mb-1">{l}</label>
+                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brun font-sans"
+                  placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+            {saved && <p className="text-green-600 text-xs font-semibold text-center">✅ Modifications enregistrées !</p>}
+            <button className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm font-sans" onClick={enregistrer}>Enregistrer</button>
+          </>
+        )}
       </div>
     </PageWrapper>
   )
@@ -337,18 +351,40 @@ function AdressesSection({ onBack }: { onBack: () => void }) {
 function NotifsSection({ onBack }: { onBack: () => void }) {
   const { user } = useAuth()
   const [prefs, setPrefs] = useState({
-    livraison: user?.isDemo ? true  : false,
-    promos:    user?.isDemo ? true  : false,
-    nouveaux:  false,
-    rappels:   user?.isDemo ? true  : false,
-    rapport:   false,
+    livraison: false, promos: false, nouveaux: false, rappels: false, rapport: false,
   })
+  useEffect(() => {
+    if (!user?.email || user.isDemo) {
+      setPrefs({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
+      return
+    }
+    fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0)
+          setPrefs(data.notifs_prefs)
+      })
+      .catch(() => {})
+  }, [user?.email])
+
+  function toggle(key: string) {
+    const updated = { ...prefs, [key]: !(prefs as any)[key] }
+    setPrefs(updated)
+    if (user?.email && !user.isDemo) {
+      fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, notifs_prefs: updated }),
+      }).catch(console.error)
+    }
+  }
+
   const items = [
-    { key: 'livraison', label: 'Suivi de livraison', sub: 'Statut en temps réel de vos commandes' },
-    { key: 'promos', label: 'Promotions & offres', sub: 'Bons plans des boucheries partenaires' },
-    { key: 'nouveaux', label: 'Nouvelles boucheries', sub: 'Nouveaux partenaires dans votre quartier' },
-    { key: 'rappels', label: 'Rappels de panier', sub: 'Panier non finalisé' },
-    { key: 'rapport', label: 'Rapport hebdomadaire', sub: 'Résumé de vos achats chaque semaine' },
+    { key: 'livraison', label: 'Suivi de livraison',      sub: 'Statut en temps réel de vos commandes' },
+    { key: 'promos',    label: 'Promotions & offres',      sub: 'Bons plans des boucheries partenaires' },
+    { key: 'nouveaux',  label: 'Nouvelles boucheries',     sub: 'Nouveaux partenaires dans votre quartier' },
+    { key: 'rappels',   label: 'Rappels de panier',        sub: 'Panier non finalisé' },
+    { key: 'rapport',   label: 'Rapport hebdomadaire',     sub: 'Résumé de vos achats chaque semaine' },
   ]
   const NOTIFS_DEMO = [
     { ico: '🛵', titre: 'Votre livreur est en route !', sub: 'Commande #1042 · Arrivée dans ~8 min', time: 'Il y a 5 min', lu: false },
@@ -356,11 +392,14 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     { ico: '🏷️', titre: '-20% sur le Wagyu ce weekend', sub: 'Bœuf & Tradition · Offre limitée', time: 'Hier', lu: true },
     { ico: '⭐', titre: 'Merci pour votre avis !', sub: 'Votre avis sur Maison Dupont a été publié', time: 'Il y a 2 jours', lu: true },
   ]
+
   return (
     <PageWrapper title="🔔 Notifications" onBack={onBack}>
       <div className="space-y-4">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Préférences</p></div>
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+            <p className="text-xs font-bold text-brun">Préférences</p>
+          </div>
           {items.map((item, i) => (
             <div key={item.key} className={`flex items-center gap-3 px-4 py-3.5 ${i < items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
               <div className="flex-1">
@@ -369,27 +408,27 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
               </div>
               <Switch
                 checked={!!(prefs as any)[item.key]}
-                onChange={() => setPrefs(p => ({ ...p, [item.key]: !(p as any)[item.key] }))}
+                onChange={() => toggle(item.key)}
               />
             </div>
           ))}
         </div>
-      {user?.isDemo && (
-  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
-    {NOTIFS_DEMO.map((n, i) => (
-      <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-        <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
-          <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
-        </div>
-        {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
-      </div>
-    ))}
-  </div>
-)}
+        {user?.isDemo && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
+            {NOTIFS_DEMO.map((n, i) => (
+              <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+                <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
+                  <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
+                </div>
+                {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </PageWrapper>
   )
@@ -424,92 +463,131 @@ function FavorisSection({ onBack }: { onBack: () => void }) {
   )
 }
 
-const COMMANDES_DATA = [
-  { id: '#1042', boucherie: 'Maison Dupont', date: new Date().toISOString().split('T')[0], total: 46.30, frais: 2.90, creneau: 'Dès que possible', status: 'delivery', mode: 'livraison',
-    items: [{ nom: 'Entrecôte Charolais', icon: '🥩', qty: 2, decoupe: 'Épaisse (2cm) · Marinée herbes' }, { nom: 'Merguez Maison', icon: '🌶️', qty: 1, decoupe: 'Extra-épicées' }] },
-  { id: '#1041', boucherie: 'Comptoir du Veau', date: new Date().toISOString().split('T')[0], total: 24.50, frais: 0, creneau: "Aujourd'hui 12h30", status: 'ready', mode: 'click_collect',
-    items: [{ nom: 'Filet de Bœuf', icon: '🍖', qty: 1, decoupe: 'En médaillons · Nature' }] },
-  { id: '#1038', boucherie: 'Maison Dupont', date: '2026-05-08', total: 44.80, frais: 2.90, creneau: 'Dès que possible', status: 'done', mode: 'livraison',
-    items: [{ nom: 'Côtes de Porc', icon: '🍖', qty: 4, decoupe: 'Avec os · Nature' }] },
-]
-
 function CommandesSection({ onBack }: { onBack: () => void }) {
   const router = useRouter()
-  const { isDemo } = useAuth()
+  const { user } = useAuth()
   const [filtre, setFiltre] = useState<'toutes'|'encours'|'livrees'>('toutes')
-  const data = isDemo() ? COMMANDES_DATA : []
-  const filtered = filtre === 'encours' ? data.filter(o => o.status !== 'done') : filtre === 'livrees' ? data.filter(o => o.status === 'done') : data
+  const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.email || user.isDemo) { setLoading(false); return }
+    fetch(`/api/commandes?client_email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => { setData(Array.isArray(rows) ? rows : []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [user?.email])
+
+  const filtered = filtre === 'encours'
+    ? data.filter(o => !['done','livree','annulee'].includes(o.status || o.statut))
+    : filtre === 'livrees'
+    ? data.filter(o => ['done','livree'].includes(o.status || o.statut))
+    : data
+
+  function getStatus(o: any) { return o.status || o.statut || 'new' }
+  function isDone(o: any)     { return ['done','livree'].includes(getStatus(o)) }
+  function isDelivery(o: any) { return ['delivery','livraison'].includes(getStatus(o)) }
+  function isReady(o: any)    { return ['ready','prete'].includes(getStatus(o)) }
 
   return (
     <PageWrapper title="📦 Mes commandes" onBack={onBack}>
       <div className="space-y-4">
-        {data.length > 0 && (
+        {loading && <div className="bg-white rounded-2xl p-5 shadow-sm text-center text-gray-400 text-sm">Chargement…</div>}
+        {!loading && data.length > 0 && (
           <div className="flex gap-2">
-            {(['toutes','encours','livrees'] as const).map((v) => (
+            {(['toutes','encours','livrees'] as const).map(v => (
               <button key={v} className={'flex-1 py-2 rounded-xl text-xs font-bold font-sans border transition-all ' + (filtre === v ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gris-bd')}
                 onClick={() => setFiltre(v)}>{v === 'toutes' ? 'Toutes' : v === 'encours' ? 'En cours' : 'Livrées'}</button>
             ))}
           </div>
         )}
-        {filtered.length === 0
-          ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">📦</span><p className="text-sm">Aucune commande pour l'instant.</p><button className="mt-4 bg-brun text-white px-5 py-2 rounded-xl text-sm font-bold font-sans" onClick={() => router.push('/')}>Découvrir les boucheries</button></div>
-          : filtered.map(o => (
+        {!loading && filtered.length === 0 && (
+          <div className="text-center py-12 text-gray-400">
+            <span className="text-4xl block mb-3">📦</span>
+            <p className="text-sm">Aucune commande pour l'instant.</p>
+            <button className="mt-4 bg-brun text-white px-5 py-2 rounded-xl text-sm font-bold font-sans" onClick={() => router.push('/')}>Découvrir les boucheries</button>
+          </div>
+        )}
+        {filtered.map(o => {
+          const numero = o.numero || o.id
+          const date = o.created_at || o.date
+          const boucherie = o.boucher_nom || o.boucherie || '—'
+          const mode = o.mode || o.creneau_type || 'livraison'
+          const total = parseFloat(o.total || 0)
+          const frais = parseFloat(o.frais_livraison || o.frais || 0)
+          const lignes: any[] = o.lignes || []
+          return (
             <div key={o.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-gris-bd flex justify-between items-center">
-                <div><span className="font-black text-brun text-sm">{o.id}</span><span className="text-gray-400 text-xs ml-2">{new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</span></div>
-                <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + (o.status === 'done' ? 'bg-gray-100 text-gray-500' : o.status === 'delivery' ? 'bg-orange-100 text-orange-600' : o.status === 'ready' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600')}>
-                  {o.status === 'done' ? '✅ Livrée' : o.status === 'delivery' ? '🛵 En livraison' : o.status === 'ready' ? '📦 Prête' : '🔪 En préparation'}
+                <div><span className="font-black text-brun text-sm">{numero}</span><span className="text-gray-400 text-xs ml-2">{date ? new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : ''}</span></div>
+                <span className={'text-[11px] font-bold px-2.5 py-1 rounded-full ' + (isDone(o) ? 'bg-gray-100 text-gray-500' : isDelivery(o) ? 'bg-orange-100 text-orange-600' : isReady(o) ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600')}>
+                  {isDone(o) ? '✅ Livrée' : isDelivery(o) ? '🛵 En livraison' : isReady(o) ? '📦 Prête' : '🔪 En préparation'}
                 </span>
               </div>
               <div className="px-4 py-3 border-b border-gris-bd">
-                <p className="text-xs font-semibold text-brun-clair mb-1">🔪 {o.boucherie} · {o.mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}</p>
-                <p className="text-xs text-or mb-2">🕐 {o.creneau}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {o.items.map((it, i) => <span key={i} className="bg-creme text-brun text-xs px-2.5 py-1 rounded-lg">{it.icon} {it.nom} ×{it.qty}</span>)}
-                </div>
-                {o.status === 'delivery' && <div className="bg-or-pale border border-or/20 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">🛵</span><div><p className="text-xs font-bold text-brun">Votre livreur est en route</p><p className="text-[10px] text-gray-400">Arrivée estimée dans ~8 min</p></div></div>}
-                {o.status === 'ready' && <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">✅</span><div><p className="text-xs font-bold text-green-700">Votre commande est prête !</p><p className="text-[10px] text-gray-400">Présentez le {o.id} en caisse</p></div></div>}
+                <p className="text-xs font-semibold text-brun-clair mb-1">🔪 {boucherie} · {mode === 'livraison' ? '🛵 Livraison' : '🏪 Click & Collect'}</p>
+                {lignes.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {lignes.map((it: any, i: number) => <span key={i} className="bg-creme text-brun text-xs px-2.5 py-1 rounded-lg">{it.icon || '🥩'} {it.produit || it.nom} ×{it.qty || it.quantite || 1}</span>)}
+                  </div>
+                )}
+                {isDelivery(o) && <div className="bg-or-pale border border-or/20 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">🛵</span><div><p className="text-xs font-bold text-brun">Votre livreur est en route</p></div></div>}
+                {isReady(o)    && <div className="bg-green-50 border border-green-200 rounded-xl p-2.5 mt-2 flex items-center gap-2"><span className="text-lg">✅</span><div><p className="text-xs font-bold text-green-700">Votre commande est prête !</p></div></div>}
               </div>
               <div className="px-4 py-3 flex justify-between items-center">
-                <div><p className="font-bold text-brun text-sm">{o.total.toFixed(2)} €</p><p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p></div>
+                <div><p className="font-bold text-brun text-sm">{total.toFixed(2)} €</p><p className="text-xs text-gray-400">dont {frais.toFixed(2)} € livraison</p></div>
                 <div className="flex gap-2">
-                  {o.status === 'delivery' && <button className="bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push(`/suivi?numero=${o.id}`)}>🗺️ Suivre</button>}
-                  {o.status === 'ready' && <button className="bg-green-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🗺️ Y aller</button>}
+                  {isDelivery(o) && <button className="bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push(`/suivi?numero=${numero}`)}>🗺️ Suivre</button>}
                   <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans" onClick={() => router.push('/')}>🔄 Re-commander</button>
                 </div>
               </div>
             </div>
-          ))
-        }
+          )
+        })}
       </div>
     </PageWrapper>
   )
 }
 
-const AVIS_DEMO = [
-  { id: 'rv1', boucherie: 'Maison Dupont', produit: 'Entrecôte Charolais', note: 5, texte: 'Entrecôte incroyable, fondante et goûteuse !', date: '2026-05-08' },
-  { id: 'rv2', boucherie: 'Bœuf & Tradition', produit: 'Wagyu A5', note: 5, texte: 'Qualité exceptionnelle.', date: '2026-04-30' },
-]
-
 function AvisSection({ onBack }: { onBack: () => void }) {
-  const { isDemo } = useAuth()
-  const [avis, setAvis] = useState(isDemo() ? AVIS_DEMO : [])
+  const { user } = useAuth()
+  const [avis, setAvis] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.email || user.isDemo) { setLoading(false); return }
+    fetch(`/api/avis?client_email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { setAvis(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [user?.email])
+
+  async function supprimerAvis(id: string) {
+    setAvis(prev => prev.filter(a => a.id !== id))
+    await fetch(`/api/avis?id=${id}`, { method: 'DELETE' })
+  }
+
   return (
     <PageWrapper title="⭐ Mes avis" onBack={onBack}>
-      {avis.length === 0
+      {loading
+        ? <div className="text-center py-12 text-gray-400 text-sm">Chargement…</div>
+        : avis.length === 0
         ? <div className="text-center py-12 text-gray-400"><span className="text-4xl block mb-3">⭐</span><p className="text-sm">Vous n'avez pas encore laissé d'avis.</p></div>
         : <div className="space-y-4">
             {avis.map(a => (
               <div key={a.id} className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-start mb-1">
-                  <div><p className="font-bold text-brun text-sm">{a.boucherie}</p><p className="text-xs text-gray-400">{a.produit}</p></div>
+                  <div>
+                    <p className="font-bold text-brun text-sm">{a.bouchers?.nom_boutique || a.boucherie || '—'}</p>
+                    <p className="text-xs text-gray-400">{a.produit || ''}</p>
+                  </div>
                   <div className="flex items-center gap-2">
                     <span className="text-or text-sm">{'⭐'.repeat(a.note)}</span>
-                    <button className="text-gray-300 text-xs" onClick={() => setAvis(prev => prev.filter(x => x.id !== a.id))}>🗑️</button>
+                    <button className="text-gray-300 text-xs" onClick={() => supprimerAvis(a.id)}>🗑️</button>
                   </div>
                 </div>
                 <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">{a.texte}</p>
-                <p className="text-xs text-gray-300 mt-2">{new Date(a.date).toLocaleDateString('fr-FR')}</p>
+                <p className="text-xs text-gray-300 mt-2">{new Date(a.created_at || a.date).toLocaleDateString('fr-FR')}</p>
               </div>
             ))}
           </div>
