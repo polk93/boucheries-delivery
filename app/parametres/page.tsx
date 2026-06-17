@@ -353,7 +353,6 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
   const [prefs, setPrefs] = useState({
     livraison: false, promos: false, nouveaux: false, rappels: false, rapport: false,
   })
-
   useEffect(() => {
     if (!user?.email || user.isDemo) {
       setPrefs({ livraison: true, promos: true, nouveaux: false, rappels: true, rapport: false })
@@ -361,27 +360,31 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     }
     fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0) setPrefs(data.notifs_prefs) })
+      .then(data => {
+        if (data?.notifs_prefs && Object.keys(data.notifs_prefs).length > 0)
+          setPrefs(data.notifs_prefs)
+      })
       .catch(() => {})
   }, [user?.email])
 
-  function togglePref(key: string) {
+  function toggle(key: string) {
     const updated = { ...prefs, [key]: !(prefs as any)[key] }
     setPrefs(updated)
     if (user?.email && !user.isDemo) {
       fetch('/api/clients', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email, notifs_prefs: updated }),
       }).catch(console.error)
     }
   }
 
   const items = [
-    { key: 'livraison', label: 'Suivi de livraison', sub: 'Statut en temps réel de vos commandes' },
-    { key: 'promos', label: 'Promotions & offres', sub: 'Bons plans des boucheries partenaires' },
-    { key: 'nouveaux', label: 'Nouvelles boucheries', sub: 'Nouveaux partenaires dans votre quartier' },
-    { key: 'rappels', label: 'Rappels de panier', sub: 'Panier non finalisé' },
-    { key: 'rapport', label: 'Rapport hebdomadaire', sub: 'Résumé de vos achats chaque semaine' },
+    { key: 'livraison', label: 'Suivi de livraison',      sub: 'Statut en temps réel de vos commandes' },
+    { key: 'promos',    label: 'Promotions & offres',      sub: 'Bons plans des boucheries partenaires' },
+    { key: 'nouveaux',  label: 'Nouvelles boucheries',     sub: 'Nouveaux partenaires dans votre quartier' },
+    { key: 'rappels',   label: 'Rappels de panier',        sub: 'Panier non finalisé' },
+    { key: 'rapport',   label: 'Rapport hebdomadaire',     sub: 'Résumé de vos achats chaque semaine' },
   ]
   const NOTIFS_DEMO = [
     { ico: '🛵', titre: 'Votre livreur est en route !', sub: 'Commande #1042 · Arrivée dans ~8 min', time: 'Il y a 5 min', lu: false },
@@ -389,11 +392,14 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
     { ico: '🏷️', titre: '-20% sur le Wagyu ce weekend', sub: 'Bœuf & Tradition · Offre limitée', time: 'Hier', lu: true },
     { ico: '⭐', titre: 'Merci pour votre avis !', sub: 'Votre avis sur Maison Dupont a été publié', time: 'Il y a 2 jours', lu: true },
   ]
+
   return (
     <PageWrapper title="🔔 Notifications" onBack={onBack}>
       <div className="space-y-4">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Préférences</p></div>
+          <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+            <p className="text-xs font-bold text-brun">Préférences</p>
+          </div>
           {items.map((item, i) => (
             <div key={item.key} className={`flex items-center gap-3 px-4 py-3.5 ${i < items.length - 1 ? 'border-b border-gris-bd' : ''}`}>
               <div className="flex-1">
@@ -402,27 +408,27 @@ function NotifsSection({ onBack }: { onBack: () => void }) {
               </div>
               <Switch
                 checked={!!(prefs as any)[item.key]}
-                onChange={() => togglePref(item.key)}
+                onChange={() => toggle(item.key)}
               />
             </div>
           ))}
         </div>
-      {user?.isDemo && (
-  <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
-    {NOTIFS_DEMO.map((n, i) => (
-      <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
-        <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
-          <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
-        </div>
-        {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
-      </div>
-    ))}
-  </div>
-)}
+        {user?.isDemo && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-or-pale border-b border-gris-bd"><p className="text-xs font-bold text-brun">Récentes</p></div>
+            {NOTIFS_DEMO.map((n, i) => (
+              <div key={i} className={`flex items-start gap-3 px-4 py-3 ${i < NOTIFS_DEMO.length - 1 ? 'border-b border-gris-bd' : ''}`}>
+                <span className="text-lg flex-shrink-0 mt-0.5">{n.ico}</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold ${n.lu ? 'text-gray-500' : 'text-brun'}`}>{n.titre}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{n.sub}</p>
+                  <p className="text-[10px] text-gray-300 mt-0.5">{n.time}</p>
+                </div>
+                {!n.lu && <span className="w-2 h-2 bg-rouge-vif rounded-full flex-shrink-0 mt-2" />}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </PageWrapper>
   )

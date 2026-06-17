@@ -1597,7 +1597,6 @@ function BoucherProfilForm({ user, showToast }: { user: any; showToast: (msg: st
 function BoucherNotifsForm() {
   const { user } = useAuth()
   const [prefs, setPrefs] = useState({ nouvelle_cmd: true, stock_faible: true, paiement: true, rapport: false })
-
   useEffect(() => {
     if (!user?.email) return
     fetch(`/api/bouchers?email=${encodeURIComponent(user.email)}`)
@@ -1606,12 +1605,13 @@ function BoucherNotifsForm() {
       .catch(() => {})
   }, [user?.email])
 
-  function togglePref(key: string) {
+  function toggle(key: string) {
     const updated = { ...prefs, [key]: !(prefs as any)[key] }
     setPrefs(updated)
     if (user?.email) {
       fetch('/api/bouchers', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email, notifs_prefs: updated }),
       }).catch(console.error)
     }
@@ -1624,33 +1624,35 @@ function BoucherNotifsForm() {
     { key: 'rapport',      label: 'Rapport quotidien',   sub: 'CA et commandes chaque soir' },
   ]
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-      {items.map((item, i) => (
-        <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-brun">{item.label}</p>
-            <p className="text-xs text-gray-400">{item.sub}</p>
+    <div className="space-y-3">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {items.map((item, i) => (
+          <div key={item.key} className={"flex items-center gap-3 px-4 py-3.5 " + (i < items.length - 1 ? 'border-b border-gris-bd' : '')}>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-brun">{item.label}</p>
+              <p className="text-xs text-gray-400">{item.sub}</p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={(prefs as any)[item.key]}
+              onClick={() => toggle(item.key)}
+              style={{
+                width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
+                cursor: 'pointer', flexShrink: 0, position: 'relative',
+                backgroundColor: (prefs as any)[item.key] ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
+                transition: 'background-color 0.2s', outline: 'none',
+              }}>
+              <span style={{
+                display: 'block', width: 20, height: 20, borderRadius: '50%',
+                backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
+                transform: (prefs as any)[item.key] ? 'translateX(20px)' : 'translateX(0px)',
+                transition: 'transform 0.2s',
+              }} />
+            </button>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={(prefs as any)[item.key]}
-            onClick={() => togglePref(item.key)}
-            style={{
-              width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
-              cursor: 'pointer', flexShrink: 0, position: 'relative',
-              backgroundColor: (prefs as any)[item.key] ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
-              transition: 'background-color 0.2s', outline: 'none',
-            }}>
-            <span style={{
-              display: 'block', width: 20, height: 20, borderRadius: '50%',
-              backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
-              transform: (prefs as any)[item.key] ? 'translateX(20px)' : 'translateX(0px)',
-              transition: 'transform 0.2s',
-            }} />
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

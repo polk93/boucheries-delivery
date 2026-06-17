@@ -26,10 +26,16 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = getSupabase()
     const body = await req.json()
-    const { email, nom, telephone } = body
+    const { email, nom, telephone, notifs_prefs } = body
     if (!email) return NextResponse.json({ error: 'email requis' }, { status: 400 })
+
+    const payload: any = { email, updated_at: new Date().toISOString() }
+    if (nom          !== undefined) payload.nom          = nom
+    if (telephone    !== undefined) payload.telephone    = telephone
+    if (notifs_prefs !== undefined) payload.notifs_prefs = notifs_prefs
+
     const { data, error } = await supabase.from('clients')
-      .upsert({ email, nom, telephone, updated_at: new Date().toISOString() }, { onConflict: 'email' })
+      .upsert(payload, { onConflict: 'email' })
       .select().single()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json(data)
