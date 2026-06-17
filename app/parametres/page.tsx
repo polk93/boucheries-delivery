@@ -6,6 +6,31 @@ import { useAuth } from '@/store/auth'
 import { useAccounts } from '@/store/accounts'
 import AuthModal from '@/components/ui/AuthModal'
 import Switch from '@/components/Switch'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+type CarteDB = {
+  id: string
+  client_email: string
+  stripe_pm_id: string
+  last4: string
+  brand: string
+  exp_month: number
+  exp_year: number
+  is_default: boolean
+  created_at: string
+}
+
+function brandLabel(brand: string) {
+  const map: Record<string, string> = { visa: 'VISA', mastercard: 'MC', amex: 'AMEX', maestro: 'MAESTRO' }
+  return map[brand.toLowerCase()] ?? brand.toUpperCase()
+}
+
+function expiry(m: number, y: number) {
+  return `${String(m).padStart(2, '0')}/${String(y).slice(-2)}`
+}
 
 type Section =
   | 'profil' | 'adresses' | 'notifs' | 'favoris'
@@ -494,28 +519,27 @@ function AvisSection({ onBack }: { onBack: () => void }) {
 }
 
 function PaiementSection({ onBack }: { onBack: () => void }) {
-  const [cartes, setCartes] = useState<{ id: string; last4: string; expiry: string; type: string; defaut: boolean }[]>([])
+  const { user } = useAuth()
+  const [cartes, setCartes] = useState<CarteDB[]>([])
   const [ajoutOpen, setAjoutOpen] = useState(false)
-  const [form, setForm] = useState({ numero: '', titulaire: '', expiry: '', cvv: '' })
+  const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  function validate() {
-    const e: Record<string, string> = {}
-    if (form.numero.replace(/\s/g, '').length !== 16) e.numero = 'Numéro invalide'
-    if (!form.titulaire.trim()) e.titulaire = 'Requis'
-    if (!/^\d{2}\/\d{2}$/.test(form.expiry)) e.expiry = 'Format MM/AA'
-    if (form.cvv.length < 3) e.cvv = 'CVV invalide'
-    setErrors(e)
-    return Object.keys(e).length === 0
+  useEffect(() => {
+    if (!user?.email || user.isDemo) { setLoading(false); return }
+    fetch(`/api/cartes?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => { setCartes(data); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [user?.email])
+
+  async function supprimerCarte(id: string) {
+    setCartes(prev => prev.filter(c => c.id !== id))
+    await fetch(`/api/cartes/${id}`, { method: 'DELETE' })
   }
 
-  function ajouterCarte() {
-    if (!validate()) return
-    const last4 = form.numero.replace(/\s/g, '').slice(-4)
-    const type = form.numero.startsWith('4') ? 'Visa' : 'Mastercard'
-    setCartes(prev => [...prev, { id: Date.now().toString(), last4, expiry: form.expiry, type, defaut: prev.length === 0 }])
-    setForm({ numero: '', titulaire: '', expiry: '', cvv: '' })
+  function onCarteAjoutee(carte: CarteDB) {
+    setCartes(prev => [...prev, carte])
     setAjoutOpen(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
@@ -524,56 +548,153 @@ function PaiementSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="💳 Moyens de paiement" onBack={onBack}>
       <div className="space-y-4">
-
-        {saved && <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center"><p className="text-green-700 text-sm font-semibold">✅ Carte ajoutée !</p></div>}
-        {cartes.length === 0
-          ? <div className="bg-white rounded-2xl p-5 shadow-sm text-center"><span className="text-4xl block mb-3">💳</span><p className="font-bold text-brun text-sm mb-1">Aucune carte enregistrée</p></div>
-          : cartes.map(c => (
-            <div key={c.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
-              <div className="w-12 h-8 bg-gradient-to-br from-brun to-brun-clair rounded-lg flex items-center justify-center text-white text-xs font-bold">{c.type === 'Visa' ? 'VISA' : 'MC'}</div>
-              <div className="flex-1"><p className="font-bold text-brun text-sm">{c.type} •••• {c.last4}</p><p className="text-xs text-gray-400">Expire {c.expiry}</p></div>
-              <button className="text-gray-300 text-sm" onClick={() => setCartes(prev => prev.filter(x => x.id !== c.id))}>🗑️</button>
-            </div>
-          ))
-        }
-        {!ajoutOpen && <button className="w-full bg-brun text-white font-bold py-3.5 rounded-2xl text-sm font-sans" onClick={() => setAjoutOpen(true)}>+ Ajouter une carte</button>}
-        {ajoutOpen && (
-          <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-            <h3 className="font-serif font-bold text-brun text-base">Nouvelle carte</h3>
-            {[['numero','Numéro','1234 5678 9012 3456'],['titulaire','Titulaire','JEAN DUPONT']].map(([k,l,ph]) => (
-              <div key={k}>
-                <label className="text-xs font-bold text-brun block mb-1">{l}</label>
-                <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors[k] ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
-                  placeholder={ph} value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
-                {errors[k] && <p className="text-red-500 text-xs mt-0.5">{errors[k]}</p>}
-              </div>
-            ))}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-brun block mb-1">Expiration</label>
-                <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors.expiry ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
-                  placeholder="MM/AA" maxLength={5} value={form.expiry}
-                  onChange={e => { let v = e.target.value.replace(/\D/g,'').slice(0,4); if(v.length>=2) v=v.slice(0,2)+'/'+v.slice(2); setForm(f => ({...f, expiry: v})) }} />
-                {errors.expiry && <p className="text-red-500 text-xs mt-0.5">{errors.expiry}</p>}
-              </div>
-              <div>
-                <label className="text-xs font-bold text-brun block mb-1">CVV</label>
-                <input className={`w-full border rounded-xl px-3 py-2.5 text-sm font-sans outline-none ${errors.cvv ? 'border-red-400' : 'border-gray-200 focus:border-brun'}`}
-                  placeholder="•••" maxLength={4} type="password" value={form.cvv} onChange={e => setForm(f => ({...f, cvv: e.target.value.replace(/\D/g,'').slice(0,4)}))} />
-                {errors.cvv && <p className="text-red-500 text-xs mt-0.5">{errors.cvv}</p>}
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans" onClick={() => { setAjoutOpen(false); setErrors({}) }}>Annuler</button>
-              <button className="flex-[2] bg-rouge-vif text-white font-bold py-3 rounded-xl text-sm font-sans" onClick={ajouterCarte}>Ajouter</button>
-            </div>
+        {saved && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+            <p className="text-green-700 text-sm font-semibold">✅ Carte ajoutée avec succès !</p>
           </div>
         )}
+
+        {loading ? (
+          <div className="bg-white rounded-2xl p-5 shadow-sm text-center text-gray-400 text-sm">Chargement…</div>
+        ) : cartes.length === 0 && !ajoutOpen ? (
+          <div className="bg-white rounded-2xl p-5 shadow-sm text-center">
+            <span className="text-4xl block mb-3">💳</span>
+            <p className="font-bold text-brun text-sm mb-1">Aucune carte enregistrée</p>
+            <p className="text-xs text-gray-400">Ajoutez une carte pour payer rapidement</p>
+          </div>
+        ) : (
+          cartes.map(c => (
+            <div key={c.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
+              <div className="w-12 h-8 bg-gradient-to-br from-brun to-brun-clair rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {brandLabel(c.brand)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-brun text-sm capitalize">{c.brand} •••• {c.last4}</p>
+                <p className="text-xs text-gray-400">Expire {expiry(c.exp_month, c.exp_year)}</p>
+              </div>
+              {c.is_default && <span className="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-0.5 rounded-full flex-shrink-0">Défaut</span>}
+              <button className="text-gray-300 text-sm flex-shrink-0" onClick={() => supprimerCarte(c.id)}>🗑️</button>
+            </div>
+          ))
+        )}
+
+        {!ajoutOpen && !loading && (
+          <button
+            className="w-full bg-brun text-white font-bold py-3.5 rounded-2xl text-sm font-sans"
+            onClick={() => setAjoutOpen(true)}
+          >
+            + Ajouter une carte
+          </button>
+        )}
+
+        {ajoutOpen && user?.email && (
+          <Elements stripe={stripePromise}>
+            <AddCardForm
+              email={user.email}
+              onSuccess={onCarteAjoutee}
+              onCancel={() => setAjoutOpen(false)}
+            />
+          </Elements>
+        )}
+
         <div className="bg-or-pale rounded-2xl p-3 border border-or/20">
-          <p className="text-xs text-brun-clair leading-relaxed">🔒 <strong>Paiement sécurisé par Stripe.</strong> Vos coordonnées bancaires ne sont jamais stockées sur nos serveurs.</p>
+          <p className="text-xs text-brun-clair leading-relaxed">
+            🔒 <strong>Paiement sécurisé par Stripe.</strong> Votre numéro de carte et CVV sont chiffrés directement par Stripe — jamais transmis ni stockés sur nos serveurs.
+          </p>
         </div>
       </div>
     </PageWrapper>
+  )
+}
+
+function AddCardForm({ email, onSuccess, onCancel }: { email: string; onSuccess: (carte: CarteDB) => void; onCancel: () => void }) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function ajouterCarte() {
+    if (!stripe || !elements) return
+    setLoading(true)
+    setError('')
+    try {
+      // Étape 1 : créer un SetupIntent côté serveur (lie la carte au Stripe Customer)
+      const res = await fetch('/api/cartes/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const { clientSecret, error: setupErr } = await res.json()
+      if (setupErr) throw new Error(setupErr)
+
+      // Étape 2 : Stripe tokenise la carte dans son iframe sécurisé (numéro/CVV jamais vus par notre code)
+      const cardElement = elements.getElement(CardElement)!
+      const { setupIntent, error: stripeErr } = await stripe.confirmCardSetup(clientSecret, {
+        payment_method: { card: cardElement },
+      })
+      if (stripeErr) throw new Error(stripeErr.message)
+
+      const pmId = typeof setupIntent!.payment_method === 'string'
+        ? setupIntent!.payment_method
+        : setupIntent!.payment_method?.id
+
+      if (!pmId) throw new Error('PaymentMethod introuvable')
+
+      // Étape 3 : sauvegarder uniquement les métadonnées masquées (last4, brand, expiry) dans Supabase
+      const confirmRes = await fetch('/api/cartes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, stripe_pm_id: pmId }),
+      })
+      const carte = await confirmRes.json()
+      if (carte.error) throw new Error(carte.error)
+
+      onSuccess(carte)
+    } catch (e: any) {
+      setError(e.message || "Erreur lors de l'ajout de la carte")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+      <h3 className="font-serif font-bold text-brun text-base">Nouvelle carte</h3>
+      <div className="border border-gray-200 rounded-xl px-3 py-3 focus-within:border-brun transition-colors">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: '14px',
+                color: '#3d1c0b',
+                fontFamily: 'sans-serif',
+                '::placeholder': { color: '#aab7c4' },
+              },
+              invalid: { color: '#e53e3e' },
+            },
+            hidePostalCode: true,
+          }}
+        />
+      </div>
+      {error && <p className="text-red-500 text-xs">{error}</p>}
+      <p className="text-[11px] text-gray-400">🔒 Saisie chiffrée par Stripe — le numéro et le CVV ne transitent jamais par nos serveurs</p>
+      <div className="flex gap-3">
+        <button
+          className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          Annuler
+        </button>
+        <button
+          className="flex-[2] bg-rouge-vif text-white font-bold py-3 rounded-xl text-sm font-sans disabled:bg-gray-300 disabled:cursor-not-allowed"
+          onClick={ajouterCarte}
+          disabled={loading || !stripe}
+        >
+          {loading ? '⏳ Ajout en cours…' : 'Ajouter la carte'}
+        </button>
+      </div>
+    </div>
   )
 }
 
