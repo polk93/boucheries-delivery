@@ -481,7 +481,6 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
             <button className="text-xs text-green-600 font-bold ml-2" onClick={() => setRayonKm(r => Math.min(r + 5, 20))}>Élargir</button>
           </div>
         )}
-
        {filtered.length === 0
          ? <div className="text-center py-16 text-gray-400">
               <span className="text-5xl block mb-4">🔪</span>

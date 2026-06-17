@@ -43,7 +43,7 @@ Voici vos identifiants de connexion :
 📧 Email       : ${email}
 🔑 Mot de passe : ${password}
 
-👉 Connectez-vous sur : https://boucheries-delivery.vercel.app
+👉 Connectez-vous sur : https://boucheries-delivery.com
 
 Une fois connecté, vous pourrez :
 • Gérer votre catalogue de produits
