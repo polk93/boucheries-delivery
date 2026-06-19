@@ -6,7 +6,7 @@ interface Notif { id: string; icon: string; titre: string; message: string; time
 const NOTIFS_DEMO: Notif[] = [
   { id: 'n1', icon: '🛵', titre: 'Commande livrée !', message: 'Votre commande #1038 de Maison Dupont est arrivée. Bon appétit !', time: 'Il y a 2h', read: false },
   { id: 'n2', icon: '🏷️', titre: 'Promo du jour', message: 'Bœuf & Tradition : -15% sur le Wagyu A5 aujourd\'hui seulement.', time: 'Il y a 5h', read: false },
-  { id: 'n3', icon: '⭐', titre: 'Nouveau partenaire', message: 'Ferme & Boucherie Morel vient de rejoindre BoucherieDelivery dans votre quartier !', time: 'Hier', read: true },
+  { id: 'n3', icon: '⭐', titre: 'Nouveau partenaire', message: 'Ferme & Boucherie Morel vient de rejoindre Côte à Côte dans votre quartier !', time: 'Hier', read: true },
 ]
 
 export default function NotifPanel({ onClose }: { onClose: () => void }) {

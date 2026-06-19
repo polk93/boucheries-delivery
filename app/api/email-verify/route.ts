@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         user_id: 'LbqBSABkR-S5wg9PR',
         template_params: {
           to_email: email,
-          subject: '🥩 Votre code de vérification BoucheriesDelivery',
+          subject: '🥩 Votre code de vérification Côte à Côte',
           message: `Votre code de vérification est : ${code}\n\nCe code expire dans 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`,
         },
       }),

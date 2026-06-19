@@ -8,7 +8,7 @@ const SUGGESTIONS = ['Que me conseillez-vous ?', 'Quelle cuisson pour l\'entrec�
 
 export default function ChatBot({ boucheries, onClose }: { boucheries: Boucherie[]; onClose: () => void }) {
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: 'bot', text: 'Bonjour ! 👋 Je suis votre assistant BoucherieDelivery. Je peux vous conseiller sur les viandes, les cuissons ou vous aider à trouver la bonne boucherie. Que puis-je faire pour vous ?' }
+    { role: 'bot', text: 'Bonjour ! 👋 Je suis votre assistant Côte à Côte. Je peux vous conseiller sur les viandes, les cuissons ou vous aider à trouver la bonne boucherie. Que puis-je faire pour vous ?' }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -47,7 +47,7 @@ export default function ChatBot({ boucheries, onClose }: { boucheries: Boucherie
       <div className="bg-brun px-4 py-3 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-or flex items-center justify-center text-lg">🤖</div>
         <div className="flex-1">
-          <p className="text-sm font-bold text-white">Assistant BoucherieDelivery</p>
+          <p className="text-sm font-bold text-white">Assistant Côte à Côte</p>
           <p className="text-[11px] text-white/60">Propulsé par Claude IA</p>
         </div>
         <button className="text-white/70 text-lg bg-none border-none cursor-pointer" onClick={onClose}>✕</button>

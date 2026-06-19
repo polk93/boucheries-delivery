@@ -108,7 +108,7 @@ function ReturnContent() {
           <>
             <span className="text-5xl block">❌</span>
             <p className="font-serif text-lg font-bold text-brun">Une erreur est survenue</p>
-            <p className="text-sm text-gray-400">Contactez-nous : boucheriesdelivery@gmail.com</p>
+            <p className="text-sm text-gray-400">Contactez-nous : contact@coteacote.fr</p>
             <button className="w-full bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans" onClick={() => router.push('/')}>Retour</button>
           </>
         )}

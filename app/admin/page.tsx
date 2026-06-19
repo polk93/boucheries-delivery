@@ -55,7 +55,7 @@ export default function AdminPage() {
       <div className="bg-brun px-4 py-3.5 flex justify-between items-center">
         <div>
           <h1 className="font-serif text-base font-bold text-or">⚙️ Administration</h1>
-          <p className="text-white/50 text-xs">BoucheriesDelivery · Vue globale</p>
+          <p className="text-white/50 text-xs">Côte à Côte · Vue globale</p>
         </div>
         <button className="text-white/60 text-xs" onClick={() => router.push('/')}>← Retour</button>
       </div>
