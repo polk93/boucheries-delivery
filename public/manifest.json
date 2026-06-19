@@ -1,7 +1,7 @@
 {
-  "name": "BoucherieDelivery",
-  "short_name": "Boucherie",
-  "description": "La meilleure viande artisanale livrée chez vous",
+  "name": "Côte à Côte",
+  "short_name": "Côte à Côte",
+  "description": "Vos bouchers à vos côtés, où que vous soyez.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#3D2012",

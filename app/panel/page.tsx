@@ -1408,7 +1408,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
         <span className="text-4xl block mb-2">💬</span>
         <p className="text-white font-bold text-sm mb-1">Réponse garantie sous 2h</p>
         <p className="text-white/60 text-xs mb-3">Lun–Ven 8h–20h · Sam 9h–18h</p>
-        <a href="mailto:support@boucheriedelivery.fr" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
+        <a href="mailto:support@coteacote.fr" className="inline-block bg-or text-brun text-xs font-bold px-5 py-2 rounded-xl no-underline">✉️ Envoyer un email</a>
       </div>
       <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
         {[
@@ -1431,11 +1431,11 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
         <p className="text-xs text-brun-clair font-semibold">Contrat partenaire boucher · En vigueur depuis le 13 mai 2026</p>
       </div>
       {[
-        { t: "1. Commission", c: "BoucheriesDelivery retient 15% sur chaque commande. Le boucher reçoit 85% du montant des produits, versé chaque lundi." },
+        { t: "1. Commission", c: "Côte à Côte retient 15% sur chaque commande. Le boucher reçoit 85% du montant des produits, versé chaque lundi." },
         { t: "2. Engagement", c: "Sans engagement de durée. Résiliation possible à tout moment depuis les paramètres. Prise d'effet sous 30 jours." },
         { t: "3. Responsabilité", c: "Le boucher est seul responsable de la qualité, conformité sanitaire et traçabilité de ses produits." },
         { t: "4. Allergènes", c: "Le boucher doit renseigner les 14 allergènes obligatoires sur chaque produit (obligation légale EU n°1169/2011)." },
-        { t: "5. Paiements", c: "Les paiements sont gérés par Stripe. BoucheriesDelivery ne stocke jamais les coordonnées bancaires." },
+        { t: "5. Paiements", c: "Les paiements sont gérés par Stripe. Côte à Côte ne stocke jamais les coordonnées bancaires." },
         { t: "6. Propriété", c: "Les photos et descriptions publiées doivent appartenir au boucher ou être libres de droits." },
       ].map((s, i) => (
         <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
@@ -1476,7 +1476,7 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
         onClick={() => { logout(); router.push('/') }}>
         🚪 Se déconnecter
       </button>
-      <p className="text-center text-xs text-gray-300 pb-2">BoucheriesDelivery v1.0.0</p>
+      <p className="text-center text-xs text-gray-300 pb-2">Côte à Côte v1.0.0</p>
     </div>
   )
 }

@@ -12,18 +12,18 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'BoucherieDelivery — La meilleure viande livrée chez vous',
-  description: 'Commandez chez les meilleures boucheries artisanales de votre quartier. Livraison rapide, découpe sur mesure.',
+  title: 'Côte à Côte — Vos bouchers à vos côtés, où que vous soyez.',
+  description: 'Vos bouchers à vos côtés, où que vous soyez. Commandez chez les meilleures boucheries artisanales de votre quartier. Livraison rapide, découpe sur mesure.',
   manifest: '/manifest.json',
   icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'BoucherieDelivery',
+    title: 'Côte à Côte',
   },
   openGraph: {
-    title: 'BoucherieDelivery',
-    description: 'La meilleure viande artisanale livrée chez vous',
+    title: 'Côte à Côte',
+    description: 'Vos bouchers à vos côtés, où que vous soyez.',
     type: 'website',
     locale: 'fr_FR',
   },
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="shortcut icon" href="/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="BoucherieDelivery" />
+        <meta name="apple-mobile-web-app-title" content="Côte à Côte" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
       </head>

@@ -1,4 +1,4 @@
-// Service Worker — BoucheriesDelivery Push Notifications
+// Service Worker — Côte à Côte Push Notifications
 // Fichier : public/sw.js
 
 self.addEventListener('install', () => self.skipWaiting())
@@ -6,7 +6,7 @@ self.addEventListener('activate', e => e.waitUntil(self.clients.claim()))
 
 self.addEventListener('push', event => {
   const data = event.data?.json() || {}
-  const { title = 'BoucheriesDelivery', body = '', icon = '/icon-192.png', url = '/' } = data
+  const { title = 'Côte à Côte', body = '', icon = '/icon-192.png', url = '/' } = data
 
   event.waitUntil(
     self.registration.showNotification(title, {

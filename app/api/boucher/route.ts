@@ -32,11 +32,11 @@ export async function POST(req: NextRequest) {
           // Envoi au boucher (overrider le "to" via template params)
           to_email: email,
           to_name: nomComplet,
-          subject: `🥩 Bienvenue sur BoucheriesDelivery — Vos accès`,
+          subject: `🥩 Bienvenue sur Côte à Côte — Vos accès`,
           message: `
 Bonjour ${nomComplet},
 
-Bienvenue sur BoucheriesDelivery ! Votre inscription a été validée.
+Bienvenue sur Côte à Côte ! Votre inscription a été validée.
 
 Voici vos identifiants de connexion :
 
@@ -55,8 +55,8 @@ Une fois connecté, vous pourrez :
 Paramètres → Mon profil → Modifier mon mot de passe
 
 À très bientôt,
-L'équipe BoucheriesDelivery
-boucheriesdelivery@gmail.com
+L'équipe Côte à Côte
+contact@coteacote.fr
           `.trim(),
         },
       }),

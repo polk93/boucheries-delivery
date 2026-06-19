@@ -89,7 +89,7 @@ export default function ConfirmationLegale({
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
             J'accepte les <span className="text-brun font-semibold underline">Conditions Générales de Vente</span> et la
-            <span className="text-brun font-semibold underline"> Politique de confidentialité</span> de BoucheriesDelivery. *
+            <span className="text-brun font-semibold underline"> Politique de confidentialité</span> de Côte à Côte. *
           </p>
         </label>
 

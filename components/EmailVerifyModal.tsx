@@ -37,7 +37,7 @@ export default function EmailVerifyModal({ email, onVerified, onCancel }: EmailV
           to_email: email,
           name:     email,
           email:    email,
-          subject:  `Code de vérification BoucheriesDelivery : ${newCode}`,
+          subject:  `Code de vérification Côte à Côte : ${newCode}`,
           message:  `Votre code de vérification est : ${newCode}\n\nCe code expire dans 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`,
         },
         'LbqBSABkR-S5wg9PR'

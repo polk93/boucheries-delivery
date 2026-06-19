@@ -107,7 +107,7 @@ export default function ParametresPage() {
       ],
     }] : []),
     {
-      titre: 'Rejoindre BoucheriesDelivery',
+      titre: 'Rejoindre Côte à Côte',
       items: [
         { ico: '🛵', label: 'Devenir livreur', sub: 'Livrez à votre rythme, revenus flexibles', action: () => setSection('livreur') },
         { ico: '🔪', label: 'Devenir partenaire boucher', sub: 'Rejoignez le réseau artisan', action: () => setSection('partenaire') },
@@ -177,7 +177,7 @@ export default function ParametresPage() {
             </div>
           </div>
         )}
-        <p className="text-center text-xs text-gray-300 pb-2">BoucherieDelivery v1.0.0</p>
+        <p className="text-center text-xs text-gray-300 pb-2">Côte à Côte v1.0.0</p>
       </div>
       <BottomNavClient currentPage="settings" />
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
@@ -786,7 +786,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
   const [open, setOpen] = useState<number | null>(null)
   const faqs = [
     { q: "Comment passer ma première commande ?", a: "Ouvrez l'app, sélectionnez une boucherie, choisissez vos produits et personnalisez votre découpe. Ajoutez au panier et procédez au paiement sécurisé." },
-    { q: "Quelle est la zone de livraison ?", a: "BoucheriesDelivery livre dans un rayon de 10 km autour des boucheries partenaires." },
+    { q: "Quelle est la zone de livraison ?", a: "Côte à Côte livre dans un rayon de 10 km autour des boucheries partenaires." },
     { q: "La chaîne du froid est-elle garantie ?", a: "Oui. Tous nos livreurs utilisent des sacs isothermes réfrigérés. Livraison en moins de 45 minutes." },
     { q: "Que faire si je ne suis pas satisfait ?", a: "Contactez-nous dans les 2h suivant la livraison. Remboursement ou remplacement garanti." },
     { q: "Comment annuler une commande ?", a: "Annulation possible dans les 5 minutes. Remboursement intégral sous 3-5 jours ouvrés." },
@@ -798,7 +798,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <p className="text-white font-bold text-sm mb-1">Besoin d'aide immédiate ?</p>
           <p className="text-white/60 text-xs mb-3">Réponse sous 2h en jours ouvrés</p>
           <div className="flex gap-2 justify-center">
-            <a href="mailto:boucheriesdelivery@gmail.com" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
+            <a href="mailto:contact@coteacote.fr" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
             <a href="tel:+33650290212" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
@@ -870,9 +870,9 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
-          { t: "1. Responsable du traitement", c: "BoucherieDelivery SAS. Contact : boucheriesdelivery@gmail.com" },
+          { t: "1. Responsable du traitement", c: "Côte à Côte SAS. Contact : contact@coteacote.fr" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
-          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : boucheriesdelivery@gmail.com. Réclamation CNIL : www.cnil.fr" },
+          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : contact@coteacote.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
@@ -891,7 +891,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026</p></div>
         {[
-          { t: "1. Objet", c: "Les CGU régissent l'utilisation de BoucherieDelivery." },
+          { t: "1. Objet", c: "Les CGU régissent l'utilisation de Côte à Côte." },
           { t: "2. Description du service", c: "Marketplace mettant en relation consommateurs et boucheries artisanales." },
           { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe." },
           { t: "4. Livraison", c: "Délais indicatifs 25-55 min. Chaîne du froid garantie." },
@@ -1009,7 +1009,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
               <span className="text-4xl block">🛵</span>
               <h2 className="font-serif text-lg font-black text-or">Inscription via Stuart</h2>
               <p className="text-white/70 text-sm leading-relaxed">
-                BoucheriesDelivery utilise Stuart pour gérer ses livraisons. Inscrivez-vous directement sur leur plateforme.
+                Côte à Côte utilise Stuart pour gérer ses livraisons. Inscrivez-vous directement sur leur plateforme.
               </p>
             </div>
             <div className="bg-white rounded-2xl p-4 shadow-sm space-y-2">

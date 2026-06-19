@@ -38,13 +38,13 @@ export async function POST(req: NextRequest) {
         mcc: isBoucher ? '5411' : '4215', // Boucherie ou Livraison
         product_description: isBoucher
           ? `Boucherie artisanale — ${nom_boutique}, ${ville}`
-          : `Livreur indépendant BoucheriesDelivery — ${ville}`,
+          : `Livreur indépendant Côte à Côte — ${ville}`,
       },
       metadata: {
         type,
         nom_boutique: nom_boutique || '',
         ville: ville || '',
-        plateforme: 'BoucheriesDelivery',
+        plateforme: 'Côte à Côte',
         // Lié automatiquement à votre compte Stripe plateforme via les transfers
       },
       settings: {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
           schedule: { interval: 'weekly', weekly_anchor: 'monday' },
           statement_descriptor: isBoucher
             ? (nom_boutique || 'BOUCHERIE').slice(0, 22).toUpperCase()
-            : 'BOUCHERIES DELIVERY',
+            : 'COTE A COTE',
         },
       },
     })

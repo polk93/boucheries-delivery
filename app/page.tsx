@@ -46,7 +46,7 @@ function PageNonConnecte() {
       {/* Header minimal */}
       <header className="bg-brun px-4 flex items-center justify-between h-14 flex-shrink-0">
         <span className="font-serif text-lg font-black text-or">
-          <span className="text-or">Boucheries</span><span className="text-white"> Delivery</span>
+          <span className="text-or">Côte</span><span className="text-white"> à Côte</span>
         </span>
         <button
           className="bg-white/15 border border-white/25 rounded-xl px-3 py-1.5 text-white text-xs font-semibold"
@@ -59,11 +59,9 @@ function PageNonConnecte() {
       <section className="bg-gradient-to-br from-brun via-brun-clair to-rouge px-5 py-10 relative overflow-hidden flex-shrink-0">
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-8xl opacity-10 pointer-events-none">🥩</div>
         <h1 className="font-serif font-black text-white leading-tight mb-3" style={{ fontSize: 'clamp(1.5rem, 6vw, 2.5rem)' }}>
-          La meilleure viande,<br /><span className="text-or">livrée chez vous</span>
+          Vos bouchers à vos côtés,<br /><span className="text-or">où que vous soyez.</span>
         </h1>
-        <p className="text-white/70 text-sm mb-4">
-          Les boucheries artisanales de votre quartier, à portée de clic.
-        </p>
+       
         <div className="flex flex-wrap gap-1.5">
           {['🏆 Artisans sélectionnés', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Découpe sur mesure'].map(t => (
             <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
@@ -317,7 +315,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
               <ellipse cx="102" cy="135" rx="10" ry="6" fill="#E74C3C"/>
             </svg>
             <span className="font-serif text-sm font-black text-or leading-tight hidden xs:block">
-              Boucheries<br/><span className="text-white text-xs font-bold">Delivery</span>
+              Côte<br/><span className="text-white text-xs font-bold">à Côte</span>
             </span>
           </div>
 
@@ -400,9 +398,9 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-8xl opacity-10 pointer-events-none select-none">🥩</div>
           <div className="max-w-2xl mx-auto">
             <h1 className="font-serif font-black text-white leading-tight mb-2" style={{ fontSize: 'clamp(1.3rem, 5vw, 1.8rem)' }}>
-              La meilleure viande,<br /><span className="text-or">livrée chez vous</span>
+              Vos bouchers à vos côtés,<br /><span className="text-or">où que vous soyez.</span>
             </h1>
-            <p className="text-white/70 text-sm mb-3">Les boucheries artisanales de votre quartier, livrées en moins de 45 min.</p>
+          
             <div className="flex flex-wrap gap-1.5 mb-4">
               {['🏆 Artisans', '🚚 Livraison rapide', '❄️ Froid garanti', '✂️ Sur mesure'].map(t => (
                 <span key={t} className="bg-white/15 border border-or/40 text-or rounded-full px-2.5 py-0.5 text-xs font-medium">{t}</span>
@@ -467,7 +465,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
     <span className="text-5xl block mb-4">🔪</span>
     <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
     <p className="text-sm leading-relaxed mb-2">
-      Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
+      Les boucheries de votre quartier arrivent bientôt sur Côte à Côte.
     </p>
     <p className="text-xs text-gray-400">
       Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
@@ -486,7 +484,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
               <span className="text-5xl block mb-4">🔪</span>
               <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
               <p className="text-sm leading-relaxed mb-2">
-                Les boucheries de votre quartier arrivent bientôt sur BoucherieDelivery.
+                Les boucheries de votre quartier arrivent bientôt sur Côte à Côte.
               </p>
               <p className="text-xs text-gray-400 mb-4">
                 Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.

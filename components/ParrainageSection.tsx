@@ -54,12 +54,12 @@ export default function ParrainageSection({ onBack }: { onBack: () => void }) {
             {copied ? '✅ Lien copié !' : '📋 Copier le lien de parrainage'}
           </button>
           <div className="flex gap-2">
-            <a href={`https://wa.me/?text=${encodeURIComponent(`🥩 Commande chez ton boucher artisan avec BoucheriesDelivery ! -5€ avec mon code : ${lien}`)}`}
+            <a href={`https://wa.me/?text=${encodeURIComponent(`🥩 Commande chez ton boucher artisan avec Côte à Côte ! -5€ avec mon code : ${lien}`)}`}
               target="_blank" rel="noopener noreferrer"
               className="flex-1 bg-green-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">
               📱 WhatsApp
             </a>
-            <a href={`sms:?body=${encodeURIComponent(`Essaie BoucheriesDelivery, -5€ avec mon code : ${lien}`)}`}
+            <a href={`sms:?body=${encodeURIComponent(`Essaie Côte à Côte, -5€ avec mon code : ${lien}`)}`}
               className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl text-xs font-bold text-center no-underline font-sans">
               💬 SMS
             </a>
