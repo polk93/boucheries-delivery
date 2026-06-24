@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface ConfirmationLegaleProps {
   items: any[]
@@ -71,12 +72,16 @@ export default function ConfirmationLegale({
       </div>
 
       {/* Politique retour */}
-      <div className="bg-or-pale border border-or/20 rounded-xl p-3">
-        <p className="text-xs font-bold text-brun mb-1">ℹ️ Droit de rétractation</p>
+      <div className="bg-or-pale border border-or/20 rounded-xl p-3 space-y-2">
+        <p className="text-xs font-bold text-brun">ℹ️ Droit de rétractation</p>
         <p className="text-xs text-gray-500 leading-relaxed">
-          Conformément à l'article L.221-28 du Code de la consommation, les denrées alimentaires périssables
-          sont exclues du droit de rétractation de 14 jours. En cas de problème de qualité,
+          Conformément à l'<strong>art. L.221-28 du Code de la consommation</strong>, les denrées alimentaires
+          périssables sont exclues du droit de rétractation de 14 jours. En cas de problème de qualité,
           contactez-nous dans les 2h suivant la livraison.
+        </p>
+        <p className="text-[10px] text-gray-400 leading-relaxed">
+          Ordonnance n°2026-51 du 5 janv. 2026 — pour tout produit non périssable, vous pouvez exercer
+          votre droit de rétractation en ligne depuis « Mes commandes ».
         </p>
       </div>
 
@@ -88,8 +93,11 @@ export default function ConfirmationLegale({
             {cguAccepted && <span className="text-white text-xs font-bold">✓</span>}
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
-            J'accepte les <span className="text-brun font-semibold underline">Conditions Générales de Vente</span> et la
-            <span className="text-brun font-semibold underline"> Politique de confidentialité</span> de Côte à Côte. *
+            J'accepte les{' '}
+            <Link href="/cgv" target="_blank" className="text-brun font-semibold underline">Conditions Générales de Vente</Link>
+            {' '}et la{' '}
+            <Link href="/parametres?section=confidentialite" target="_blank" className="text-brun font-semibold underline">Politique de confidentialité</Link>
+            {' '}de Côte à Côte. *
           </p>
         </label>
 
