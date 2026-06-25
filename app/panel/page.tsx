@@ -666,10 +666,6 @@ export default function PanelPage() {
                         <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
                         {o.status === 'new' ? (
                           <>
-                            <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
-                              onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
-                              Refuser
-                            </button>
                             <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
                               onClick={() => progress(o.id)}>
                               ✅ Accepter
