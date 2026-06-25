@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
+import { usePanier } from '@/store/panier'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import AuthModal from '@/components/ui/AuthModal'
 
@@ -42,7 +43,7 @@ const HISTORIQUE_DEMO = [
 type Commande = typeof HISTORIQUE_DEMO[0]
 
 // ── Reçu détaillé (modal) ─────────────────────────────────────────────────────
-function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () => void }) {
+function ModalRecu({ commande: o, onClose, onReorder }: { commande: Commande; onClose: () => void; onReorder: (o: Commande) => void }) {
   const sousTotal = o.items.reduce((s, i) => s + i.prix * i.qty, 0)
   const total = sousTotal + o.frais
 
@@ -145,7 +146,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
             </button>
             <button
               className="flex-1 bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
-              onClick={onClose}>
+              onClick={() => onReorder(o)}>
               🔄 Re-commander
             </button>
           </div>
@@ -159,10 +160,29 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
 export default function CommandesPage() {
   const router = useRouter()
   const { user, isDemo } = useAuth()
+  const { clear, addItem } = usePanier()
   const [authOpen, setAuthOpen] = useState(false)
   const [recuOpen, setRecuOpen] = useState<Commande | null>(null)
 
   const historique = isDemo() ? HISTORIQUE_DEMO : []
+
+  function reorder(o: Commande) {
+    clear()
+    o.items.forEach((item, idx) => {
+      addItem({
+        produit_id: `reorder_${o.id}_${idx}`,
+        boucherie_id: 1,
+        boucherie_nom: o.boucherie,
+        nom: item.nom,
+        prix: item.prix,
+        icon: item.icon,
+        quantite: item.qty,
+        decoupe: item.decoupe,
+        preparation: item.preparation,
+      })
+    })
+    router.push('/')
+  }
 
   // Non connecté
   if (!user) {
@@ -262,7 +282,7 @@ export default function CommandesPage() {
                       {/* Re-commander */}
                       <button
                         className="bg-rouge-vif text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
-                        onClick={() => router.push('/')}>
+                        onClick={() => reorder(o)}>
                         🔄 Re-commander
                       </button>
                     </div>
@@ -275,7 +295,7 @@ export default function CommandesPage() {
       </div>
 
       {/* Modal reçu */}
-      {recuOpen && <ModalRecu commande={recuOpen} onClose={() => setRecuOpen(null)} />}
+      {recuOpen && <ModalRecu commande={recuOpen} onClose={() => setRecuOpen(null)} onReorder={reorder} />}
 
       <BottomNavClient currentPage="commandes" />
     </div>
