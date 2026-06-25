@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ResetCookieButton from './ResetCookieButton'
 
 export const metadata = {
   title: 'Politique de cookies — Côte à Côte',
@@ -108,18 +109,7 @@ export default function PolitiqueCookiesPage() {
             <p className="text-xs text-gray-500 leading-relaxed">
               Vous pouvez modifier vos préférences de cookies à tout moment. Le bouton ci-dessous vous permet de réouvrir le gestionnaire de consentement.
             </p>
-            <button
-              id="open-cookie-banner"
-              className="w-full bg-brun text-white py-3 rounded-xl font-bold text-sm"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  localStorage.removeItem('cookie_consent')
-                  window.location.reload()
-                }
-              }}
-            >
-              🍪 Modifier mes préférences de cookies
-            </button>
+            <ResetCookieButton />
             <div className="bg-or-pale border border-or/20 rounded-xl p-3">
               <p className="text-xs font-bold text-brun mb-1">Via votre navigateur</p>
               <p className="text-xs text-gray-500 leading-relaxed">

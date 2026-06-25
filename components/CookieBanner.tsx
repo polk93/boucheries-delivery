@@ -1,24 +1,41 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-type ConsentChoice = 'accepted' | 'refused' | null
+import { useAuth } from '@/store/auth'
 
 export default function CookieBanner() {
+  const { user } = useAuth()
   const [visible, setVisible] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem('cookie_consent') as ConsentChoice
-    if (!stored) setVisible(true)
-  }, [])
+    if (!user?.email || user.isDemo) return
 
-  function handleChoice(choice: 'accepted' | 'refused') {
+    fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data?.cookie_consent) setVisible(true)
+      })
+      .catch(() => setVisible(true))
+  }, [user?.email, user?.isDemo])
+
+  async function handleChoice(choice: 'accepted' | 'refused') {
+    if (!user?.email) return
     setSaving(true)
-    localStorage.setItem('cookie_consent', choice)
-    localStorage.setItem('cookie_consent_date', new Date().toISOString())
-    setVisible(false)
-    setSaving(false)
+    try {
+      await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          cookie_consent: choice,
+          cookie_consent_date: new Date().toISOString(),
+        }),
+      })
+    } finally {
+      setVisible(false)
+      setSaving(false)
+    }
   }
 
   if (!visible) return null
@@ -32,26 +49,21 @@ export default function CookieBanner() {
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
     >
       <div className="max-w-2xl mx-auto bg-brun text-white rounded-2xl shadow-modal p-4 space-y-3">
-        {/* Header */}
         <div className="flex items-start gap-2">
           <span className="text-xl flex-shrink-0">🍪</span>
           <div>
             <p className="font-serif font-bold text-sm text-or">Gestion des cookies</p>
             <p className="text-xs text-white/70 leading-relaxed mt-0.5">
-              Nous utilisons des cookies nécessaires au bon fonctionnement de notre service et, avec votre accord, des cookies d'analyse d'audience pour améliorer votre expérience.
+              Nous utilisons des cookies nécessaires au bon fonctionnement du service et, avec votre accord, des cookies d'analyse pour améliorer votre expérience.
             </p>
           </div>
         </div>
 
-        {/* Link to policy */}
-        <Link
-          href="/politique-cookies"
-          className="text-[11px] text-or/80 underline underline-offset-2 hover:text-or transition-colors"
-        >
+        <Link href="/politique-cookies" className="text-[11px] text-or/80 underline underline-offset-2 hover:text-or transition-colors">
           En savoir plus sur nos cookies →
         </Link>
 
-        {/* Buttons — equally prominent (CNIL requirement) */}
+        {/* Boutons équiprobables — exigence CNIL */}
         <div className="grid grid-cols-2 gap-2">
           <button
             disabled={saving}
