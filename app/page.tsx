@@ -15,6 +15,7 @@ import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_MIN } from '@/lib/livra
 import { useBoucherStore } from '@/store/boucherStore'
 import { useSupabaseBouchers, type BoucherDB } from '@/lib/useSupabase'
 import { useAutoPushSubscription } from '@/lib/usePush'
+import LegalFooter from '@/components/LegalFooter'
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -134,6 +135,7 @@ function PageNonConnecte() {
       </div>
 
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+      <LegalFooter />
       <BottomNavClient currentPage="home" />
     </div>
   )

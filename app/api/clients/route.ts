@@ -26,13 +26,15 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = getSupabase()
     const body = await req.json()
-    const { email, nom, telephone, notifs_prefs } = body
+    const { email, nom, telephone, notifs_prefs, cookie_consent, cookie_consent_date } = body
     if (!email) return NextResponse.json({ error: 'email requis' }, { status: 400 })
 
     const payload: any = { email, updated_at: new Date().toISOString() }
-    if (nom          !== undefined) payload.nom          = nom
-    if (telephone    !== undefined) payload.telephone    = telephone
-    if (notifs_prefs !== undefined) payload.notifs_prefs = notifs_prefs
+    if (nom                !== undefined) payload.nom                = nom
+    if (telephone          !== undefined) payload.telephone          = telephone
+    if (notifs_prefs       !== undefined) payload.notifs_prefs       = notifs_prefs
+    if (cookie_consent     !== undefined) payload.cookie_consent     = cookie_consent
+    if (cookie_consent_date !== undefined) payload.cookie_consent_date = cookie_consent_date
 
     const { data, error } = await supabase.from('clients')
       .upsert(payload, { onConflict: 'email' })

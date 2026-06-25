@@ -117,8 +117,16 @@ export default function ParametresPage() {
       items: [
         { ico: '🆘', label: 'Support & FAQ', sub: 'Questions fréquentes', action: () => setSection('support') },
         { ico: '✉️', label: 'Nous contacter', sub: 'Envoyer un message', action: () => setSection('contact') },
-        { ico: '🔒', label: 'Confidentialité', sub: 'Données & RGPD', action: () => setSection('confidentialite') },
-        { ico: '📋', label: "Conditions d'utilisation", sub: 'CGU & CGV', action: () => setSection('cgu') },
+      ],
+    },
+    {
+      titre: 'Informations légales',
+      items: [
+        { ico: '⚖️', label: 'Mentions légales', sub: 'Éditeur, hébergeur, société', action: () => router.push('/mentions-legales') },
+        { ico: '📋', label: 'Conditions de vente (CGV)', sub: 'Commandes, livraison, remboursements', action: () => router.push('/cgv') },
+        { ico: '📄', label: "Conditions d'utilisation (CGU)", sub: 'Règles d\'usage de la plateforme', action: () => setSection('cgu') },
+        { ico: '🔒', label: 'Confidentialité & RGPD', sub: 'Vos données personnelles', action: () => setSection('confidentialite') },
+        { ico: '🍪', label: 'Cookies', sub: 'Gérer mes préférences de cookies', action: () => router.push('/politique-cookies') },
       ],
     },
   ]

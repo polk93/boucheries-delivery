@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
 import PushAutoSubscriber from './components/PushAutoSubscriber'
+import CookieBanner from '@/components/CookieBanner'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <PushAutoSubscriber />
+        <CookieBanner />
         <Toaster
           position="bottom-center"
           toastOptions={{
