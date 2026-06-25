@@ -343,6 +343,28 @@ export default function PanelPage() {
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
+  // ── Alerte sonore + vibration à chaque nouvelle commande ─────────────────────
+  const prevOrdersLenRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (prevOrdersLenRef.current === null) { prevOrdersLenRef.current = orders.length; return }
+    if (orders.length > prevOrdersLenRef.current) {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate([200, 100, 200])
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+        const ctx = new AudioCtx()
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.frequency.value = 880
+        gain.gain.setValueAtTime(0.4, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7)
+        osc.start(); osc.stop(ctx.currentTime + 0.7)
+      } catch {}
+      showToast('🔔 Nouvelle commande reçue !')
+    }
+    prevOrdersLenRef.current = orders.length
+  }, [orders.length])
+
   // ── Wrappers de mise à jour avec persistence ──────────────────────────────────
   function setOrdersPersist(fn: (prev: Commande[]) => Commande[]) {
     setOrders(prev => { const next = fn(prev); boucherStore.setOrders(bid, next); return next })
@@ -617,6 +639,15 @@ export default function PanelPage() {
               </button>
             </div>
 
+            {/* Légende des statuts */}
+            {!showHistorique && orders.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.entries(SL) as [string, string][]).filter(([k]) => k !== 'done').map(([k, label]) => (
+                  <span key={k} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SC[k]}`}>{label}</span>
+                ))}
+              </div>
+            )}
+
             {!showHistorique && (
               orders.length === 0
                 ? (
@@ -777,24 +808,29 @@ export default function PanelPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
                   <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={isActif}
-                    onClick={toggleActif}
-                    style={{
-                      width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
-                      cursor: 'pointer', flexShrink: 0, position: 'relative',
-                      backgroundColor: isActif ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
-                      transition: 'background-color 0.2s', outline: 'none',
-                    }}>
-                    <span style={{
-                      display: 'block', width: 20, height: 20, borderRadius: '50%',
-                      backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
-                      transform: isActif ? 'translateX(20px)' : 'translateX(0px)',
-                      transition: 'transform 0.2s',
-                    }} />
-                  </button>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isActif}
+                      onClick={toggleActif}
+                      style={{
+                        width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
+                        cursor: 'pointer', flexShrink: 0, position: 'relative',
+                        backgroundColor: isActif ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
+                        transition: 'background-color 0.2s', outline: 'none',
+                      }}>
+                      <span style={{
+                        display: 'block', width: 20, height: 20, borderRadius: '50%',
+                        backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
+                        transform: isActif ? 'translateX(20px)' : 'translateX(0px)',
+                        transition: 'transform 0.2s',
+                      }} />
+                    </button>
+                    <span className={`text-[9px] font-bold ${isActif ? 'text-green-500' : 'text-gray-400'}`}>
+                      {isActif ? 'Visible' : 'Masqué'}
+                    </span>
+                  </div>
                 </div>
               </div>
             )

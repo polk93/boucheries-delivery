@@ -18,7 +18,6 @@ export default function ConfirmationLegale({
   items, sousTotal, frais, reduction, total, mode, adresse, onConfirm, onBack
 }: ConfirmationLegaleProps) {
   const [cguAccepted, setCguAccepted] = useState(false)
-  const [ageChecked,  setAgeChecked]  = useState(false)
 
   return (
     <div className="space-y-4">
@@ -101,15 +100,6 @@ export default function ConfirmationLegale({
           </p>
         </label>
 
-        <label className="flex items-start gap-3 cursor-pointer">
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${ageChecked ? 'bg-brun border-brun' : 'border-gray-300'}`}
-            onClick={() => setAgeChecked(v => !v)}>
-            {ageChecked && <span className="text-white text-xs font-bold">✓</span>}
-          </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Je confirme être majeur(e) et avoir l'autorité pour effectuer cet achat. *
-          </p>
-        </label>
       </div>
 
       <div className="flex gap-3">
@@ -117,7 +107,7 @@ export default function ConfirmationLegale({
           onClick={onBack}>← Modifier</button>
         <button
           className="flex-[2] bg-rouge-vif text-white font-bold py-3 rounded-xl text-sm font-sans disabled:bg-gray-300"
-          disabled={!cguAccepted || !ageChecked}
+          disabled={!cguAccepted}
           onClick={onConfirm}>
           🔒 Payer {total.toFixed(2)} € →
         </button>
