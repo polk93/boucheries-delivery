@@ -32,6 +32,15 @@ export default function LegalFooter() {
           </ul>
         </nav>
 
+        {/* Médiateur de la consommation — obligation légale LCEN */}
+        <div className="bg-creme rounded-xl px-3 py-2 text-center">
+          <p className="text-[10px] text-gray-500 font-semibold">⚖️ Médiateur de la consommation</p>
+          <p className="text-[10px] text-gray-400 leading-relaxed mt-0.5">
+            En cas de litige non résolu : <span className="text-brun font-semibold">mediateur@coteacote.fr</span>
+            {' '}— Service gratuit, réponse sous 90 jours (art. L.616-1 C. conso.)
+          </p>
+        </div>
+
         {/* Copyright */}
         <p className="text-[10px] text-gray-300 text-center">
           © {new Date().getFullYear()} Côte à Côte SAS — Tous droits réservés

@@ -859,6 +859,19 @@ export default function PanelPage() {
                   </select>
                 )}
               </div>
+              {/* Alerte ruptures de stock */}
+              {myProduits.some(p => p.stock <= 1 && (p as any).actif !== false) && (
+                <div className="mx-4 mt-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-red-600">Stocks à renouveler</p>
+                    <p className="text-[10px] text-red-400">
+                      {myProduits.filter(p => p.stock === 0 && (p as any).actif !== false).length} en rupture ·{' '}
+                      {myProduits.filter(p => p.stock === 1 && (p as any).actif !== false).length} stock faible
+                    </p>
+                  </div>
+                </div>
+              )}
               {/* Liste groupée */}
               {myProduits.length === 0
                 ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
@@ -1051,8 +1064,19 @@ export default function PanelPage() {
 
             {/* Horaires */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
                 <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
+                <button
+                  className="text-[11px] text-brun-clair font-semibold bg-white border border-gris-bd rounded-lg px-2.5 py-1 font-sans active:bg-gris-bd transition-colors"
+                  onClick={() => {
+                    const base = boutique.horaires['lun']
+                    const newHoraires = Object.fromEntries(JOURS.map(([k]) => [k, { ...base }]))
+                    setBoutiquePersist(b => ({ ...b, horaires: newHoraires }))
+                    setBoutiqueEdited(true)
+                    showToast('✅ Mêmes horaires pour toute la semaine')
+                  }}>
+                  Copier lun. → tous
+                </button>
               </div>
               <div className="p-4 space-y-4">
                 {JOURS.map(([key, label]) => {
@@ -1311,15 +1335,32 @@ export default function PanelPage() {
                 </div>
               </div>
 
-              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
-                <div key={k}>
-                  <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
-                  <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder={ph}
-                    value={(modalProd as any)[k]}
-                    onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
-                </div>
-              ))}
+              {([
+                ['decoupes', '✂️ Découpes', ['Standard', 'Fine', 'Épaisse (2cm)', 'En médaillons', 'Avec os', 'Tranché fin', 'Découpé 8 morceaux', 'Entier']],
+                ['preparation', '🌿 Préparations', ['Nature', 'Mariné herbes', 'Sel de Guérande', 'Extra-épicées', 'Miel-balsamique', 'Marinée échalotes', 'BBQ', 'Épicées']],
+              ] as [string, string, string[]][]).map(([k, l, presets]) => {
+                const current = ((modalProd as any)[k] || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+                return (
+                  <div key={k}>
+                    <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {presets.map(preset => {
+                        const sel = current.includes(preset)
+                        return (
+                          <button key={preset} type="button"
+                            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold transition-all ${sel ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                            onClick={() => {
+                              const next = sel ? current.filter((v: string) => v !== preset) : [...current, preset]
+                              setModalProd(f => f ? { ...f, [k]: next.join(', ') } : f)
+                            }}>
+                            {preset}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
               {/* Allergènes obligatoires */}
               <div>
                 <label className="text-xs font-bold text-brun block mb-1.5">
