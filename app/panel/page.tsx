@@ -31,6 +31,141 @@ interface ProduitForm {
   venteType: string
   allergenes: string
   poids: string  // ex: "200-300g", "500g", "1kg"
+  pays_origine: string
+}
+
+// ── Pays d'origine ────────────────────────────────────────────────────────────
+const PAYS_ORIGINE = [
+  { label: 'France',           flag: '🇫🇷' },
+  { label: 'Irlande',          flag: '🇮🇪' },
+  { label: 'Uruguay',          flag: '🇺🇾' },
+  { label: 'Argentine',        flag: '🇦🇷' },
+  { label: 'Australie',        flag: '🇦🇺' },
+  { label: 'Espagne',          flag: '🇪🇸' },
+  { label: 'Pologne',          flag: '🇵🇱' },
+  { label: 'Allemagne',        flag: '🇩🇪' },
+  { label: 'Pays-Bas',         flag: '🇳🇱' },
+  { label: 'Brésil',           flag: '🇧🇷' },
+  { label: 'Royaume-Uni',      flag: '🇬🇧' },
+  { label: 'États-Unis',       flag: '🇺🇸' },
+  { label: 'Nouvelle-Zélande', flag: '🇳🇿' },
+  { label: 'Canada',           flag: '🇨🇦' },
+  { label: 'Italie',           flag: '🇮🇹' },
+  { label: 'Portugal',         flag: '🇵🇹' },
+  { label: 'Japon',            flag: '🇯🇵' },
+  { label: 'Roumanie',         flag: '🇷🇴' },
+  { label: 'Hongrie',          flag: '🇭🇺' },
+  { label: 'Autriche',         flag: '🇦🇹' },
+  { label: 'Belgique',         flag: '🇧🇪' },
+  { label: 'Maroc',            flag: '🇲🇦' },
+]
+
+function CountrySelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const filtered = PAYS_ORIGINE.filter(p => p.label.toLowerCase().includes(search.toLowerCase()))
+  const selected = PAYS_ORIGINE.find(p => p.label === value)
+  return (
+    <div className="relative">
+      <button type="button"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans text-left flex items-center justify-between bg-white outline-none focus:border-brun"
+        onClick={() => setOpen(o => !o)}>
+        <span className={selected ? 'text-brun font-semibold' : 'text-gray-400'}>
+          {selected ? `${selected.flag} ${selected.label}` : 'Sélectionner un pays…'}
+        </span>
+        <span className="text-gray-400 text-xs">{open ? '▴' : '▾'}</span>
+      </button>
+      {value && (
+        <button type="button"
+          className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 text-xs px-1"
+          onClick={() => { onChange(''); setOpen(false) }}>✕</button>
+      )}
+      {open && (
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+          <div className="px-3 py-2 border-b border-gris-bd">
+            <input autoFocus
+              className="w-full text-sm font-sans outline-none placeholder:text-gray-300"
+              placeholder="🔍 Rechercher un pays…"
+              value={search}
+              onChange={e => setSearch(e.target.value)} />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filtered.length === 0
+              ? <p className="text-xs text-gray-400 px-3 py-3 text-center">Aucun résultat</p>
+              : filtered.map(p => (
+                <button key={p.label} type="button"
+                  className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 hover:bg-creme transition-colors font-sans ${value === p.label ? 'bg-or-pale font-semibold text-brun' : 'text-gray-700'}`}
+                  onClick={() => { onChange(p.label); setOpen(false); setSearch('') }}>
+                  <span className="text-base">{p.flag}</span>{p.label}
+                  {value === p.label && <span className="ml-auto text-or text-xs">✓</span>}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ChipsEditor({ value, onChange, presets }: { value: string; onChange: (v: string) => void; presets: string[] }) {
+  const [input, setInput] = useState('')
+  const chips = value.split(',').map(s => s.trim()).filter(Boolean)
+
+  function add(v: string) {
+    const trimmed = v.trim()
+    if (!trimmed || chips.includes(trimmed)) return
+    onChange([...chips, trimmed].join(', '))
+    setInput('')
+  }
+  function remove(v: string) {
+    onChange(chips.filter(c => c !== v).join(', '))
+  }
+
+  return (
+    <div className="space-y-2">
+      {/* Chips sélectionnés avec X */}
+      {chips.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {chips.map(chip => (
+            <span key={chip} className="flex items-center gap-1 bg-brun text-white pl-2.5 pr-1.5 py-1 rounded-full text-[11px] font-semibold">
+              {chip}
+              <button type="button" className="text-white/70 hover:text-white w-3.5 h-3.5 flex items-center justify-center"
+                onClick={() => remove(chip)}>✕</button>
+            </span>
+          ))}
+        </div>
+      )}
+      {/* Suggestions prédéfinies (non encore sélectionnées) */}
+      {presets.filter(p => !chips.includes(p)).length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {presets.filter(p => !chips.includes(p)).map(preset => (
+            <button key={preset} type="button"
+              className="px-2.5 py-1 rounded-full border border-dashed border-gray-300 text-[11px] font-semibold text-gray-400 hover:border-brun hover:text-brun transition-all"
+              onClick={() => add(preset)}>
+              + {preset}
+            </button>
+          ))}
+        </div>
+      )}
+      {/* Ajout personnalisé */}
+      <div className="flex gap-2">
+        <input
+          className="flex-1 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs font-sans outline-none focus:border-brun"
+          placeholder="Autre option…"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(input) } }}
+        />
+        <button type="button"
+          className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-xl font-sans disabled:opacity-40"
+          disabled={!input.trim()}
+          onClick={() => add(input)}>
+          +
+        </button>
+      </div>
+    </div>
+  )
 }
 
 interface LigneCommande {
@@ -173,7 +308,7 @@ const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
 }
 
 function emptyForm(boucherieId: number): ProduitForm {
-  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '', poids: '' }
+  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '', poids: '', pays_origine: '' }
 }
 
 function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
@@ -452,7 +587,7 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '' })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '', pays_origine: (p as any).pays_origine || '' })
     setIsNew(false)
     setNewCatName('')
   }
@@ -503,7 +638,7 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
             preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
             boucherieId: myBoucherieId, boucherieNom,
             cat: finalCat as any, venteType: modalProd.venteType as any,
-            poids: modalProd.poids,
+            poids: modalProd.poids, pays_origine: modalProd.pays_origine,
           } as any
           setProduits(prev => {
             const next = [...prev, newProd]
@@ -531,6 +666,7 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         boucherieId: modalProd.boucherieId, boucherieNom,
         cat: finalCat as any, venteType: modalProd.venteType as any,
+        pays_origine: modalProd.pays_origine,
       }
       setProduits(prev => {
         const next = [...prev, newProd]
@@ -555,6 +691,7 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
           photo: modalProd.photoUrl,
           decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
           preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
+          pays_origine: modalProd.pays_origine,
         }
       }))
       // Sync Supabase
@@ -1426,32 +1563,28 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
                 </div>
               </div>
 
+              {/* Pays d'origine */}
+              <div>
+                <label className="text-xs font-bold text-brun block mb-1.5">🌍 Pays d'origine</label>
+                <CountrySelector
+                  value={modalProd.pays_origine || ''}
+                  onChange={val => setModalProd(f => f ? { ...f, pays_origine: val } : f)}
+                />
+              </div>
+
               {([
-                ['decoupes', '✂️ Découpes', ['Standard', 'Fine', 'Épaisse (2cm)', 'En médaillons', 'Avec os', 'Tranché fin', 'Découpé 8 morceaux', 'Entier']],
-                ['preparation', '🌿 Préparations', ['Nature', 'Mariné herbes', 'Sel de Guérande', 'Extra-épicées', 'Miel-balsamique', 'Marinée échalotes', 'BBQ', 'Épicées']],
-              ] as [string, string, string[]][]).map(([k, l, presets]) => {
-                const current = ((modalProd as any)[k] || '').split(',').map((s: string) => s.trim()).filter(Boolean)
-                return (
-                  <div key={k}>
-                    <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {presets.map(preset => {
-                        const sel = current.includes(preset)
-                        return (
-                          <button key={preset} type="button"
-                            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold transition-all ${sel ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
-                            onClick={() => {
-                              const next = sel ? current.filter((v: string) => v !== preset) : [...current, preset]
-                              setModalProd(f => f ? { ...f, [k]: next.join(', ') } : f)
-                            }}>
-                            {preset}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
+                ['decoupes', '✂️ Découpes proposées', ['Standard', 'Fine', 'Épaisse (2cm)', 'En médaillons', 'Avec os', 'Tranché fin', 'Découpé 8 morceaux', 'Entier']],
+                ['preparation', '🌿 Préparations proposées', ['Nature', 'Mariné herbes', 'Sel de Guérande', 'Extra-épicées', 'Miel-balsamique', 'Marinée échalotes', 'BBQ', 'Épicées']],
+              ] as [string, string, string[]][]).map(([k, l, presets]) => (
+                <div key={k}>
+                  <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                  <ChipsEditor
+                    value={(modalProd as any)[k] || ''}
+                    onChange={val => setModalProd(f => f ? { ...f, [k]: val } : f)}
+                    presets={presets}
+                  />
+                </div>
+              ))}
               {/* Allergènes obligatoires */}
               <div>
                 <label className="text-xs font-bold text-brun block mb-1.5">
