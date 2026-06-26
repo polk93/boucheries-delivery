@@ -662,54 +662,6 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
         {tab === 'commandes' && (
           <div className="space-y-3">
 
-            {/* ── Dashboard statistiques ── */}
-            {(() => {
-              const now = new Date()
-              const cm = now.getMonth(), cy = now.getFullYear()
-              const cmdsMois = historique.filter(o => {
-                const parts = o.date.split('/')
-                if (parts.length === 3) {
-                  const m = parseInt(parts[1]) - 1, y = parseInt(parts[2])
-                  return m === cm && y === cy
-                }
-                return false
-              })
-              const caMois = cmdsMois.reduce((s, o) => s + o.lignes.reduce((ls, l) => ls + l.prix * l.qty, 0) + o.frais, 0)
-              const prodCounts: Record<string, number> = {}
-              historique.forEach(o => o.lignes.forEach(l => { prodCounts[l.produit] = (prodCounts[l.produit] || 0) + l.qty }))
-              const topProd = Object.entries(prodCounts).sort((a, b) => b[1] - a[1])[0]
-              return (
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div className="bg-white rounded-2xl p-3 shadow-sm">
-                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">CA ce mois</p>
-                    <p className="text-xl font-black text-brun mt-0.5">{caMois.toFixed(0)} €</p>
-                    <p className="text-[10px] text-green-500 font-semibold mt-0.5">
-                      {cmdsMois.length} commande{cmdsMois.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-3 shadow-sm">
-                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">En attente</p>
-                    <p className={'text-xl font-black mt-0.5 ' + (orders.length > 0 ? 'text-rouge-vif' : 'text-green-500')}>
-                      {orders.length}
-                    </p>
-                    <p className="text-[10px] text-gray-400 font-semibold mt-0.5">
-                      {orders.length === 0 ? 'Tout traité ✓' : `commande${orders.length !== 1 ? 's' : ''} à traiter`}
-                    </p>
-                  </div>
-                  {topProd && (
-                    <div className="col-span-2 bg-or-pale border border-or/20 rounded-2xl p-3 flex items-center gap-3">
-                      <span className="text-2xl flex-shrink-0">⭐</span>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Produit phare</p>
-                        <p className="text-sm font-black text-brun truncate">{topProd[0]}</p>
-                        <p className="text-[10px] text-or font-semibold">{topProd[1]} unité{topProd[1] > 1 ? 's' : ''} vendues</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-
             <div className="flex gap-2">
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
@@ -976,6 +928,24 @@ ${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}<
                   </select>
                 )}
               </div>
+              {/* Produit phare */}
+              {(() => {
+                const counts: Record<string, number> = {}
+                historique.forEach(o => o.lignes.forEach(l => { counts[l.produit] = (counts[l.produit] || 0) + l.qty }))
+                const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
+                if (!top) return null
+                return (
+                  <div className="mx-4 mt-3 bg-or-pale border border-or/20 rounded-xl px-3 py-2 flex items-center gap-2.5">
+                    <span className="text-lg flex-shrink-0">⭐</span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Produit phare</p>
+                      <p className="text-xs font-black text-brun truncate">{top[0]}</p>
+                      <p className="text-[10px] text-or font-semibold">{top[1]} unité{top[1] > 1 ? 's' : ''} vendues</p>
+                    </div>
+                  </div>
+                )
+              })()}
+
               {/* Alerte ruptures de stock */}
               {myProduits.some(p => p.stock <= 1 && (p as any).actif !== false) && (
                 <div className="mx-4 mt-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-center gap-2">
@@ -1586,11 +1556,11 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
     <div className="space-y-4">
       {header}
       <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Paiements</button>
-      <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
       <div>
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
         <CaSelector historique={historique} />
       </div>
+      <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
     </div>
   )
 
