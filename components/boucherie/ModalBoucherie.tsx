@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { Boucherie, Produit } from '@/lib/data'
+import FicheProduitModal from './FicheProduitModal'
 
 // ── Filtres carrousel ─────────────────────────────────────────────────────────
 const FILTRES = [
@@ -22,10 +23,11 @@ function stockInfo(qty: number) {
 }
 
 // ── Carte viande (à la pièce) ─────────────────────────────────────────────────
-function CarteViande({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean }) {
+function CarteViande({ p, onAdd, ouvert, onDetail }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean; onDetail: (p: Produit) => void }) {
   const si = stockInfo(p.stock)
   return (
-    <div className="bg-creme rounded-2xl overflow-hidden border border-gris-bd flex flex-col">
+    <div className="bg-creme rounded-2xl overflow-hidden border border-gris-bd flex flex-col cursor-pointer active:scale-[0.98] transition-transform"
+      onClick={() => onDetail(p)}>
       {p.photo
         ? <img src={p.photo} alt={p.nom} className="w-full h-24 object-cover" />
         : <div className="w-full h-24 bg-gris-bd flex items-center justify-center text-4xl">{p.icon}</div>
@@ -43,7 +45,7 @@ function CarteViande({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => 
           <span className="text-sm font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
           <button
             disabled={p.stock === 0 || !ouvert}
-            onClick={() => onAdd(p)}
+            onClick={e => { e.stopPropagation(); onAdd(p) }}
             className="bg-brun text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl disabled:bg-gray-200 disabled:text-gray-400 hover:bg-rouge-vif transition-colors font-sans">
             {p.stock === 0 ? 'Épuisé' : '✂️ Choisir'}
           </button>
@@ -54,10 +56,11 @@ function CarteViande({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => 
 }
 
 // ── Carte entrée à la pièce (charcuterie tranchée) ───────────────────────────
-function CartePiece({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean }) {
+function CartePiece({ p, onAdd, ouvert, onDetail }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean; onDetail: (p: Produit) => void }) {
   const si = stockInfo(p.stock)
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gris-bd flex flex-col">
+    <div className="bg-white rounded-2xl overflow-hidden border border-gris-bd flex flex-col cursor-pointer active:scale-[0.98] transition-transform"
+      onClick={() => onDetail(p)}>
       <div className="w-full h-20 bg-gris-bd flex items-center justify-center text-3xl relative">
         {p.icon}
       </div>
@@ -71,7 +74,7 @@ function CartePiece({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
           <span className="text-sm font-bold text-rouge-vif">{p.prix.toFixed(2)} €</span>
           <button
             disabled={p.stock === 0 || !ouvert}
-            onClick={() => onAdd(p)}
+            onClick={e => { e.stopPropagation(); onAdd(p) }}
             className="bg-brun text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl disabled:bg-gray-200 disabled:text-gray-400 hover:bg-rouge-vif transition-colors font-sans">
             {p.stock === 0 ? 'Épuisé' : '+ Ajouter'}
           </button>
@@ -82,11 +85,12 @@ function CartePiece({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
 }
 
 // ── Carte entrée au poids (salades traiteur) ──────────────────────────────────
-function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean }) {
+function CartePoids({ p, onAdd, ouvert, onDetail }: { p: Produit; onAdd: (p: Produit) => void; ouvert: boolean; onDetail: (p: Produit) => void }) {
   const [g, setG] = useState(100)
   const si = stockInfo(p.stock)
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gris-bd flex flex-col">
+    <div className="bg-white rounded-2xl overflow-hidden border border-gris-bd flex flex-col cursor-pointer active:scale-[0.98] transition-transform"
+      onClick={() => onDetail(p)}>
       <div className="w-full h-20 bg-or-pale flex items-center justify-center text-3xl relative">
         {p.icon}
         <span className="absolute top-1.5 right-1.5 bg-or text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">⚖️</span>
@@ -99,7 +103,7 @@ function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
         </p>
         {/* Sélecteur grammes */}
         {p.stock > 0 && (
-          <div className="mt-2 bg-or-pale rounded-xl p-2 border border-or/20">
+          <div className="mt-2 bg-or-pale rounded-xl p-2 border border-or/20" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-1.5 mb-1">
               <button onClick={() => setG(q => Math.max(50, q - 50))}
                 className="w-6 h-6 rounded-full border border-or/40 text-brun-clair font-bold text-sm flex items-center justify-center font-sans">−</button>
@@ -115,9 +119,9 @@ function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
         )}
         <button
           disabled={p.stock === 0 || !ouvert}
-          onClick={() => onAdd(p)}
+          onClick={e => { e.stopPropagation(); onAdd(p) }}
           className="w-full mt-2 bg-brun text-white text-[11px] font-bold py-1.5 rounded-xl disabled:bg-gray-200 disabled:text-gray-400 hover:bg-rouge-vif transition-colors font-sans">
-          {p.stock === 0 ? 'Épuisé' : 'Ajouter au panier'}
+          {p.stock === 0 ? 'Épuisé' : 'Voir le produit'}
         </button>
       </div>
     </div>
@@ -125,7 +129,7 @@ function CartePoids({ p, onAdd, ouvert }: { p: Produit; onAdd: (p: Produit) => v
 }
 
 // ── Section Entrées ───────────────────────────────────────────────────────────
-function SectionEntrees({ produits, onAdd, ouvert }: { produits: Produit[]; onAdd: (p: Produit) => void; ouvert: boolean }) {
+function SectionEntrees({ produits, onAdd, ouvert, onDetail }: { produits: Produit[]; onAdd: (p: Produit) => void; ouvert: boolean; onDetail: (p: Produit) => void }) {
   const piece = produits.filter(p => p.venteType === 'pièce')
   const poids  = produits.filter(p => p.venteType === 'poids')
 
@@ -147,7 +151,7 @@ function SectionEntrees({ produits, onAdd, ouvert }: { produits: Produit[]; onAd
             <span className="text-[10px] text-gray-400">{piece.length}</span>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {piece.map(p => <CartePiece key={p.id} p={p} onAdd={onAdd} ouvert={ouvert} />)}
+            {piece.map(p => <CartePiece key={p.id} p={p} onAdd={onAdd} ouvert={ouvert} onDetail={onDetail} />)}
           </div>
           <p className="text-[10px] text-gray-400 mt-2 px-0.5">Coppa, jambon, saucisson, pâté… vendus en portions.</p>
         </div>
@@ -162,7 +166,7 @@ function SectionEntrees({ produits, onAdd, ouvert }: { produits: Produit[]; onAd
             <span className="text-[10px] text-gray-400">{poids.length}</span>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {poids.map(p => <CartePoids key={p.id} p={p} onAdd={onAdd} ouvert={ouvert} />)}
+            {poids.map(p => <CartePoids key={p.id} p={p} onAdd={onAdd} ouvert={ouvert} onDetail={onDetail} />)}
           </div>
           <p className="text-[10px] text-gray-400 mt-2 px-0.5">Taboulé, carottes râpées, céleri rémoulade… préparés chaque matin.</p>
         </div>
@@ -182,6 +186,7 @@ interface ModalBoucherieProps {
 
 export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: ModalBoucherieProps) {
   const [filtre, setFiltre] = useState('tous')
+  const [produitDetail, setProduitDetail] = useState<Produit | null>(null)
 
   // Ne garder que les filtres ayant des produits dans cette boucherie
   const filtresDispos = FILTRES.filter(f => {
@@ -265,7 +270,7 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
                     <span className="text-[10px] text-gray-400">{prods.length} produit{prods.length > 1 ? 's' : ''}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
-                    {prods.map(p => <CarteViande key={p.id} p={p} onAdd={onAddProduit} ouvert={b.ouvert} />)}
+                    {prods.map(p => <CarteViande key={p.id} p={p} onAdd={onAddProduit} ouvert={b.ouvert} onDetail={setProduitDetail} />)}
                   </div>
                 </div>
               )
@@ -277,6 +282,7 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
                 produits={b.produits.filter(p => p.cat === 'Entrée')}
                 onAdd={onAddProduit}
                 ouvert={b.ouvert}
+                onDetail={setProduitDetail}
               />
             )}
           </>)}
@@ -290,7 +296,7 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
                 <span className="text-[10px] text-gray-400">{getProds(filtre).length} produit{getProds(filtre).length > 1 ? 's' : ''}</span>
               </div>
               <div className="grid grid-cols-2 gap-2.5">
-                {getProds(filtre).map(p => <CarteViande key={p.id} p={p} onAdd={onAddProduit} ouvert={b.ouvert} />)}
+                {getProds(filtre).map(p => <CarteViande key={p.id} p={p} onAdd={onAddProduit} ouvert={b.ouvert} onDetail={setProduitDetail} />)}
               </div>
             </div>
           )}
@@ -301,10 +307,21 @@ export default function ModalBoucherie({ boucherie: b, onClose, onAddProduit }: 
               produits={b.produits.filter(p => p.cat === 'Entrée')}
               onAdd={onAddProduit}
               ouvert={b.ouvert}
+              onDetail={setProduitDetail}
             />
           )}
         </div>
       </div>
+
+      {/* ── Fiche produit détaillée ── */}
+      {produitDetail && (
+        <FicheProduitModal
+          produit={produitDetail}
+          boucherie={b}
+          onClose={() => setProduitDetail(null)}
+          onAddProduit={p => { setProduitDetail(null); onAddProduit(p) }}
+        />
+      )}
     </div>
   )
 }

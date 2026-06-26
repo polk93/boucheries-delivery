@@ -15,6 +15,8 @@ export interface Produit {
   preparation: string[]
   cat: CatProduit
   venteType: VenteType
+  pays_origine?: string
+  allergenes?: string
 }
 
 export interface Boucherie {
