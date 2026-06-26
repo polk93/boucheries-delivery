@@ -343,6 +343,41 @@ export default function PanelPage() {
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
+  // ── Impression bon de préparation ─────────────────────────────────────────────
+  function printBon(o: Commande) {
+    const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+    const total = sousTotal + o.frais
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Bon ${o.id}</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:14px;padding:20px;max-width:400px;margin:0 auto}
+  h1{font-size:18px;margin:0 0 2px}
+  .sub{color:#888;font-size:12px;margin-bottom:14px}
+  .lbl{font-size:10px;text-transform:uppercase;color:#aaa;letter-spacing:.06em;margin:12px 0 4px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+  .total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:16px;border-top:2px solid #333;padding-top:8px;margin-top:4px}
+  .note{font-style:italic;color:#888;font-size:11px}
+</style>
+</head><body>
+<h1>🔪 Bon de préparation</h1>
+<div class="sub">Commande ${o.id} · ${o.date} à ${o.heure}</div>
+<div class="lbl">Client</div>
+<strong>${o.client}</strong><br>
+<span style="font-size:12px;color:#666">${o.tel} · ${o.adresse}</span>
+<div class="lbl">Créneau</div>
+<strong>${o.creneau}</strong>
+<div class="lbl">Articles</div>
+${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}</strong>
+  <br><span style="font-size:12px;color:#888">✂ ${l.decoupe} · ${l.preparation}</span>
+  ${l.note ? `<br><span class="note">📝 ${l.note}</span>` : ''}
+  </div><div style="text-align:right"><strong>${l.qty}×</strong><br><span style="font-size:12px;color:#666">${(l.prix * l.qty).toFixed(2)} €</span></div></div>`).join('')}
+<div class="total-row"><span>Total</span><span>${total.toFixed(2)} €</span></div>
+<div style="margin-top:16px;font-size:11px;color:#aaa;border-top:1px dashed #ddd;padding-top:10px">Paiement : ${o.modePaiement}</div>
+</body></html>`
+    const w = window.open('', '_blank', 'width=440,height=620')
+    if (w) { w.document.write(html); w.document.close(); w.focus(); w.print() }
+  }
+
   // ── Alerte sonore + vibration à chaque nouvelle commande ─────────────────────
   const prevOrdersLenRef = useRef<number | null>(null)
   useEffect(() => {
@@ -626,6 +661,55 @@ export default function PanelPage() {
         {/* ══ COMMANDES ══ */}
         {tab === 'commandes' && (
           <div className="space-y-3">
+
+            {/* ── Dashboard statistiques ── */}
+            {(() => {
+              const now = new Date()
+              const cm = now.getMonth(), cy = now.getFullYear()
+              const cmdsMois = historique.filter(o => {
+                const parts = o.date.split('/')
+                if (parts.length === 3) {
+                  const m = parseInt(parts[1]) - 1, y = parseInt(parts[2])
+                  return m === cm && y === cy
+                }
+                return false
+              })
+              const caMois = cmdsMois.reduce((s, o) => s + o.lignes.reduce((ls, l) => ls + l.prix * l.qty, 0) + o.frais, 0)
+              const prodCounts: Record<string, number> = {}
+              historique.forEach(o => o.lignes.forEach(l => { prodCounts[l.produit] = (prodCounts[l.produit] || 0) + l.qty }))
+              const topProd = Object.entries(prodCounts).sort((a, b) => b[1] - a[1])[0]
+              return (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-white rounded-2xl p-3 shadow-sm">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">CA ce mois</p>
+                    <p className="text-xl font-black text-brun mt-0.5">{caMois.toFixed(0)} €</p>
+                    <p className="text-[10px] text-green-500 font-semibold mt-0.5">
+                      {cmdsMois.length} commande{cmdsMois.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-2xl p-3 shadow-sm">
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">En attente</p>
+                    <p className={'text-xl font-black mt-0.5 ' + (orders.length > 0 ? 'text-rouge-vif' : 'text-green-500')}>
+                      {orders.length}
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-semibold mt-0.5">
+                      {orders.length === 0 ? 'Tout traité ✓' : `commande${orders.length !== 1 ? 's' : ''} à traiter`}
+                    </p>
+                  </div>
+                  {topProd && (
+                    <div className="col-span-2 bg-or-pale border border-or/20 rounded-2xl p-3 flex items-center gap-3">
+                      <span className="text-2xl flex-shrink-0">⭐</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Produit phare</p>
+                        <p className="text-sm font-black text-brun truncate">{topProd[0]}</p>
+                        <p className="text-[10px] text-or font-semibold">{topProd[1]} unité{topProd[1] > 1 ? 's' : ''} vendues</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
             <div className="flex gap-2">
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
@@ -711,6 +795,39 @@ export default function PanelPage() {
                   )
                 })
             )}
+
+            {showHistorique && historique.length > 0 && (() => {
+              const revenueByDate: Record<string, number> = {}
+              historique.forEach(o => {
+                const rev = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
+                revenueByDate[o.date] = (revenueByDate[o.date] || 0) + rev
+              })
+              const totalGlobal = Object.values(revenueByDate).reduce((s, v) => s + v, 0)
+              const parseDate = (s: string) => { const p = s.split('/'); return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]).getTime() : 0 }
+              const sorted = Object.entries(revenueByDate).sort(([a], [b]) => parseDate(b) - parseDate(a))
+              return (
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
+                    <p className="font-bold text-brun text-sm">💶 Revenus</p>
+                    <span className="text-sm font-black text-rouge-vif">{totalGlobal.toFixed(2)} €</span>
+                  </div>
+                  <div className="p-4 space-y-1.5">
+                    {sorted.slice(0, 7).map(([date, rev]) => (
+                      <div key={date} className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">{date}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="h-1.5 rounded-full bg-or" style={{ width: Math.max(20, Math.round(rev / totalGlobal * 80)) + 'px' }} />
+                          <span className="text-xs font-bold text-brun w-16 text-right">{rev.toFixed(2)} €</span>
+                        </div>
+                      </div>
+                    ))}
+                    {sorted.length > 7 && (
+                      <p className="text-[10px] text-gray-400 text-center pt-1">+ {sorted.length - 7} autres jours</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })()}
 
             {showHistorique && (
               historique.length === 0
@@ -859,6 +976,19 @@ export default function PanelPage() {
                   </select>
                 )}
               </div>
+              {/* Alerte ruptures de stock */}
+              {myProduits.some(p => p.stock <= 1 && (p as any).actif !== false) && (
+                <div className="mx-4 mt-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-red-600">Stocks à renouveler</p>
+                    <p className="text-[10px] text-red-400">
+                      {myProduits.filter(p => p.stock === 0 && (p as any).actif !== false).length} en rupture ·{' '}
+                      {myProduits.filter(p => p.stock === 1 && (p as any).actif !== false).length} stock faible
+                    </p>
+                  </div>
+                </div>
+              )}
               {/* Liste groupée */}
               {myProduits.length === 0
                 ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
@@ -1051,8 +1181,19 @@ export default function PanelPage() {
 
             {/* Horaires */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
                 <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
+                <button
+                  className="text-[11px] text-brun-clair font-semibold bg-white border border-gris-bd rounded-lg px-2.5 py-1 font-sans active:bg-gris-bd transition-colors"
+                  onClick={() => {
+                    const base = boutique.horaires['lun']
+                    const newHoraires = Object.fromEntries(JOURS.map(([k]) => [k, { ...base }]))
+                    setBoutiquePersist(b => ({ ...b, horaires: newHoraires }))
+                    setBoutiqueEdited(true)
+                    showToast('✅ Mêmes horaires pour toute la semaine')
+                  }}>
+                  Copier lun. → tous
+                </button>
               </div>
               <div className="p-4 space-y-4">
                 {JOURS.map(([key, label]) => {
@@ -1207,6 +1348,10 @@ export default function PanelPage() {
                 </div>
                 <div className="flex gap-3 pb-2">
                   <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans" onClick={() => setViewOrder(null)}>Fermer</button>
+                  <button className="bg-or-pale border border-or/30 text-brun-clair font-bold py-3 px-4 rounded-xl text-sm font-sans flex-shrink-0"
+                    onClick={() => printBon(o)}>
+                    🖨️
+                  </button>
                   {o.status !== 'done' && (
                     <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
                       onClick={() => { progress(o.id); setViewOrder(null) }}>
@@ -1311,15 +1456,32 @@ export default function PanelPage() {
                 </div>
               </div>
 
-              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
-                <div key={k}>
-                  <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
-                  <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder={ph}
-                    value={(modalProd as any)[k]}
-                    onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
-                </div>
-              ))}
+              {([
+                ['decoupes', '✂️ Découpes', ['Standard', 'Fine', 'Épaisse (2cm)', 'En médaillons', 'Avec os', 'Tranché fin', 'Découpé 8 morceaux', 'Entier']],
+                ['preparation', '🌿 Préparations', ['Nature', 'Mariné herbes', 'Sel de Guérande', 'Extra-épicées', 'Miel-balsamique', 'Marinée échalotes', 'BBQ', 'Épicées']],
+              ] as [string, string, string[]][]).map(([k, l, presets]) => {
+                const current = ((modalProd as any)[k] || '').split(',').map((s: string) => s.trim()).filter(Boolean)
+                return (
+                  <div key={k}>
+                    <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {presets.map(preset => {
+                        const sel = current.includes(preset)
+                        return (
+                          <button key={preset} type="button"
+                            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold transition-all ${sel ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+                            onClick={() => {
+                              const next = sel ? current.filter((v: string) => v !== preset) : [...current, preset]
+                              setModalProd(f => f ? { ...f, [k]: next.join(', ') } : f)
+                            }}>
+                            {preset}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
               {/* Allergènes obligatoires */}
               <div>
                 <label className="text-xs font-bold text-brun block mb-1.5">
