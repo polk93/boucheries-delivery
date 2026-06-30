@@ -15,6 +15,7 @@ import { haversine, calculerFrais, GPS_BOUCHERIES, TARIF_MIN } from '@/lib/livra
 import { useBoucherStore } from '@/store/boucherStore'
 import { useSupabaseBouchers, type BoucherDB } from '@/lib/useSupabase'
 import { useAutoPushSubscription } from '@/lib/usePush'
+import LegalFooter from '@/components/LegalFooter'
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371
@@ -98,22 +99,11 @@ function PageNonConnecte() {
             <div className="flex-1 h-px bg-gray-100" />
           </div>
 
-          {/* Boutons démo */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              className="flex flex-col items-center gap-1 py-3 bg-or-pale border border-or/30 rounded-xl text-xs font-bold text-brun-clair font-sans hover:bg-or hover:text-white transition-all active:scale-95"
-              onClick={() => login(DEMO_CLIENT)}>
-              <span className="text-lg">🛒</span>
-              Démo Client
-            </button>
-            <button
-              className="flex flex-col items-center gap-1 py-3 bg-brun/5 border border-brun/20 rounded-xl text-xs font-bold text-brun font-sans hover:bg-brun hover:text-white transition-all active:scale-95"
-              onClick={() => login(DEMO_BOUCHER)}>
-              <span className="text-lg">🔪</span>
-              Démo Boucher
-            </button>
+          {/* Accès démo discret */}
+          <div className="flex justify-center gap-5">
+            <button onClick={() => login(DEMO_CLIENT)} className="text-[11px] text-gray-400 underline underline-offset-2 font-sans">🛒 Démo client</button>
+            <button onClick={() => login(DEMO_BOUCHER)} className="text-[11px] text-gray-400 underline underline-offset-2 font-sans">🔪 Démo boucher</button>
           </div>
-          <p className="text-center text-[10px] text-gray-300 mt-2">Les comptes démo affichent des données fictives.</p>
         </div>
 
         {/* Avantages */}
@@ -134,6 +124,7 @@ function PageNonConnecte() {
       </div>
 
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+      <LegalFooter />
       <BottomNavClient currentPage="home" />
     </div>
   )
@@ -415,37 +406,36 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
         </div>
       )}
 
-      {/* ── CATÉGORIES ── */}
-      <div className="bg-white border-b border-gris-bd px-4 py-3">
-        <div className="max-w-2xl mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {CATS_NAV.map(c => (
-            <button key={c.label}
-              className={`flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-xl border-2 min-w-[54px] flex-shrink-0 transition-all ${catActive === c.label ? 'bg-rouge-pale border-rouge-vif' : 'bg-creme border-transparent'}`}
-              onClick={() => setCatActive(catActive === c.label ? null : c.label)}>
-              <span className="text-xl">{c.icon}</span>
-              <span className="text-[10px] font-semibold text-brun">{c.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── FILTRES ── */}
+      {/* ── CATÉGORIES + FILTRES (une seule rangée) ── */}
       <div className="bg-white border-b border-gris-bd px-4 py-2">
         <div className="max-w-2xl mx-auto flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5 items-center">
-          {['Tous', 'Livraison rapide', 'Gratuit', 'Bio', 'Halal', 'Premium'].map(f => (
-            <button key={f}
-              className={`border rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
-              onClick={() => setFilterActive(f)}>{f}</button>
+          {/* Catégories */}
+          {CATS_NAV.map(c => (
+            <button key={c.label}
+              className={`flex items-center gap-1 border rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all ${catActive === c.label ? 'bg-rouge-pale border-rouge-vif text-rouge-vif' : 'bg-white text-gray-500 border-gray-200'}`}
+              onClick={() => setCatActive(catActive === c.label ? null : c.label)}>
+              <span>{c.icon}</span>{c.label}
+            </button>
           ))}
-          <select className="ml-1 border border-gray-200 rounded-lg px-2 py-1 text-xs text-brun bg-white outline-none flex-shrink-0"
+          {/* Séparateur */}
+          <div className="h-5 w-px bg-gray-200 flex-shrink-0 mx-0.5" />
+          {/* Filtres */}
+          {['Livraison rapide', 'Gratuit', 'Bio', 'Halal', 'Premium'].map(f => (
+            <button key={f}
+              className={`border rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${filterActive === f ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200'}`}
+              onClick={() => setFilterActive(filterActive === f ? 'Tous' : f)}>{f}</button>
+          ))}
+          {/* Tri */}
+          <select className="ml-0.5 border border-gray-200 rounded-lg px-2 py-1 text-xs text-brun bg-white outline-none flex-shrink-0"
             value={sortBy} onChange={e => setSortBy(e.target.value)}>
             {userPos && <option value="distance">📍 Proches</option>}
             <option value="note">⭐ Notés</option>
             <option value="livraison">🕐 Rapides</option>
             <option value="frais">💶 Frais</option>
           </select>
+          {/* Rayon (GPS uniquement) */}
           {userPos && (
-            <div className="flex gap-1 ml-1 flex-shrink-0">
+            <div className="flex gap-1 ml-0.5 flex-shrink-0">
               {[2, 5, 10].map(r => (
                 <button key={r}
                   className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap transition-all ${rayonKm === r ? 'bg-brun text-white border-brun' : 'border-gray-200 text-gray-500'}`}

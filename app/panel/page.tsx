@@ -31,6 +31,141 @@ interface ProduitForm {
   venteType: string
   allergenes: string
   poids: string  // ex: "200-300g", "500g", "1kg"
+  pays_origine: string
+}
+
+// ── Pays d'origine ────────────────────────────────────────────────────────────
+const PAYS_ORIGINE = [
+  { label: 'France',           flag: '🇫🇷' },
+  { label: 'Irlande',          flag: '🇮🇪' },
+  { label: 'Uruguay',          flag: '🇺🇾' },
+  { label: 'Argentine',        flag: '🇦🇷' },
+  { label: 'Australie',        flag: '🇦🇺' },
+  { label: 'Espagne',          flag: '🇪🇸' },
+  { label: 'Pologne',          flag: '🇵🇱' },
+  { label: 'Allemagne',        flag: '🇩🇪' },
+  { label: 'Pays-Bas',         flag: '🇳🇱' },
+  { label: 'Brésil',           flag: '🇧🇷' },
+  { label: 'Royaume-Uni',      flag: '🇬🇧' },
+  { label: 'États-Unis',       flag: '🇺🇸' },
+  { label: 'Nouvelle-Zélande', flag: '🇳🇿' },
+  { label: 'Canada',           flag: '🇨🇦' },
+  { label: 'Italie',           flag: '🇮🇹' },
+  { label: 'Portugal',         flag: '🇵🇹' },
+  { label: 'Japon',            flag: '🇯🇵' },
+  { label: 'Roumanie',         flag: '🇷🇴' },
+  { label: 'Hongrie',          flag: '🇭🇺' },
+  { label: 'Autriche',         flag: '🇦🇹' },
+  { label: 'Belgique',         flag: '🇧🇪' },
+  { label: 'Maroc',            flag: '🇲🇦' },
+]
+
+function CountrySelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const filtered = PAYS_ORIGINE.filter(p => p.label.toLowerCase().includes(search.toLowerCase()))
+  const selected = PAYS_ORIGINE.find(p => p.label === value)
+  return (
+    <div className="relative">
+      <button type="button"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans text-left flex items-center justify-between bg-white outline-none focus:border-brun"
+        onClick={() => setOpen(o => !o)}>
+        <span className={selected ? 'text-brun font-semibold' : 'text-gray-400'}>
+          {selected ? `${selected.flag} ${selected.label}` : 'Sélectionner un pays…'}
+        </span>
+        <span className="text-gray-400 text-xs">{open ? '▴' : '▾'}</span>
+      </button>
+      {value && (
+        <button type="button"
+          className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 text-xs px-1"
+          onClick={() => { onChange(''); setOpen(false) }}>✕</button>
+      )}
+      {open && (
+        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+          <div className="px-3 py-2 border-b border-gris-bd">
+            <input autoFocus
+              className="w-full text-sm font-sans outline-none placeholder:text-gray-300"
+              placeholder="🔍 Rechercher un pays…"
+              value={search}
+              onChange={e => setSearch(e.target.value)} />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filtered.length === 0
+              ? <p className="text-xs text-gray-400 px-3 py-3 text-center">Aucun résultat</p>
+              : filtered.map(p => (
+                <button key={p.label} type="button"
+                  className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 hover:bg-creme transition-colors font-sans ${value === p.label ? 'bg-or-pale font-semibold text-brun' : 'text-gray-700'}`}
+                  onClick={() => { onChange(p.label); setOpen(false); setSearch('') }}>
+                  <span className="text-base">{p.flag}</span>{p.label}
+                  {value === p.label && <span className="ml-auto text-or text-xs">✓</span>}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ChipsEditor({ value, onChange, presets }: { value: string; onChange: (v: string) => void; presets: string[] }) {
+  const [input, setInput] = useState('')
+  const chips = value.split(',').map(s => s.trim()).filter(Boolean)
+
+  function add(v: string) {
+    const trimmed = v.trim()
+    if (!trimmed || chips.includes(trimmed)) return
+    onChange([...chips, trimmed].join(', '))
+    setInput('')
+  }
+  function remove(v: string) {
+    onChange(chips.filter(c => c !== v).join(', '))
+  }
+
+  return (
+    <div className="space-y-2">
+      {/* Chips sélectionnés avec X */}
+      {chips.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {chips.map(chip => (
+            <span key={chip} className="flex items-center gap-1 bg-brun text-white pl-2.5 pr-1.5 py-1 rounded-full text-[11px] font-semibold">
+              {chip}
+              <button type="button" className="text-white/70 hover:text-white w-3.5 h-3.5 flex items-center justify-center"
+                onClick={() => remove(chip)}>✕</button>
+            </span>
+          ))}
+        </div>
+      )}
+      {/* Suggestions prédéfinies (non encore sélectionnées) */}
+      {presets.filter(p => !chips.includes(p)).length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {presets.filter(p => !chips.includes(p)).map(preset => (
+            <button key={preset} type="button"
+              className="px-2.5 py-1 rounded-full border border-dashed border-gray-300 text-[11px] font-semibold text-gray-400 hover:border-brun hover:text-brun transition-all"
+              onClick={() => add(preset)}>
+              + {preset}
+            </button>
+          ))}
+        </div>
+      )}
+      {/* Ajout personnalisé */}
+      <div className="flex gap-2">
+        <input
+          className="flex-1 border border-gray-200 rounded-xl px-2.5 py-1.5 text-xs font-sans outline-none focus:border-brun"
+          placeholder="Autre option…"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(input) } }}
+        />
+        <button type="button"
+          className="bg-brun text-white text-xs font-bold px-3 py-1.5 rounded-xl font-sans disabled:opacity-40"
+          disabled={!input.trim()}
+          onClick={() => add(input)}>
+          +
+        </button>
+      </div>
+    </div>
+  )
 }
 
 interface LigneCommande {
@@ -173,7 +308,7 @@ const HORAIRES_DEFAULT: Record<string, HoraireJour> = {
 }
 
 function emptyForm(boucherieId: number): ProduitForm {
-  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '', poids: '' }
+  return { id: '', nom: '', desc: '', prix: '', icon: '', stock: '0', decoupes: '', preparation: '', photoUrl: null, boucherieId, cat: 'Bœuf', venteType: 'pièce', allergenes: '', poids: '', pays_origine: '' }
 }
 
 function makeInitBoutique(bRef: typeof BOUCHERIES[0] | undefined) {
@@ -343,6 +478,63 @@ export default function PanelPage() {
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(null), 2500) }
 
+  // ── Impression bon de préparation ─────────────────────────────────────────────
+  function printBon(o: Commande) {
+    const sousTotal = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0)
+    const total = sousTotal + o.frais
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Bon ${o.id}</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:14px;padding:20px;max-width:400px;margin:0 auto}
+  h1{font-size:18px;margin:0 0 2px}
+  .sub{color:#888;font-size:12px;margin-bottom:14px}
+  .lbl{font-size:10px;text-transform:uppercase;color:#aaa;letter-spacing:.06em;margin:12px 0 4px}
+  .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+  .total-row{display:flex;justify-content:space-between;font-weight:bold;font-size:16px;border-top:2px solid #333;padding-top:8px;margin-top:4px}
+  .note{font-style:italic;color:#888;font-size:11px}
+</style>
+</head><body>
+<h1>🔪 Bon de préparation</h1>
+<div class="sub">Commande ${o.id} · ${o.date} à ${o.heure}</div>
+<div class="lbl">Client</div>
+<strong>${o.client}</strong><br>
+<span style="font-size:12px;color:#666">${o.tel} · ${o.adresse}</span>
+<div class="lbl">Créneau</div>
+<strong>${o.creneau}</strong>
+<div class="lbl">Articles</div>
+${o.lignes.map(l => `<div class="row"><div><strong>${l.icon || ''} ${l.produit}</strong>
+  <br><span style="font-size:12px;color:#888">✂ ${l.decoupe} · ${l.preparation}</span>
+  ${l.note ? `<br><span class="note">📝 ${l.note}</span>` : ''}
+  </div><div style="text-align:right"><strong>${l.qty}×</strong><br><span style="font-size:12px;color:#666">${(l.prix * l.qty).toFixed(2)} €</span></div></div>`).join('')}
+<div class="total-row"><span>Total</span><span>${total.toFixed(2)} €</span></div>
+<div style="margin-top:16px;font-size:11px;color:#aaa;border-top:1px dashed #ddd;padding-top:10px">Paiement : ${o.modePaiement}</div>
+</body></html>`
+    const w = window.open('', '_blank', 'width=440,height=620')
+    if (w) { w.document.write(html); w.document.close(); w.focus(); w.print() }
+  }
+
+  // ── Alerte sonore + vibration à chaque nouvelle commande ─────────────────────
+  const prevOrdersLenRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (prevOrdersLenRef.current === null) { prevOrdersLenRef.current = orders.length; return }
+    if (orders.length > prevOrdersLenRef.current) {
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate([200, 100, 200])
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+        const ctx = new AudioCtx()
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.frequency.value = 880
+        gain.gain.setValueAtTime(0.4, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7)
+        osc.start(); osc.stop(ctx.currentTime + 0.7)
+      } catch {}
+      showToast('🔔 Nouvelle commande reçue !')
+    }
+    prevOrdersLenRef.current = orders.length
+  }, [orders.length])
+
   // ── Wrappers de mise à jour avec persistence ──────────────────────────────────
   function setOrdersPersist(fn: (prev: Commande[]) => Commande[]) {
     setOrders(prev => { const next = fn(prev); boucherStore.setOrders(bid, next); return next })
@@ -395,7 +587,7 @@ export default function PanelPage() {
   }
 
   function openEdit(p: ProduitEtendu) {
-    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '' })
+    setModalProd({ id: p.id, nom: p.nom, desc: p.desc, prix: String(p.prix), icon: p.icon, stock: String(p.stock), decoupes: p.decoupes?.join(', ') || '', preparation: p.preparation?.join(', ') || '', photoUrl: p.photoUrl, boucherieId: p.boucherieId, cat: String(p.cat || 'Bœuf'), venteType: String(p.venteType || 'pièce'), allergenes: (p as any).allergenes || '', poids: (p as any).poids || '', pays_origine: (p as any).pays_origine || '' })
     setIsNew(false)
     setNewCatName('')
   }
@@ -446,7 +638,7 @@ export default function PanelPage() {
             preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
             boucherieId: myBoucherieId, boucherieNom,
             cat: finalCat as any, venteType: modalProd.venteType as any,
-            poids: modalProd.poids,
+            poids: modalProd.poids, pays_origine: modalProd.pays_origine,
           } as any
           setProduits(prev => {
             const next = [...prev, newProd]
@@ -474,6 +666,7 @@ export default function PanelPage() {
         preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
         boucherieId: modalProd.boucherieId, boucherieNom,
         cat: finalCat as any, venteType: modalProd.venteType as any,
+        pays_origine: modalProd.pays_origine,
       }
       setProduits(prev => {
         const next = [...prev, newProd]
@@ -498,6 +691,7 @@ export default function PanelPage() {
           photo: modalProd.photoUrl,
           decoupes: modalProd.decoupes.split(',').map(s => s.trim()).filter(Boolean),
           preparation: modalProd.preparation.split(',').map(s => s.trim()).filter(Boolean),
+          pays_origine: modalProd.pays_origine,
         }
       }))
       // Sync Supabase
@@ -604,6 +798,7 @@ export default function PanelPage() {
         {/* ══ COMMANDES ══ */}
         {tab === 'commandes' && (
           <div className="space-y-3">
+
             <div className="flex gap-2">
               <button
                 className={'flex-1 py-2.5 rounded-xl text-xs font-bold font-sans border ' + (!showHistorique ? 'bg-brun text-white border-brun' : 'bg-white text-gray-500 border-gray-200')}
@@ -616,6 +811,15 @@ export default function PanelPage() {
                 ️ Historique ({historique.length})
               </button>
             </div>
+
+            {/* Légende des statuts */}
+            {!showHistorique && orders.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.entries(SL) as [string, string][]).filter(([k]) => k !== 'done').map(([k, label]) => (
+                  <span key={k} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SC[k]}`}>{label}</span>
+                ))}
+              </div>
+            )}
 
             {!showHistorique && (
               orders.length === 0
@@ -666,10 +870,6 @@ export default function PanelPage() {
                         <a href={'tel:' + o.tel} className="bg-blue-50 border border-blue-200 text-blue-500 text-xs font-bold px-3 py-2 rounded-xl font-sans flex items-center gap-1">📞</a>
                         {o.status === 'new' ? (
                           <>
-                            <button className="flex-1 bg-red-50 border border-red-200 text-red-500 text-xs font-bold py-2 rounded-xl font-sans"
-                              onClick={() => { setOrdersPersist(prev => prev.filter(x => x.id !== o.id)); showToast('❌ Commande refusée') }}>
-                              Refuser
-                            </button>
                             <button className="flex-1 bg-brun text-white text-xs font-bold py-2 rounded-xl font-sans"
                               onClick={() => progress(o.id)}>
                               ✅ Accepter
@@ -684,6 +884,39 @@ export default function PanelPage() {
                   )
                 })
             )}
+
+            {showHistorique && historique.length > 0 && (() => {
+              const revenueByDate: Record<string, number> = {}
+              historique.forEach(o => {
+                const rev = o.lignes.reduce((s, l) => s + l.prix * l.qty, 0) + o.frais
+                revenueByDate[o.date] = (revenueByDate[o.date] || 0) + rev
+              })
+              const totalGlobal = Object.values(revenueByDate).reduce((s, v) => s + v, 0)
+              const parseDate = (s: string) => { const p = s.split('/'); return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]).getTime() : 0 }
+              const sorted = Object.entries(revenueByDate).sort(([a], [b]) => parseDate(b) - parseDate(a))
+              return (
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
+                    <p className="font-bold text-brun text-sm">💶 Revenus</p>
+                    <span className="text-sm font-black text-rouge-vif">{totalGlobal.toFixed(2)} €</span>
+                  </div>
+                  <div className="p-4 space-y-1.5">
+                    {sorted.slice(0, 7).map(([date, rev]) => (
+                      <div key={date} className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">{date}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="h-1.5 rounded-full bg-or" style={{ width: Math.max(20, Math.round(rev / totalGlobal * 80)) + 'px' }} />
+                          <span className="text-xs font-bold text-brun w-16 text-right">{rev.toFixed(2)} €</span>
+                        </div>
+                      </div>
+                    ))}
+                    {sorted.length > 7 && (
+                      <p className="text-[10px] text-gray-400 text-center pt-1">+ {sorted.length - 7} autres jours</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })()}
 
             {showHistorique && (
               historique.length === 0
@@ -781,24 +1014,29 @@ export default function PanelPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => openEdit(p)}>✏️</button>
                   <button className="bg-red-50 border border-red-200 text-red-400 text-xs font-bold px-2.5 py-1.5 rounded-lg font-sans" onClick={() => deleteProd(p.id)}>🗑️</button>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={isActif}
-                    onClick={toggleActif}
-                    style={{
-                      width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
-                      cursor: 'pointer', flexShrink: 0, position: 'relative',
-                      backgroundColor: isActif ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
-                      transition: 'background-color 0.2s', outline: 'none',
-                    }}>
-                    <span style={{
-                      display: 'block', width: 20, height: 20, borderRadius: '50%',
-                      backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
-                      transform: isActif ? 'translateX(20px)' : 'translateX(0px)',
-                      transition: 'transform 0.2s',
-                    }} />
-                  </button>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isActif}
+                      onClick={toggleActif}
+                      style={{
+                        width: 44, height: 24, borderRadius: 12, border: 'none', padding: 2,
+                        cursor: 'pointer', flexShrink: 0, position: 'relative',
+                        backgroundColor: isActif ? 'rgb(74,222,128)' : 'rgb(209,213,219)',
+                        transition: 'background-color 0.2s', outline: 'none',
+                      }}>
+                      <span style={{
+                        display: 'block', width: 20, height: 20, borderRadius: '50%',
+                        backgroundColor: 'white', boxShadow: 'rgba(0,0,0,0.2) 0px 1px 3px',
+                        transform: isActif ? 'translateX(20px)' : 'translateX(0px)',
+                        transition: 'transform 0.2s',
+                      }} />
+                    </button>
+                    <span className={`text-[9px] font-bold ${isActif ? 'text-green-500' : 'text-gray-400'}`}>
+                      {isActif ? 'Visible' : 'Masqué'}
+                    </span>
+                  </div>
                 </div>
               </div>
             )
@@ -827,6 +1065,37 @@ export default function PanelPage() {
                   </select>
                 )}
               </div>
+              {/* Produit phare */}
+              {(() => {
+                const counts: Record<string, number> = {}
+                historique.forEach(o => o.lignes.forEach(l => { counts[l.produit] = (counts[l.produit] || 0) + l.qty }))
+                const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
+                if (!top) return null
+                return (
+                  <div className="mx-4 mt-3 bg-or-pale border border-or/20 rounded-xl px-3 py-2 flex items-center gap-2.5">
+                    <span className="text-lg flex-shrink-0">⭐</span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Produit phare</p>
+                      <p className="text-xs font-black text-brun truncate">{top[0]}</p>
+                      <p className="text-[10px] text-or font-semibold">{top[1]} unité{top[1] > 1 ? 's' : ''} vendues</p>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* Alerte ruptures de stock */}
+              {myProduits.some(p => p.stock <= 1 && (p as any).actif !== false) && (
+                <div className="mx-4 mt-3 bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-red-600">Stocks à renouveler</p>
+                    <p className="text-[10px] text-red-400">
+                      {myProduits.filter(p => p.stock === 0 && (p as any).actif !== false).length} en rupture ·{' '}
+                      {myProduits.filter(p => p.stock === 1 && (p as any).actif !== false).length} stock faible
+                    </p>
+                  </div>
+                </div>
+              )}
               {/* Liste groupée */}
               {myProduits.length === 0
                 ? <div className="text-center py-10 text-gray-400 text-sm">Aucun produit — <button className="text-or font-semibold" onClick={openNew}>en ajouter un</button></div>
@@ -1019,8 +1288,19 @@ export default function PanelPage() {
 
             {/* Horaires */}
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd">
+              <div className="px-4 py-3 bg-or-pale border-b border-gris-bd flex justify-between items-center">
                 <p className="font-bold text-brun text-sm"> Horaires d'ouverture</p>
+                <button
+                  className="text-[11px] text-brun-clair font-semibold bg-white border border-gris-bd rounded-lg px-2.5 py-1 font-sans active:bg-gris-bd transition-colors"
+                  onClick={() => {
+                    const base = boutique.horaires['lun']
+                    const newHoraires = Object.fromEntries(JOURS.map(([k]) => [k, { ...base }]))
+                    setBoutiquePersist(b => ({ ...b, horaires: newHoraires }))
+                    setBoutiqueEdited(true)
+                    showToast('✅ Mêmes horaires pour toute la semaine')
+                  }}>
+                  Copier lun. → tous
+                </button>
               </div>
               <div className="p-4 space-y-4">
                 {JOURS.map(([key, label]) => {
@@ -1175,6 +1455,10 @@ export default function PanelPage() {
                 </div>
                 <div className="flex gap-3 pb-2">
                   <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans" onClick={() => setViewOrder(null)}>Fermer</button>
+                  <button className="bg-or-pale border border-or/30 text-brun-clair font-bold py-3 px-4 rounded-xl text-sm font-sans flex-shrink-0"
+                    onClick={() => printBon(o)}>
+                    🖨️
+                  </button>
                   {o.status !== 'done' && (
                     <button className="flex-[2] bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
                       onClick={() => { progress(o.id); setViewOrder(null) }}>
@@ -1279,13 +1563,26 @@ export default function PanelPage() {
                 </div>
               </div>
 
-              {[['decoupes', '✂️ Découpes', 'Standard, Fine, Épaisse'], ['preparation', ' Préparations', 'Nature, Marinée, BBQ']].map(([k, l, ph]) => (
+              {/* Pays d'origine */}
+              <div>
+                <label className="text-xs font-bold text-brun block mb-1.5">🌍 Pays d'origine</label>
+                <CountrySelector
+                  value={modalProd.pays_origine || ''}
+                  onChange={val => setModalProd(f => f ? { ...f, pays_origine: val } : f)}
+                />
+              </div>
+
+              {([
+                ['decoupes', '✂️ Découpes proposées', ['Standard', 'Fine', 'Épaisse (2cm)', 'En médaillons', 'Avec os', 'Tranché fin', 'Découpé 8 morceaux', 'Entier']],
+                ['preparation', '🌿 Préparations proposées', ['Nature', 'Mariné herbes', 'Sel de Guérande', 'Extra-épicées', 'Miel-balsamique', 'Marinée échalotes', 'BBQ', 'Épicées']],
+              ] as [string, string, string[]][]).map(([k, l, presets]) => (
                 <div key={k}>
-                  <label className="text-xs font-bold text-brun block mb-1.5">{l} <span className="text-gray-400 font-normal">(virgules)</span></label>
-                  <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-sans outline-none focus:border-brun"
-                    placeholder={ph}
-                    value={(modalProd as any)[k]}
-                    onChange={e => setModalProd(f => f ? { ...f, [k]: e.target.value } : f)} />
+                  <label className="text-xs font-bold text-brun block mb-1.5">{l}</label>
+                  <ChipsEditor
+                    value={(modalProd as any)[k] || ''}
+                    onChange={val => setModalProd(f => f ? { ...f, [k]: val } : f)}
+                    presets={presets}
+                  />
                 </div>
               ))}
               {/* Allergènes obligatoires */}
@@ -1392,11 +1689,11 @@ function ParamsNav({ user, showToast, historique, logout, router }: {
     <div className="space-y-4">
       {header}
       <button className="flex items-center gap-2 text-brun font-semibold text-sm font-sans mb-2" onClick={() => setSection(null)}>← Paiements</button>
-      <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
       <div>
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 px-1">Chiffre d'affaires</p>
         <CaSelector historique={historique} />
       </div>
+      <StripePaiementSection email={user?.email || ''} boutiqueName={user?.boucherieNom} showToast={showToast} />
     </div>
   )
 

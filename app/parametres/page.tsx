@@ -117,8 +117,16 @@ export default function ParametresPage() {
       items: [
         { ico: '🆘', label: 'Support & FAQ', sub: 'Questions fréquentes', action: () => setSection('support') },
         { ico: '✉️', label: 'Nous contacter', sub: 'Envoyer un message', action: () => setSection('contact') },
-        { ico: '🔒', label: 'Confidentialité', sub: 'Données & RGPD', action: () => setSection('confidentialite') },
-        { ico: '📋', label: "Conditions d'utilisation", sub: 'CGU & CGV', action: () => setSection('cgu') },
+      ],
+    },
+    {
+      titre: 'Informations légales',
+      items: [
+        { ico: '⚖️', label: 'Mentions légales', sub: 'Éditeur, hébergeur, société', action: () => router.push('/mentions-legales') },
+        { ico: '📋', label: 'Conditions de vente (CGV)', sub: 'Commandes, livraison, remboursements', action: () => router.push('/cgv') },
+        { ico: '📄', label: "Conditions d'utilisation (CGU)", sub: 'Règles d\'usage de la plateforme', action: () => setSection('cgu') },
+        { ico: '🔒', label: 'Confidentialité & RGPD', sub: 'Vos données personnelles', action: () => setSection('confidentialite') },
+        { ico: '🍪', label: 'Cookies', sub: 'Gérer mes préférences de cookies', action: () => router.push('/politique-cookies') },
       ],
     },
   ]
@@ -870,7 +878,7 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
-          { t: "1. Responsable du traitement", c: "Côte à Côte SAS. Contact : contact@coteacote.fr" },
+          { t: "1. Responsable du traitement", c: "Vincent Baudrant (Côte à côte) — SIRET 106 140 742 00011. Contact : contact@coteacote.fr" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
           { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : contact@coteacote.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
@@ -889,14 +897,14 @@ function CguSection({ onBack }: { onBack: () => void }) {
   return (
     <PageWrapper title="📋 CGU" onBack={onBack}>
       <div className="space-y-3">
-        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026</p></div>
+        <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026 — Exploité par Vincent Baudrant (SIRET 106 140 742 00011)</p></div>
         {[
-          { t: "1. Objet", c: "Les CGU régissent l'utilisation de Côte à Côte." },
-          { t: "2. Description du service", c: "Marketplace mettant en relation consommateurs et boucheries artisanales." },
-          { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe." },
-          { t: "4. Livraison", c: "Délais indicatifs 25-55 min. Chaîne du froid garantie." },
-          { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation)." },
-          { t: "6. Droit applicable", c: "Droit français. Tribunaux de Paris compétents." },
+          { t: "1. Objet", c: "Les présentes CGU régissent l'utilisation de la plateforme Côte à côte, exploitée par Vincent Baudrant, entrepreneur individuel, dont le siège est 47 rue Vivienne, 75002 Paris." },
+          { t: "2. Description du service", c: "Côte à côte est une marketplace mettant en relation des consommateurs et des boucheries artisanales partenaires. Vincent Baudrant agit en qualité d'intermédiaire technique." },
+          { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe (PCI-DSS Level 1). Vincent Baudrant ne conserve aucune donnée bancaire." },
+          { t: "4. Livraison", c: "Délais indicatifs 25-55 min selon le boucher partenaire. Chaîne du froid garantie tout au long du transport." },
+          { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contact sous 2h à contact@coteacote.fr." },
+          { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : mediateur@coteacote.fr (art. L.616-1 C. conso.)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
@@ -1042,6 +1050,8 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
   const [siretVerif, setSiretVerif] = useState<'idle'|'loading'|'ok'|'error'>('idle')
   const [siretMsg, setSiretMsg] = useState('')
   const [officialName, setOfficialName] = useState('')
+  const [contractAccepted, setContractAccepted] = useState(false)
+  const [contractOpen, setContractOpen] = useState(false)
   const siretOk = /^\d{14}$/.test(form.siret.replace(/\s/g,''))
 
   // Réinitialiser la vérification si le boucher modifie le SIRET ou le nom
@@ -1191,9 +1201,67 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
+        {/* ── Contrat partenaire ── */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between px-4 py-3 text-left"
+            onClick={() => setContractOpen(v => !v)}
+          >
+            <div>
+              <p className="text-sm font-bold text-brun">📜 Contrat de partenariat boucher</p>
+              <p className="text-xs text-gray-400">Lecture obligatoire avant de s'inscrire</p>
+            </div>
+            <span className="text-gray-400 text-lg">{contractOpen ? '▲' : '▼'}</span>
+          </button>
+
+          {contractOpen && (
+            <div className="px-4 pb-4 space-y-3 border-t border-gris-bd pt-3">
+              <div className="bg-or-pale border border-or/20 rounded-xl px-3 py-2">
+                <p className="text-[11px] text-brun-clair font-semibold">Contrat partenaire Côte à côte (Vincent Baudrant — SIRET 106 140 742 00011) · En vigueur depuis le 23 juin 2026</p>
+              </div>
+              {[
+                { t: '1. Commission et rémunération', c: 'Côte à Côte retient 15 % TTC sur chaque commande encaissée. Le boucher partenaire perçoit 85 % du montant hors frais de livraison, versé chaque lundi par virement bancaire via Stripe Connect.' },
+                { t: '2. Durée et résiliation', c: 'Le présent contrat est conclu sans engagement de durée. Le partenaire peut résilier à tout moment depuis ses paramètres. La résiliation prend effet sous 30 jours calendaires, les commandes en cours étant honorées.' },
+                { t: '3. Responsabilité sanitaire et qualité', c: 'Le boucher partenaire est seul responsable de la qualité, de la fraîcheur, de la conformité sanitaire et de la traçabilité de ses produits, conformément au Paquet Hygiène UE (Règlements 852/2004 et 853/2004), aux arrêtés ministériels en vigueur et au Plan de Maîtrise Sanitaire (PMS) de l\'établissement.' },
+                { t: '4. Agrément sanitaire', c: 'Pour les produits d\'origine animale soumis à agrément, le boucher doit communiquer son numéro d\'agrément sanitaire (délivré par la DDPP) lors de l\'inscription et le maintenir à jour. Côte à Côte se réserve le droit de suspendre le compte en cas de non-conformité.' },
+                { t: '5. Allergènes obligatoires (INCO)', c: 'Le boucher doit renseigner les 14 allergènes à déclaration obligatoire sur chaque fiche produit (Règlement UE n°1169/2011). Toute omission engage sa responsabilité pénale et civile en cas d\'accident.' },
+                { t: '6. Origine des viandes', c: 'L\'origine géographique des viandes bovines est obligatoire (Règlement UE 1337/2013). Pour les autres espèces (porcine, ovine, volaille), l\'affichage de l\'origine est fortement recommandé et peut devenir obligatoire sur décision européenne. Le boucher s\'engage à fournir ces informations sur chaque produit.' },
+                { t: '7. Prix et affichage', c: 'Les prix doivent être affichés TTC et au kilogramme pour les viandes (Arrêté du 3 décembre 1987). Aucun frais caché ne peut être ajouté après validation du panier par le client.' },
+                { t: '8. Délais et disponibilité', c: 'Le boucher s\'engage à préparer les commandes dans les délais indiqués sur la plateforme. En cas d\'impossibilité (rupture de stock, fermeture exceptionnelle), il doit mettre à jour sa disponibilité immédiatement et contacter le support Côte à Côte.' },
+                { t: '9. Propriété intellectuelle', c: 'Les photos, descriptions et contenus publiés doivent appartenir au boucher ou être libres de droits. Tout contenu portant atteinte aux droits de tiers sera supprimé sans préavis. Le boucher accorde à Côte à côte une licence d\'utilisation non exclusive pour l\'affichage sur la plateforme.' },
+                { t: '10. Paiements et données bancaires', c: 'Les paiements sont traités exclusivement par Stripe Connect (PCI-DSS Level 1). Côte à côte ne stocke aucune donnée bancaire. Le boucher s\'engage à compléter et maintenir à jour son profil Stripe Connect pour recevoir ses virements.' },
+                { t: '11. Protection des données (RGPD)', c: 'Le boucher reçoit les données personnelles des clients (nom, adresse, téléphone) uniquement pour l\'exécution des commandes. Ces données ne peuvent être utilisées à d\'autres fins ni transmises à des tiers. Toute violation doit être signalée à Côte à côte sous 72h (obligation RGPD art. 33).' },
+                { t: '12. Suspension et résiliation par Côte à Côte', c: 'Côte à côte se réserve le droit de suspendre ou résilier le compte partenaire sans préavis en cas de : violation des règles sanitaires, plaintes clients répétées non résolues, fraude, défaut de paiement ou non-respect des présentes obligations.' },
+                { t: '13. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
+              ].map((s, i) => (
+                <div key={i} className="bg-creme rounded-xl p-3">
+                  <p className="text-xs font-bold text-brun mb-1">{s.t}</p>
+                  <p className="text-[11px] text-gray-500 leading-relaxed">{s.c}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Checkbox acceptation contrat */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div
+              className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${contractAccepted ? 'bg-brun border-brun' : 'border-gray-300'}`}
+              onClick={() => setContractAccepted(v => !v)}
+            >
+              {contractAccepted && <span className="text-white text-xs font-bold">✓</span>}
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              J'ai lu et j'accepte intégralement le <button type="button" className="text-brun font-semibold underline" onClick={() => setContractOpen(true)}>Contrat de partenariat boucher</button> ainsi que les{' '}
+              <span className="text-brun font-semibold">Conditions Générales de Vente</span> de Côte à côte. Je certifie que mon établissement est en conformité avec la réglementation sanitaire en vigueur. *
+            </p>
+          </label>
+        </div>
+
         <button
           className="w-full bg-rouge-vif text-white py-4 rounded-2xl font-bold text-sm font-sans disabled:bg-gray-300 disabled:cursor-not-allowed"
-          disabled={!form.nom_boutique||!form.prenom||!form.email||!form.tel||!form.ville||!siretOk||siretVerif!=='ok'||loading}
+          disabled={!form.nom_boutique||!form.prenom||!form.email||!form.tel||!form.ville||!siretOk||siretVerif!=='ok'||!contractAccepted||loading}
           onClick={soumettre}
         >
           {loading ? '⏳ Envoi…' : '🤝 Envoyer ma candidature'}

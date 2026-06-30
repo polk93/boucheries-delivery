@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/store/auth'
+import { usePanier } from '@/store/panier'
 import BottomNavClient from '@/components/ui/BottomNavClient'
 import AuthModal from '@/components/ui/AuthModal'
 
@@ -41,8 +42,67 @@ const HISTORIQUE_DEMO = [
 
 type Commande = typeof HISTORIQUE_DEMO[0]
 
+// ── Modal avis après livraison ────────────────────────────────────────────────
+function ModalAvis({ commande: o, onClose }: { commande: Commande; onClose: () => void }) {
+  const [note, setNote] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [sent, setSent] = useState(false)
+
+  function submit() {
+    if (note === 0) return
+    setSent(true)
+    setTimeout(onClose, 1500)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/65 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="bg-white rounded-t-3xl w-full max-w-lg p-6 space-y-4" onClick={e => e.stopPropagation()}>
+        {sent ? (
+          <div className="text-center py-4">
+            <span className="text-4xl block mb-2">🎉</span>
+            <p className="font-serif text-lg font-black text-brun">Merci pour votre avis !</p>
+          </div>
+        ) : (
+          <>
+            <div className="text-center">
+              <p className="font-serif text-lg font-black text-brun">Votre avis sur {o.boucherie}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Commande {o.numero} · {o.date}</p>
+            </div>
+            <div className="flex justify-center gap-3">
+              {[1,2,3,4,5].map(n => (
+                <button key={n}
+                  className={`text-4xl transition-transform ${(hover || note) >= n ? 'scale-110' : 'opacity-30'}`}
+                  onMouseEnter={() => setHover(n)}
+                  onMouseLeave={() => setHover(0)}
+                  onTouchStart={() => setHover(n)}
+                  onClick={() => setNote(n)}>
+                  ⭐
+                </button>
+              ))}
+            </div>
+            {note > 0 && (
+              <p className="text-center text-sm font-semibold text-brun">
+                {['', 'Décevant', 'Passable', 'Bien', 'Très bien', 'Excellent !'][note]}
+              </p>
+            )}
+            <div className="flex gap-3">
+              <button className="flex-1 bg-gris-bd text-brun font-semibold py-3 rounded-xl text-sm font-sans" onClick={onClose}>Plus tard</button>
+              <button
+                className="flex-[2] bg-rouge-vif text-white font-bold py-3 rounded-xl text-sm font-sans disabled:bg-gray-200 disabled:text-gray-400"
+                disabled={note === 0}
+                onClick={submit}>
+                Envoyer mon avis →
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Reçu détaillé (modal) ─────────────────────────────────────────────────────
-function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () => void }) {
+function ModalRecu({ commande: o, onClose, onReorder }: { commande: Commande; onClose: () => void; onReorder: (o: Commande) => void }) {
   const sousTotal = o.items.reduce((s, i) => s + i.prix * i.qty, 0)
   const total = sousTotal + o.frais
 
@@ -145,7 +205,7 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
             </button>
             <button
               className="flex-1 bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans"
-              onClick={onClose}>
+              onClick={() => onReorder(o)}>
               🔄 Re-commander
             </button>
           </div>
@@ -159,10 +219,31 @@ function ModalRecu({ commande: o, onClose }: { commande: Commande; onClose: () =
 export default function CommandesPage() {
   const router = useRouter()
   const { user, isDemo } = useAuth()
+  const { clear, addItem } = usePanier()
   const [authOpen, setAuthOpen] = useState(false)
   const [recuOpen, setRecuOpen] = useState<Commande | null>(null)
+  const [avisOpen, setAvisOpen] = useState<Commande | null>(null)
+  const [retractOpen, setRetractOpen] = useState(false)
 
   const historique = isDemo() ? HISTORIQUE_DEMO : []
+
+  function reorder(o: Commande) {
+    clear()
+    o.items.forEach((item, idx) => {
+      addItem({
+        produit_id: `reorder_${o.id}_${idx}`,
+        boucherie_id: 1,
+        boucherie_nom: o.boucherie,
+        nom: item.nom,
+        prix: item.prix,
+        icon: item.icon,
+        quantite: item.qty,
+        decoupe: item.decoupe,
+        preparation: item.preparation,
+      })
+    })
+    router.push('/')
+  }
 
   // Non connecté
   if (!user) {
@@ -247,23 +328,37 @@ export default function CommandesPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex justify-between items-center px-4 py-3">
-                    <div>
-                      <p className="font-bold text-brun text-sm">{total.toFixed(2)} €</p>
-                      <p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
+                  <div className="px-4 py-3 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-bold text-brun text-sm">{total.toFixed(2)} €</p>
+                        <p className="text-xs text-gray-400">dont {o.frais.toFixed(2)} € livraison</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                          onClick={() => setRecuOpen(o)}>
+                          🧾 Reçu
+                        </button>
+                        <button
+                          className="bg-rouge-vif text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
+                          onClick={() => reorder(o)}>
+                          🔄 Re-commander
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      {/* Voir le reçu */}
+                    {/* Actions légales */}
+                    <div className="flex gap-2 flex-wrap">
                       <button
-                        className="bg-or-pale border border-or/30 text-brun-clair text-xs font-bold px-3 py-2 rounded-xl font-sans"
-                        onClick={() => setRecuOpen(o)}>
-                        🧾 Reçu
+                        className="text-[11px] text-or font-semibold underline underline-offset-2 font-sans"
+                        onClick={() => setAvisOpen(o)}>
+                        ⭐ Donner un avis
                       </button>
-                      {/* Re-commander */}
+                      <span className="text-gray-200">·</span>
                       <button
-                        className="bg-rouge-vif text-white text-xs font-bold px-3 py-2 rounded-xl font-sans"
-                        onClick={() => router.push('/')}>
-                        🔄 Re-commander
+                        className="text-[11px] text-gray-400 underline underline-offset-2 font-sans"
+                        onClick={() => setRetractOpen(true)}>
+                        Rétractation
                       </button>
                     </div>
                   </div>
@@ -275,7 +370,34 @@ export default function CommandesPage() {
       </div>
 
       {/* Modal reçu */}
-      {recuOpen && <ModalRecu commande={recuOpen} onClose={() => setRecuOpen(null)} />}
+      {recuOpen && <ModalRecu commande={recuOpen} onClose={() => setRecuOpen(null)} onReorder={reorder} />}
+
+      {/* Modal avis */}
+      {avisOpen && <ModalAvis commande={avisOpen} onClose={() => setAvisOpen(null)} />}
+
+      {/* Bottom-sheet rétractation */}
+      {retractOpen && (
+        <div className="fixed inset-0 bg-black/65 z-50 flex items-end justify-center" onClick={() => setRetractOpen(false)}>
+          <div className="bg-white rounded-t-3xl w-full max-w-lg p-5 space-y-3" onClick={e => e.stopPropagation()}>
+            <p className="font-serif text-base font-black text-brun">Droit de rétractation</p>
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3">
+              <p className="text-xs text-orange-700 font-semibold mb-1">⚠️ Produits périssables — exclusion légale</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Conformément à l'<strong>art. L.221-28 4° du Code de la consommation</strong>, les denrées alimentaires
+                périssables sont exclues du droit de rétractation de 14 jours.
+              </p>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              En cas de problème de qualité ou de non-conformité, contactez-nous dans les <strong>2h</strong> suivant
+              la livraison. Nous traiterons votre réclamation en priorité.
+            </p>
+            <p className="text-[10px] text-gray-400">
+              Ord. n°2026-51 du 5 janv. 2026 · Médiation : mediateur@coteacote.fr
+            </p>
+            <button className="w-full bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans" onClick={() => setRetractOpen(false)}>Fermer</button>
+          </div>
+        </div>
+      )}
 
       <BottomNavClient currentPage="commandes" />
     </div>
