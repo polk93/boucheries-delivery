@@ -9,15 +9,17 @@ const sections = [
   {
     title: '1. Éditeur du site',
     content: [
-      { label: 'Dénomination sociale', value: 'Côte à Côte SAS' },
-      { label: 'Forme juridique', value: 'Société par Actions Simplifiée (SAS)' },
-      { label: 'Capital social', value: '[À COMPLÉTER] €' },
-      { label: 'Siège social', value: '[À COMPLÉTER — adresse complète]' },
-      { label: 'SIRET', value: '[À COMPLÉTER]' },
-      { label: 'RCS', value: '[À COMPLÉTER — ville d\'immatriculation]' },
-      { label: 'N° TVA intracommunautaire', value: '[À COMPLÉTER]' },
-      { label: 'Directeur de la publication', value: '[À COMPLÉTER — Prénom Nom]' },
-      { label: 'Contact', value: 'contact@coteacote.fr' },
+      { label: 'Nom',                         value: 'Vincent Baudrant' },
+      { label: 'Nom commercial / Enseigne',    value: 'Côte à côte' },
+      { label: 'Forme juridique',              value: 'Entrepreneur individuel — Micro-entreprise' },
+      { label: 'Siège social',                 value: '47 rue Vivienne, 75002 Paris 2e arrondissement' },
+      { label: 'SIRET',                        value: '106 140 742 00011' },
+      { label: 'RNE',                          value: '106140742 (immatriculé le 10/06/2026)' },
+      { label: 'Code APE',                     value: '6201Z — Programmation informatique' },
+      { label: 'TVA',                          value: 'Non assujetti — Franchise en base (art. 293 B CGI)' },
+      { label: 'Directeur de la publication',  value: 'Vincent Baudrant' },
+      { label: 'Téléphone',                    value: '+33 6 50 29 02 12' },
+      { label: 'Contact',                      value: 'contact@coteacote.fr' },
     ],
   },
   {
@@ -30,7 +32,7 @@ const sections = [
   },
   {
     title: '3. Propriété intellectuelle',
-    text: `Le site côteàcôte.com et l'ensemble de son contenu (textes, images, logos, icônes, structure) sont la propriété exclusive de Côte à Côte SAS et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation préalable et écrite de Côte à Côte SAS.`,
+    text: `Le site côteàcôte.com et l'ensemble de son contenu (textes, images, logos, icônes, structure) sont la propriété exclusive de Vincent Baudrant (Côte à côte) et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation préalable et écrite de Vincent Baudrant.`,
   },
   {
     title: '4. Données personnelles',
@@ -42,7 +44,7 @@ const sections = [
   },
   {
     title: '6. Responsabilité',
-    text: `Côte à Côte SAS s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, la société ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition. En conséquence, Côte à Côte SAS décline toute responsabilité pour toute imprécision, inexactitude ou omission portant sur des informations disponibles sur ce site.`,
+    text: `Vincent Baudrant (Côte à côte) s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, il ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition. En conséquence, Vincent Baudrant décline toute responsabilité pour toute imprécision, inexactitude ou omission portant sur des informations disponibles sur ce site.`,
   },
   {
     title: '7. Liens hypertextes',
@@ -50,7 +52,7 @@ const sections = [
   },
   {
     title: '8. Droit applicable',
-    text: `Le présent site et les présentes mentions légales sont soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux français seront seuls compétents.`,
+    text: `Le présent site et les présentes mentions légales sont soumis au droit français. En cas de litige, et à défaut de résolution amiable, le Tribunal de Commerce de Paris sera seul compétent.`,
   },
 ]
 
