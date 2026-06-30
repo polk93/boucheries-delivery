@@ -32,14 +32,19 @@ export default function CGVPage() {
 
         {/* Article 1 */}
         <Article title="Article 1 — Identification du vendeur">
-          <Row label="Société" value="Côte à Côte SAS" />
-          <Row label="SIRET" value="[À COMPLÉTER]" highlight />
-          <Row label="RCS" value="[À COMPLÉTER]" highlight />
-          <Row label="Siège social" value="[À COMPLÉTER]" highlight />
+          <Row label="Nom" value="Vincent Baudrant" />
+          <Row label="Nom commercial / Enseigne" value="Côte à côte" />
+          <Row label="Forme juridique" value="Entrepreneur individuel — Micro-entreprise" />
+          <Row label="SIRET" value="106 140 742 00011" />
+          <Row label="RNE" value="106140742 (immatriculé le 10/06/2026)" />
+          <Row label="Code APE" value="6201Z — Programmation informatique" />
+          <Row label="Siège social" value="47 rue Vivienne, 75002 Paris 2e arrondissement" />
+          <Row label="TVA" value="Non assujetti — Franchise en base (art. 293 B CGI)" />
+          <Row label="Dirigeant" value="Vincent Baudrant" />
           <Row label="Email" value="contact@coteacote.fr" />
-          <Row label="Téléphone" value="[À COMPLÉTER]" highlight />
+          <Row label="Téléphone" value="06 50 29 02 12" />
           <p className="text-xs text-gray-500 leading-relaxed mt-3">
-            Côte à Côte SAS opère en tant que marketplace mettant en relation des consommateurs et des bouchers artisanaux partenaires (ci-après « les Bouchers »). Chaque Boucher est un professionnel indépendant responsable de ses produits et de leur conformité réglementaire.
+            Côte à côte est une plateforme exploitée par Vincent Baudrant, entrepreneur individuel, mettant en relation des consommateurs et des bouchers artisanaux partenaires (ci-après « les Bouchers »). Chaque Boucher est un professionnel indépendant responsable de ses produits et de leur conformité réglementaire.
           </p>
         </Article>
 
@@ -63,14 +68,14 @@ export default function CGVPage() {
             <li>L'origine géographique de la viande</li>
           </ul>
           <p className="text-xs text-gray-500 leading-relaxed mt-2">
-            La disponibilité des produits est indiquée en temps réel. Côte à Côte SAS ne peut être tenu responsable d'une rupture de stock survenant après validation de la commande ; dans ce cas, le Client est informé et remboursé intégralement.
+            La disponibilité des produits est indiquée en temps réel. Côte à côte ne peut être tenu responsable d'une rupture de stock survenant après validation de la commande ; dans ce cas, le Client est informé et remboursé intégralement.
           </p>
         </Article>
 
         {/* Article 4 */}
         <Article title="Article 4 — Prix">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Les prix affichés sont en euros (€) toutes taxes comprises (TTC), incluant la TVA applicable. Les frais de livraison sont indiqués séparément avant la validation de la commande. Côte à Côte SAS se réserve le droit de modifier ses prix à tout moment ; les produits sont facturés au prix en vigueur au moment de la validation de la commande.
+            Les prix affichés sont en euros (€) toutes taxes comprises (TTC), incluant la TVA applicable. Les frais de livraison sont indiqués séparément avant la validation de la commande. Côte à côte se réserve le droit de modifier ses prix à tout moment ; les produits sont facturés au prix en vigueur au moment de la validation de la commande.
           </p>
         </Article>
 
@@ -99,14 +104,14 @@ export default function CGVPage() {
             <li>Apple Pay / Google Pay</li>
           </ul>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Côte à Côte SAS ne conserve aucune donnée bancaire. En cas d'échec du paiement, la commande est annulée automatiquement.
+            Côte à côte ne conserve aucune donnée bancaire. En cas d'échec du paiement, la commande est annulée automatiquement.
           </p>
         </Article>
 
         {/* Article 7 */}
         <Article title="Article 7 — Livraison">
           <p className="text-xs text-gray-500 leading-relaxed mb-2">
-            La livraison est effectuée dans les délais indiqués lors de la commande (indicatif : 25 à 55 minutes). La chaîne du froid est garantie tout au long du transport. En cas d'absence du Client à l'adresse indiquée, une nouvelle tentative ou un contact téléphonique sera effectué. Côte à Côte SAS ne peut être tenu responsable d'un retard dû à un cas de force majeure ou à une information erronée fournie par le Client.
+            La livraison est effectuée dans les délais indiqués lors de la commande (indicatif : 25 à 55 minutes). La chaîne du froid est garantie tout au long du transport. En cas d'absence du Client à l'adresse indiquée, une nouvelle tentative ou un contact téléphonique sera effectué. Côte à côte ne peut être tenu responsable d'un retard dû à un cas de force majeure ou à une information erronée fournie par le Client.
           </p>
           <div className="bg-rouge-pale border border-rouge/20 rounded-xl p-3">
             <p className="text-xs text-rouge font-semibold">Zones de livraison</p>
@@ -166,7 +171,7 @@ export default function CGVPage() {
         {/* Article 11 */}
         <Article title="Article 11 — Responsabilités">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Côte à Côte SAS agit en qualité d'intermédiaire technique entre les Bouchers et les Clients. La responsabilité relative à la qualité, la conformité sanitaire et l'étiquetage des produits incombe en premier lieu au Boucher partenaire. Côte à Côte SAS peut être tenu responsable en cas de faute avérée dans la transmission des commandes ou le traitement des paiements. La responsabilité de Côte à Côte SAS est limitée au montant de la commande concernée.
+            Côte à côte agit en qualité d'intermédiaire technique entre les Bouchers et les Clients. La responsabilité relative à la qualité, la conformité sanitaire et l'étiquetage des produits incombe en premier lieu au Boucher partenaire. Côte à côte peut être tenu responsable en cas de faute avérée dans la transmission des commandes ou le traitement des paiements. La responsabilité de Côte à côte est limitée au montant de la commande concernée.
           </p>
         </Article>
 
