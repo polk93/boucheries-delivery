@@ -84,10 +84,6 @@ export default function CookieBanner() {
           </div>
         </div>
 
-        <Link href="/politique-cookies" className="text-[11px] text-or/80 underline underline-offset-2 hover:text-or transition-colors">
-          En savoir plus sur nos cookies →
-        </Link>
-
         {/* Boutons équiprobables — exigence CNIL */}
         <div className="grid grid-cols-2 gap-2">
           <button

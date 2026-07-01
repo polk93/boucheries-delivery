@@ -126,7 +126,6 @@ export default function ParametresPage() {
         { ico: '📋', label: 'Conditions de vente (CGV)', sub: 'Commandes, livraison, remboursements', action: () => router.push('/cgv') },
         { ico: '📄', label: "Conditions d'utilisation (CGU)", sub: 'Règles d\'usage de la plateforme', action: () => setSection('cgu') },
         { ico: '🔒', label: 'Confidentialité & RGPD', sub: 'Vos données personnelles', action: () => setSection('confidentialite') },
-        { ico: '🍪', label: 'Cookies', sub: 'Gérer mes préférences de cookies', action: () => router.push('/politique-cookies') },
       ],
     },
   ]

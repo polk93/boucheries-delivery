@@ -252,7 +252,6 @@ export default function CGVPage() {
               { href: '/mentions-legales', label: '⚖️ Mentions légales' },
               { href: '/parametres?section=cgu', label: '📄 Conditions Générales d\'Utilisation (CGU)' },
               { href: '/parametres?section=confidentialite', label: '🔒 Politique de confidentialité' },
-              { href: '/politique-cookies', label: '🍪 Politique de cookies' },
             ].map((link) => (
               <Link key={link.href} href={link.href}
                 className="flex items-center justify-between p-3 bg-creme rounded-xl text-xs font-semibold text-brun hover:bg-gris-bd transition-colors">

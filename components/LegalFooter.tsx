@@ -18,7 +18,6 @@ export default function LegalFooter() {
               { href: '/cgv', label: 'CGV' },
               { href: '/parametres?section=cgu', label: 'CGU' },
               { href: '/parametres?section=confidentialite', label: 'Confidentialité' },
-              { href: '/politique-cookies', label: 'Cookies' },
             ].map((link) => (
               <li key={link.href}>
                 <Link
