@@ -48,7 +48,7 @@ const sections = [
   },
   {
     title: '7. Liens hypertextes',
-    text: `Le site peut contenir des liens vers des sites tiers. Ces liens sont fournis à titre d'information uniquement. Côte à Côte SAS n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.`,
+    text: `Le site peut contenir des liens vers des sites tiers. Ces liens sont fournis à titre d'information uniquement. Vincent Baudrant (Côte à côte) n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.`,
   },
   {
     title: '8. Droit applicable',

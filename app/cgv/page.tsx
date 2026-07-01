@@ -176,24 +176,46 @@ export default function CGVPage() {
         </Article>
 
         {/* Article 12 */}
-        <Article title="Article 12 — Protection des données">
+        <Article title="Article 12 — Garanties légales">
+          <div className="bg-or-pale border border-or/30 rounded-xl p-3 mb-3">
+            <p className="text-xs font-bold text-brun mb-1">Garantie légale de conformité</p>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Conformément aux <strong>articles L217-3 à L217-20 du Code de la consommation</strong>, le Boucher partenaire est tenu de livrer un bien conforme à la commande. En cas de défaut de conformité constaté à la livraison, le Client dispose d'un recours contre le Boucher. Pour les denrées alimentaires fraîches, compte tenu de leur nature périssable, toute réclamation doit être formulée dans les <strong>2 heures</strong> suivant la réception à <strong>contact@coteacote.fr</strong>.
+            </p>
+          </div>
+          <div className="bg-white border border-gris-bd rounded-xl p-3">
+            <p className="text-xs font-bold text-brun mb-1">Garantie légale des vices cachés</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Conformément aux <strong>articles 1641 à 1649 du Code civil</strong>, en cas de vice caché rendant le produit impropre à la consommation ou diminuant son usage, le Client peut obtenir un remboursement intégral ou une réduction du prix, après vérification par nos soins.
+            </p>
+          </div>
+        </Article>
+
+        {/* Article 13 */}
+        <Article title="Article 13 — Protection des données">
           <p className="text-xs text-gray-500 leading-relaxed">
             Les données personnelles collectées lors d'une commande sont traitées conformément à notre Politique de confidentialité (RGPD). Elles sont utilisées exclusivement pour le traitement et le suivi de la commande, la relation client et les obligations légales de conservation (5 ans pour les données de facturation).
           </p>
         </Article>
 
-        {/* Article 13 */}
-        <Article title="Article 13 — Médiation et litiges">
+        {/* Article 14 */}
+        <Article title="Article 14 — Médiation et litiges">
           <p className="text-xs text-gray-500 leading-relaxed mb-2">
-            En cas de litige, le Client est invité à contacter en priorité notre service client (contact@coteacote.fr). En l'absence de résolution amiable dans un délai de 60 jours, le Client consommateur peut recourir gratuitement à un médiateur de la consommation, conformément aux articles L.612-1 et suivants du Code de la consommation.
+            En cas de litige, le Client est invité à contacter en priorité notre service client (contact@coteacote.fr). En l'absence de résolution amiable dans un délai de <strong>60 jours</strong>, le Client consommateur peut recourir gratuitement à la médiation de la consommation, conformément aux articles L.612-1 et suivants du Code de la consommation.
           </p>
+          <div className="bg-creme rounded-xl p-3 mb-2">
+            <p className="text-xs font-bold text-brun mb-0.5">Médiateur désigné</p>
+            <p className="text-xs text-gray-500"><strong>MEDICYS</strong> — 73 boulevard de Clichy, 75009 Paris</p>
+            <p className="text-xs text-gray-500">Site : <span className="text-brun font-semibold">www.medicys.fr</span></p>
+            <p className="text-[11px] text-gray-400 mt-1">Médiation gratuite pour le consommateur</p>
+          </div>
           <p className="text-xs text-gray-500 leading-relaxed">
             Plateforme européenne de règlement en ligne des litiges (RLL) : <span className="text-brun font-semibold">https://ec.europa.eu/consumers/odr</span>
           </p>
         </Article>
 
-        {/* Article 14 */}
-        <Article title="Article 14 — Droit applicable et juridiction compétente">
+        {/* Article 15 */}
+        <Article title="Article 15 — Droit applicable et juridiction compétente">
           <p className="text-xs text-gray-500 leading-relaxed">
             Les présentes CGV sont soumises au droit français. En cas de litige non résolu par voie amiable ou par médiation, les tribunaux français seront seuls compétents. Pour les litiges avec des consommateurs résidant dans un autre État membre de l'UE, les règles communautaires applicables s'appliqueront.
           </p>

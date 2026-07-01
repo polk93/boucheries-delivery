@@ -876,6 +876,8 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
           { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : contact@coteacote.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
+          { t: "5. Base légale du traitement", c: "Exécution du contrat (commandes, livraisons) · Consentement (géolocalisation, cookies analytiques) · Obligation légale (conservation des factures 5 ans — art. L123-22 C. commerce) · Intérêt légitime (prévention fraude, support client)." },
+          { t: "6. Transferts hors UE", c: "Stripe Inc. (USA) traite les données de paiement via des Clauses Contractuelles Types approuvées par la Commission européenne (décision 2021/914). Vercel héberge les données en région EU (Amsterdam). Aucun autre transfert hors UE." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
