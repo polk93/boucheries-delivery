@@ -176,9 +176,26 @@ export default function CGVPage() {
 
         {/* Article 11 */}
         <Article title="Article 11 — Responsabilités">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Côte à côte agit en qualité d'intermédiaire technique entre les Bouchers et les Clients. La responsabilité relative à la qualité, la conformité sanitaire et l'étiquetage des produits incombe en premier lieu au Boucher partenaire. Côte à côte peut être tenu responsable en cas de faute avérée dans la transmission des commandes ou le traitement des paiements. La responsabilité de Côte à côte est limitée au montant de la commande concernée.
-          </p>
+          <div className="space-y-3">
+            <div className="bg-creme rounded-xl p-3">
+              <p className="text-xs font-bold text-brun mb-1">Responsabilité de Côte à côte (limitée)</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Côte à côte est responsable uniquement des dysfonctionnements propres à sa plateforme : non-transmission technique d'une commande, erreur dans le traitement du paiement, ou indisponibilité du service. Sa responsabilité est dans ce cas limitée au montant de la commande concernée.
+              </p>
+            </div>
+            <div className="bg-rouge-pale border border-rouge/20 rounded-xl p-3">
+              <p className="text-xs font-bold text-brun mb-1">Responsabilité exclusive du Boucher</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Toute erreur d'exécution relève de la responsabilité exclusive du Boucher partenaire : produit non conforme à la commande (mauvais article, mauvaise quantité, mauvaise découpe, mauvaise préparation), défaut de qualité ou de fraîcheur, problème d'emballage ou d'étiquetage. Côte à côte, agissant comme intermédiaire technique, rembourse le Client dans un premier temps, puis déduit le montant intégral du remboursement sur le virement suivant du Boucher concerné (art. L. 442-1 Code de commerce).
+              </p>
+            </div>
+            <div className="bg-white border border-gris-bd rounded-xl p-3">
+              <p className="text-xs font-bold text-brun mb-1">Ce qui n'engage pas Côte à côte</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Côte à côte n'est pas responsable des retards ou défauts liés à : une information erronée fournie par le Client (adresse, disponibilité), un cas de force majeure, ou une faute exclusive du Boucher dans la préparation ou l'emballage des produits.
+              </p>
+            </div>
+          </div>
         </Article>
 
         {/* Article 12 */}
