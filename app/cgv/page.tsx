@@ -103,9 +103,15 @@ export default function CGVPage() {
             <li>Carte bancaire (Visa, Mastercard, American Express)</li>
             <li>Apple Pay / Google Pay</li>
           </ul>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-xs text-gray-500 leading-relaxed mb-2">
             Côte à côte ne conserve aucune donnée bancaire. En cas d'échec du paiement, la commande est annulée automatiquement.
           </p>
+          <div className="bg-creme rounded-xl p-3">
+            <p className="text-xs font-bold text-brun mb-1">Justificatif de paiement</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Un email de confirmation faisant office de reçu est envoyé automatiquement après validation. Pour obtenir une <strong>facture formelle</strong> (achat professionnel ou déductible), le Client peut en faire la demande à <strong>contact@coteacote.fr</strong> dans un délai de 30 jours suivant la commande (art. L441-9 Code de commerce).
+            </p>
+          </div>
         </Article>
 
         {/* Article 7 */}
