@@ -900,7 +900,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
           { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe (PCI-DSS Level 1). Vincent Baudrant ne conserve aucune donnée bancaire." },
           { t: "4. Livraison", c: "Délais indicatifs 25-55 min selon le boucher partenaire. Chaîne du froid garantie tout au long du transport." },
           { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contact sous 2h à contact@coteacote.fr." },
-          { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : mediateur@coteacote.fr (art. L.616-1 C. conso.)." },
+          { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : MEDICYS — medicys.fr, 73 bd de Clichy 75009 Paris (art. L.616-1 C. conso., service gratuit pour le consommateur)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>

@@ -3,39 +3,64 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/store/auth'
 
+function getBrowserConsent(): string | null {
+  const match = document.cookie.split(';').find(c => c.trim().startsWith('cookie_consent='))
+  return match ? match.trim().split('=')[1] : null
+}
+
+function setBrowserConsent(value: 'accepted' | 'refused') {
+  const expires = new Date()
+  expires.setMonth(expires.getMonth() + 13) // 13 mois max (CNIL)
+  document.cookie = `cookie_consent=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`
+}
+
 export default function CookieBanner() {
   const { user } = useAuth()
   const [visible, setVisible] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (!user?.email || user.isDemo) return
+    // Cookie navigateur présent → déjà consenti (anonyme ou connecté)
+    if (getBrowserConsent()) { setVisible(false); return }
 
+    // Démo : pas de bannière
+    if (user?.isDemo) { setVisible(false); return }
+
+    // Anonyme sans cookie → montrer la bannière
+    if (!user?.email) { setVisible(true); return }
+
+    // Connecté : vérifier Supabase
     fetch(`/api/clients?email=${encodeURIComponent(user.email)}`)
       .then(r => r.json())
-      .then(data => {
-        if (!data?.cookie_consent) setVisible(true)
-      })
+      .then(data => { if (!data?.cookie_consent) setVisible(true) })
       .catch(() => setVisible(true))
   }, [user?.email, user?.isDemo])
 
   async function handleChoice(choice: 'accepted' | 'refused') {
-    if (!user?.email) return
     setSaving(true)
-    try {
-      await fetch('/api/clients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email,
-          cookie_consent: choice,
-          cookie_consent_date: new Date().toISOString(),
-        }),
-      })
-    } finally {
-      setVisible(false)
-      setSaving(false)
+
+    // Toujours persister dans le cookie navigateur (fonctionne pour anonymes et connectés)
+    setBrowserConsent(choice)
+
+    // Synchroniser dans Supabase si connecté
+    if (user?.email && !user.isDemo) {
+      try {
+        await fetch('/api/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            cookie_consent: choice,
+            cookie_consent_date: new Date().toISOString(),
+          }),
+        })
+      } catch {
+        // Cookie navigateur suffit
+      }
     }
+
+    setVisible(false)
+    setSaving(false)
   }
 
   if (!visible) return null
