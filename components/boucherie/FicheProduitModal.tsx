@@ -330,7 +330,7 @@ export default function FicheProduitModal({ produit: p, boucherie: b, onClose, o
                       value={form.nom}
                       onChange={e => setForm(f => ({ ...f, nom: e.target.value }))}
                     />
-                    <p className="text-[11px] text-gray-400 mt-1">Tel qu'il apparaît dans votre profil.</p>
+                    <p className="text-[11px] text-gray-400 mt-1">Exactement tel qu'il apparaît dans votre profil (prénom et nom).</p>
                   </div>
 
                   <div>

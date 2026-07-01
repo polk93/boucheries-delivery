@@ -21,13 +21,10 @@ function anonymize(nom: string): string {
   return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`
 }
 
-// Accepte si le nom soumis est contenu dans le nom stocké ou vice-versa
-// "Marie" → match "Marie Dupont" ; "Dupont" → match "Jean Dupont"
+// Correspondance exacte (insensible à la casse et aux accents)
 function nameMatches(stored: string, submitted: string): boolean {
   if (!stored) return true
-  const a = normalizeName(stored)
-  const b = normalizeName(submitted)
-  return a.includes(b) || b.includes(a)
+  return normalizeName(stored) === normalizeName(submitted)
 }
 
 // GET /api/avis?client_email=xxx        → avis laissés par un client
