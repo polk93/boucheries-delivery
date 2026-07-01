@@ -876,6 +876,8 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
           { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : contact@coteacote.fr. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
+          { t: "5. Base légale du traitement", c: "Exécution du contrat (commandes, livraisons) · Consentement (géolocalisation, cookies analytiques) · Obligation légale (conservation des factures 5 ans — art. L123-22 C. commerce) · Intérêt légitime (prévention fraude, support client)." },
+          { t: "6. Transferts hors UE", c: "Stripe Inc. (USA) traite les données de paiement via des Clauses Contractuelles Types approuvées par la Commission européenne (décision 2021/914). Vercel héberge les données en région EU (Amsterdam). Aucun autre transfert hors UE." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
@@ -898,7 +900,7 @@ function CguSection({ onBack }: { onBack: () => void }) {
           { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe (PCI-DSS Level 1). Vincent Baudrant ne conserve aucune donnée bancaire." },
           { t: "4. Livraison", c: "Délais indicatifs 25-55 min selon le boucher partenaire. Chaîne du froid garantie tout au long du transport." },
           { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contact sous 2h à contact@coteacote.fr." },
-          { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : mediateur@coteacote.fr (art. L.616-1 C. conso.)." },
+          { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : MEDICYS — medicys.fr, 73 bd de Clichy 75009 Paris (art. L.616-1 C. conso., service gratuit pour le consommateur)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
             <h2 className="font-serif text-sm font-bold text-brun mb-1.5">{s.t}</h2>
@@ -1226,7 +1228,8 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
                 { t: '10. Paiements et données bancaires', c: 'Les paiements sont traités exclusivement par Stripe Connect (PCI-DSS Level 1). Côte à côte ne stocke aucune donnée bancaire. Le boucher s\'engage à compléter et maintenir à jour son profil Stripe Connect pour recevoir ses virements.' },
                 { t: '11. Protection des données (RGPD)', c: 'Le boucher reçoit les données personnelles des clients (nom, adresse, téléphone) uniquement pour l\'exécution des commandes. Ces données ne peuvent être utilisées à d\'autres fins ni transmises à des tiers. Toute violation doit être signalée à Côte à côte sous 72h (obligation RGPD art. 33).' },
                 { t: '12. Suspension et résiliation par Côte à Côte', c: 'Côte à côte se réserve le droit de suspendre ou résilier le compte partenaire sans préavis en cas de : violation des règles sanitaires, plaintes clients répétées non résolues, fraude, défaut de paiement ou non-respect des présentes obligations.' },
-                { t: '13. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
+                { t: '13. Avis clients et signalement', c: 'Le boucher partenaire peut signaler tout avis qu\'il estime abusif, diffamatoire ou frauduleux à contact@coteacote.fr. Côte à côte examinera la demande dans un délai de 7 jours ouvrés et pourra supprimer tout avis ne respectant pas les conditions d\'utilisation (faux avis, conflit d\'intérêt, propos injurieux). En cas de fausse commande ou d\'escroquerie avérée, Côte à côte accompagnera le partenaire dans ses démarches et pourra suspendre le compte client concerné.' },
+                { t: '14. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
               ].map((s, i) => (
                 <div key={i} className="bg-creme rounded-xl p-3">
                   <p className="text-xs font-bold text-brun mb-1">{s.t}</p>
