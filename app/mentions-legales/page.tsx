@@ -115,7 +115,6 @@ export default function MentionsLegalesPage() {
               { href: '/cgv', label: '📋 Conditions Générales de Vente (CGV)' },
               { href: '/parametres?section=cgu', label: '📄 Conditions Générales d\'Utilisation (CGU)' },
               { href: '/parametres?section=confidentialite', label: '🔒 Politique de confidentialité' },
-              { href: '/politique-cookies', label: '🍪 Politique de cookies' },
             ].map((link) => (
               <Link key={link.href} href={link.href}
                 className="flex items-center justify-between p-3 bg-creme rounded-xl text-xs font-semibold text-brun hover:bg-gris-bd transition-colors">

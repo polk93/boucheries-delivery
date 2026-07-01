@@ -126,7 +126,6 @@ export default function ParametresPage() {
         { ico: '📋', label: 'Conditions de vente (CGV)', sub: 'Commandes, livraison, remboursements', action: () => router.push('/cgv') },
         { ico: '📄', label: "Conditions d'utilisation (CGU)", sub: 'Règles d\'usage de la plateforme', action: () => setSection('cgu') },
         { ico: '🔒', label: 'Confidentialité & RGPD', sub: 'Vos données personnelles', action: () => setSection('confidentialite') },
-        { ico: '🍪', label: 'Cookies', sub: 'Gérer mes préférences de cookies', action: () => router.push('/politique-cookies') },
       ],
     },
   ]
@@ -1229,7 +1228,8 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
                 { t: '11. Protection des données (RGPD)', c: 'Le boucher reçoit les données personnelles des clients (nom, adresse, téléphone) uniquement pour l\'exécution des commandes. Ces données ne peuvent être utilisées à d\'autres fins ni transmises à des tiers. Toute violation doit être signalée à Côte à côte sous 72h (obligation RGPD art. 33).' },
                 { t: '12. Suspension et résiliation par Côte à Côte', c: 'Côte à côte se réserve le droit de suspendre ou résilier le compte partenaire sans préavis en cas de : violation des règles sanitaires, plaintes clients répétées non résolues, fraude, défaut de paiement ou non-respect des présentes obligations.' },
                 { t: '13. Avis clients et signalement', c: 'Le boucher partenaire peut signaler tout avis qu\'il estime abusif, diffamatoire ou frauduleux à contact@coteacote.fr. Côte à côte examinera la demande dans un délai de 7 jours ouvrés et pourra supprimer tout avis ne respectant pas les conditions d\'utilisation (faux avis, conflit d\'intérêt, propos injurieux). En cas de fausse commande ou d\'escroquerie avérée, Côte à côte accompagnera le partenaire dans ses démarches et pourra suspendre le compte client concerné.' },
-                { t: '14. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
+                { t: '14. Erreurs de préparation et remboursements', c: 'Le boucher partenaire est seul responsable de la conformité de la préparation à la commande transmise (bon produit, bonne quantité, bonne découpe, bon conditionnement). En cas d\'erreur de préparation constatée par le client et vérifiée par Côte à côte, le montant remboursé au client sera intégralement déduit du prochain virement Stripe Connect du boucher concerné, sans possibilité de contestation au-delà de 48h suivant la notification. Le boucher reconnaît que la commande lui est transmise numériquement de manière exacte et que toute divergence entre la commande reçue et le produit livré lui est imputable.' },
+                { t: '15. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
               ].map((s, i) => (
                 <div key={i} className="bg-creme rounded-xl p-3">
                   <p className="text-xs font-bold text-brun mb-1">{s.t}</p>
