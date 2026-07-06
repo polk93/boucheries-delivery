@@ -96,7 +96,7 @@ export default function ConfirmationLegale({
             <Link href="/cgv" target="_blank" className="text-brun font-semibold underline">Conditions Générales de Vente</Link>
             {' '}et la{' '}
             <Link href="/parametres?section=confidentialite" target="_blank" className="text-brun font-semibold underline">Politique de confidentialité</Link>
-            {' '}de Côte à Côte. *
+            {' '}de Côtes à Côte. *
           </p>
         </label>
 

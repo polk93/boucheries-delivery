@@ -6,7 +6,7 @@ export default function LegalFooter() {
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Brand */}
         <div className="text-center">
-          <p className="font-serif font-black text-brun text-sm">Côte à Côte</p>
+          <p className="font-serif font-black text-brun text-sm">Côtes à Côte</p>
           <p className="text-[10px] text-gray-400 mt-0.5">Vos bouchers à vos côtés, où que vous soyez.</p>
         </div>
 
@@ -18,7 +18,6 @@ export default function LegalFooter() {
               { href: '/cgv', label: 'CGV' },
               { href: '/parametres?section=cgu', label: 'CGU' },
               { href: '/parametres?section=confidentialite', label: 'Confidentialité' },
-              { href: '/politique-cookies', label: 'Cookies' },
             ].map((link) => (
               <li key={link.href}>
                 <Link
@@ -36,14 +35,14 @@ export default function LegalFooter() {
         <div className="bg-creme rounded-xl px-3 py-2 text-center">
           <p className="text-[10px] text-gray-500 font-semibold">⚖️ Médiateur de la consommation</p>
           <p className="text-[10px] text-gray-400 leading-relaxed mt-0.5">
-            En cas de litige non résolu : <span className="text-brun font-semibold">mediateur@coteacote.fr</span>
-            {' '}— Service gratuit, réponse sous 90 jours (art. L.616-1 C. conso.)
+            En cas de litige non résolu : <span className="text-brun font-semibold">MEDICYS</span> — medicys.fr
+            {' '}— Gratuit pour le consommateur (art. L.616-1 C. conso.)
           </p>
         </div>
 
         {/* Copyright */}
         <p className="text-[10px] text-gray-300 text-center">
-          © {new Date().getFullYear()} Côte à Côte SAS — Tous droits réservés
+          © {new Date().getFullYear()} Vincent Baudrant (Côtes à Côte) — Tous droits réservés
         </p>
       </div>
     </footer>

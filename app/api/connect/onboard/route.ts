@@ -38,13 +38,13 @@ export async function POST(req: NextRequest) {
         mcc: isBoucher ? '5411' : '4215', // Boucherie ou Livraison
         product_description: isBoucher
           ? `Boucherie artisanale — ${nom_boutique}, ${ville}`
-          : `Livreur indépendant Côte à Côte — ${ville}`,
+          : `Livreur indépendant Côtes à Côte — ${ville}`,
       },
       metadata: {
         type,
         nom_boutique: nom_boutique || '',
         ville: ville || '',
-        plateforme: 'Côte à Côte',
+        plateforme: 'Côtes à Côte',
         // Lié automatiquement à votre compte Stripe plateforme via les transfers
       },
       settings: {

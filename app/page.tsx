@@ -455,7 +455,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
     <span className="text-5xl block mb-4">🔪</span>
     <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
     <p className="text-sm leading-relaxed mb-2">
-      Les boucheries de votre quartier arrivent bientôt sur Côte à Côte.
+      Les boucheries de votre quartier arrivent bientôt sur Côtes à Côte.
     </p>
     <p className="text-xs text-gray-400">
       Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
@@ -474,7 +474,7 @@ const filtered = boucheriesToShow.filter((b: any) => isBoutiqueOuverte(b))
               <span className="text-5xl block mb-4">🔪</span>
               <h2 className="font-serif text-lg font-bold text-brun mb-2">Bientôt disponible</h2>
               <p className="text-sm leading-relaxed mb-2">
-                Les boucheries de votre quartier arrivent bientôt sur Côte à Côte.
+                Les boucheries de votre quartier arrivent bientôt sur Côtes à Côte.
               </p>
               <p className="text-xs text-gray-400 mb-4">
                 Vous serez notifié dès qu'une boucherie partenaire ouvre près de chez vous.
