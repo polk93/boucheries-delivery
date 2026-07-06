@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Conditions Générales de Vente — Côte à Côte',
-  description: 'Conditions Générales de Vente applicables aux achats effectués sur la plateforme Côte à Côte.',
+  title: 'Conditions Générales de Vente — Côtes à Côte',
+  description: 'Conditions Générales de Vente applicables aux achats effectués sur la plateforme Côtes à Côte.',
 }
 
 export default function CGVPage() {
@@ -26,14 +26,14 @@ export default function CGVPage() {
         <div className="bg-or-pale border border-or/30 rounded-2xl px-4 py-3">
           <p className="text-xs text-brun font-semibold">Dernière mise à jour : 23 juin 2026</p>
           <p className="text-xs text-brun-clair mt-0.5">
-            Ces CGV s'appliquent à toute commande passée sur la plateforme Côte à Côte (application mobile et site web). Veuillez les lire attentivement avant de passer commande.
+            Ces CGV s'appliquent à toute commande passée sur la plateforme Côtes à Côte (application mobile et site web). Veuillez les lire attentivement avant de passer commande.
           </p>
         </div>
 
         {/* Article 1 */}
         <Article title="Article 1 — Identification du vendeur">
           <Row label="Nom" value="Vincent Baudrant" />
-          <Row label="Nom commercial / Enseigne" value="Côte à côte" />
+          <Row label="Nom commercial / Enseigne" value="Côtes à Côte" />
           <Row label="Forme juridique" value="Entrepreneur individuel — Micro-entreprise" />
           <Row label="SIRET" value="106 140 742 00011" />
           <Row label="RNE" value="106140742 (immatriculé le 10/06/2026)" />
@@ -41,17 +41,17 @@ export default function CGVPage() {
           <Row label="Siège social" value="47 rue Vivienne, 75002 Paris 2e arrondissement" />
           <Row label="TVA" value="Non assujetti — Franchise en base (art. 293 B CGI)" />
           <Row label="Dirigeant" value="Vincent Baudrant" />
-          <Row label="Email" value="contact@coteacote.fr" />
+          <Row label="Email" value="support.cotesacote@gmail.com" />
           <Row label="Téléphone" value="06 50 29 02 12" />
           <p className="text-xs text-gray-500 leading-relaxed mt-3">
-            Côte à côte est une plateforme exploitée par Vincent Baudrant, entrepreneur individuel, mettant en relation des consommateurs et des bouchers artisanaux partenaires (ci-après « les Bouchers »). Chaque Boucher est un professionnel indépendant responsable de ses produits et de leur conformité réglementaire.
+            Côtes à Côte est une plateforme exploitée par Vincent Baudrant, entrepreneur individuel, mettant en relation des consommateurs et des bouchers artisanaux partenaires (ci-après « les Bouchers »). Chaque Boucher est un professionnel indépendant responsable de ses produits et de leur conformité réglementaire.
           </p>
         </Article>
 
         {/* Article 2 */}
         <Article title="Article 2 — Champ d'application">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Les présentes Conditions Générales de Vente (ci-après « CGV ») régissent exclusivement les ventes de produits de boucherie-charcuterie réalisées via la plateforme Côte à Côte entre les Bouchers partenaires et les consommateurs (ci-après « le Client »). Toute commande implique l'acceptation sans réserve des présentes CGV.
+            Les présentes Conditions Générales de Vente (ci-après « CGV ») régissent exclusivement les ventes de produits de boucherie-charcuterie réalisées via la plateforme Côtes à Côte entre les Bouchers partenaires et les consommateurs (ci-après « le Client »). Toute commande implique l'acceptation sans réserve des présentes CGV.
           </p>
         </Article>
 
@@ -68,14 +68,14 @@ export default function CGVPage() {
             <li>L'origine géographique de la viande</li>
           </ul>
           <p className="text-xs text-gray-500 leading-relaxed mt-2">
-            La disponibilité des produits est indiquée en temps réel. Côte à côte ne peut être tenu responsable d'une rupture de stock survenant après validation de la commande ; dans ce cas, le Client est informé et remboursé intégralement.
+            La disponibilité des produits est indiquée en temps réel. Côtes à Côte ne peut être tenu responsable d'une rupture de stock survenant après validation de la commande ; dans ce cas, le Client est informé et remboursé intégralement.
           </p>
         </Article>
 
         {/* Article 4 */}
         <Article title="Article 4 — Prix">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Les prix affichés sont en euros (€) toutes taxes comprises (TTC), incluant la TVA applicable. Les frais de livraison sont indiqués séparément avant la validation de la commande. Côte à côte se réserve le droit de modifier ses prix à tout moment ; les produits sont facturés au prix en vigueur au moment de la validation de la commande.
+            Les prix affichés sont en euros (€) toutes taxes comprises (TTC), incluant la TVA applicable. Les frais de livraison sont indiqués séparément avant la validation de la commande. Côtes à Côte se réserve le droit de modifier ses prix à tout moment ; les produits sont facturés au prix en vigueur au moment de la validation de la commande.
           </p>
         </Article>
 
@@ -104,12 +104,12 @@ export default function CGVPage() {
             <li>Apple Pay / Google Pay</li>
           </ul>
           <p className="text-xs text-gray-500 leading-relaxed mb-2">
-            Côte à côte ne conserve aucune donnée bancaire. En cas d'échec du paiement, la commande est annulée automatiquement.
+            Côtes à Côte ne conserve aucune donnée bancaire. En cas d'échec du paiement, la commande est annulée automatiquement.
           </p>
           <div className="bg-creme rounded-xl p-3">
             <p className="text-xs font-bold text-brun mb-1">Justificatif de paiement</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Un email de confirmation faisant office de reçu est envoyé automatiquement après validation. Pour obtenir une <strong>facture formelle</strong> (achat professionnel ou déductible), le Client peut en faire la demande à <strong>contact@coteacote.fr</strong> dans un délai de 30 jours suivant la commande (art. L441-9 Code de commerce).
+              Un email de confirmation faisant office de reçu est envoyé automatiquement après validation. Pour obtenir une <strong>facture formelle</strong> (achat professionnel ou déductible), le Client peut en faire la demande à <strong>support.cotesacote@gmail.com</strong> dans un délai de 30 jours suivant la commande (art. L441-9 Code de commerce).
             </p>
           </div>
         </Article>
@@ -117,7 +117,7 @@ export default function CGVPage() {
         {/* Article 7 */}
         <Article title="Article 7 — Livraison">
           <p className="text-xs text-gray-500 leading-relaxed mb-2">
-            La livraison est effectuée dans les délais indiqués lors de la commande (indicatif : 25 à 55 minutes). La chaîne du froid est garantie tout au long du transport. En cas d'absence du Client à l'adresse indiquée, une nouvelle tentative ou un contact téléphonique sera effectué. Côte à côte ne peut être tenu responsable d'un retard dû à un cas de force majeure ou à une information erronée fournie par le Client.
+            La livraison est effectuée dans les délais indiqués lors de la commande (indicatif : 25 à 55 minutes). La chaîne du froid est garantie tout au long du transport. En cas d'absence du Client à l'adresse indiquée, une nouvelle tentative ou un contact téléphonique sera effectué. Côtes à Côte ne peut être tenu responsable d'un retard dû à un cas de force majeure ou à une information erronée fournie par le Client.
           </p>
           <div className="bg-rouge-pale border border-rouge/20 rounded-xl p-3">
             <p className="text-xs text-rouge font-semibold">Zones de livraison</p>
@@ -150,13 +150,13 @@ export default function CGVPage() {
               Conformément à l'<strong>article L.221-28 alinéa 4 du Code de la consommation</strong>, le droit de rétractation de 14 jours <strong>ne s'applique pas</strong> aux contrats de fourniture de biens susceptibles de se détériorer ou de se périmer rapidement.
             </p>
             <p className="text-xs text-gray-600 leading-relaxed mt-2">
-              Les produits de boucherie-charcuterie frais vendus sur la plateforme Côte à Côte étant des denrées alimentaires périssables, <strong>aucun droit de rétractation ne peut être exercé</strong> après validation de la commande.
+              Les produits de boucherie-charcuterie frais vendus sur la plateforme Côtes à Côte étant des denrées alimentaires périssables, <strong>aucun droit de rétractation ne peut être exercé</strong> après validation de la commande.
             </p>
           </div>
           <div className="bg-white border border-gris-bd rounded-xl p-3">
             <p className="text-xs font-bold text-brun mb-1">Réclamation pour non-conformité</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              En cas de problème de qualité constaté à la livraison (produit avarié, erreur de commande, colis endommagé), le Client dispose de <strong>2 heures</strong> suivant la livraison pour nous contacter à <strong>contact@coteacote.fr</strong> ou via le support en application. Un remboursement ou échange sera proposé après vérification.
+              En cas de problème de qualité constaté à la livraison (produit avarié, erreur de commande, colis endommagé), le Client dispose de <strong>2 heures</strong> suivant la livraison pour nous contacter à <strong>support.cotesacote@gmail.com</strong> ou via le support en application. Un remboursement ou échange sera proposé après vérification.
             </p>
           </div>
         </Article>
@@ -178,21 +178,21 @@ export default function CGVPage() {
         <Article title="Article 11 — Responsabilités">
           <div className="space-y-3">
             <div className="bg-creme rounded-xl p-3">
-              <p className="text-xs font-bold text-brun mb-1">Responsabilité de Côte à côte (limitée)</p>
+              <p className="text-xs font-bold text-brun mb-1">Responsabilité de Côtes à Côte (limitée)</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Côte à côte est responsable uniquement des dysfonctionnements propres à sa plateforme : non-transmission technique d'une commande, erreur dans le traitement du paiement, ou indisponibilité du service. Sa responsabilité est dans ce cas limitée au montant de la commande concernée.
+                Côtes à Côte est responsable uniquement des dysfonctionnements propres à sa plateforme : non-transmission technique d'une commande, erreur dans le traitement du paiement, ou indisponibilité du service. Sa responsabilité est dans ce cas limitée au montant de la commande concernée.
               </p>
             </div>
             <div className="bg-rouge-pale border border-rouge/20 rounded-xl p-3">
               <p className="text-xs font-bold text-brun mb-1">Responsabilité exclusive du Boucher</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Toute erreur d'exécution relève de la responsabilité exclusive du Boucher partenaire : produit non conforme à la commande (mauvais article, mauvaise quantité, mauvaise découpe, mauvaise préparation), défaut de qualité ou de fraîcheur, problème d'emballage ou d'étiquetage. Côte à côte, agissant comme intermédiaire technique, rembourse le Client dans un premier temps, puis déduit le montant intégral du remboursement sur le virement suivant du Boucher concerné (art. L. 442-1 Code de commerce).
+                Toute erreur d'exécution relève de la responsabilité exclusive du Boucher partenaire : produit non conforme à la commande (mauvais article, mauvaise quantité, mauvaise découpe, mauvaise préparation), défaut de qualité ou de fraîcheur, problème d'emballage ou d'étiquetage. Côtes à Côte, agissant comme intermédiaire technique, rembourse le Client dans un premier temps, puis déduit le montant intégral du remboursement sur le virement suivant du Boucher concerné (art. L. 442-1 Code de commerce).
               </p>
             </div>
             <div className="bg-white border border-gris-bd rounded-xl p-3">
-              <p className="text-xs font-bold text-brun mb-1">Ce qui n'engage pas Côte à côte</p>
+              <p className="text-xs font-bold text-brun mb-1">Ce qui n'engage pas Côtes à Côte</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Côte à côte n'est pas responsable des retards ou défauts liés à : une information erronée fournie par le Client (adresse, disponibilité), un cas de force majeure, ou une faute exclusive du Boucher dans la préparation ou l'emballage des produits.
+                Côtes à Côte n'est pas responsable des retards ou défauts liés à : une information erronée fournie par le Client (adresse, disponibilité), un cas de force majeure, ou une faute exclusive du Boucher dans la préparation ou l'emballage des produits.
               </p>
             </div>
           </div>
@@ -203,7 +203,7 @@ export default function CGVPage() {
           <div className="bg-or-pale border border-or/30 rounded-xl p-3 mb-3">
             <p className="text-xs font-bold text-brun mb-1">Garantie légale de conformité</p>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Conformément aux <strong>articles L217-3 à L217-20 du Code de la consommation</strong>, le Boucher partenaire est tenu de livrer un bien conforme à la commande. En cas de défaut de conformité constaté à la livraison, le Client dispose d'un recours contre le Boucher. Pour les denrées alimentaires fraîches, compte tenu de leur nature périssable, toute réclamation doit être formulée dans les <strong>2 heures</strong> suivant la réception à <strong>contact@coteacote.fr</strong>.
+              Conformément aux <strong>articles L217-3 à L217-20 du Code de la consommation</strong>, le Boucher partenaire est tenu de livrer un bien conforme à la commande. En cas de défaut de conformité constaté à la livraison, le Client dispose d'un recours contre le Boucher. Pour les denrées alimentaires fraîches, compte tenu de leur nature périssable, toute réclamation doit être formulée dans les <strong>2 heures</strong> suivant la réception à <strong>support.cotesacote@gmail.com</strong>.
             </p>
           </div>
           <div className="bg-white border border-gris-bd rounded-xl p-3">
@@ -224,7 +224,7 @@ export default function CGVPage() {
         {/* Article 14 */}
         <Article title="Article 14 — Médiation et litiges">
           <p className="text-xs text-gray-500 leading-relaxed mb-2">
-            En cas de litige, le Client est invité à contacter en priorité notre service client (contact@coteacote.fr). En l'absence de résolution amiable dans un délai de <strong>60 jours</strong>, le Client consommateur peut recourir gratuitement à la médiation de la consommation, conformément aux articles L.612-1 et suivants du Code de la consommation.
+            En cas de litige, le Client est invité à contacter en priorité notre service client (support.cotesacote@gmail.com). En l'absence de résolution amiable dans un délai de <strong>60 jours</strong>, le Client consommateur peut recourir gratuitement à la médiation de la consommation, conformément aux articles L.612-1 et suivants du Code de la consommation.
           </p>
           <div className="bg-creme rounded-xl p-3 mb-2">
             <p className="text-xs font-bold text-brun mb-0.5">Médiateur désigné</p>

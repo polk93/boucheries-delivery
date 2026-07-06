@@ -6,7 +6,7 @@ export default function LegalFooter() {
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Brand */}
         <div className="text-center">
-          <p className="font-serif font-black text-brun text-sm">Côte à Côte</p>
+          <p className="font-serif font-black text-brun text-sm">Côtes à Côte</p>
           <p className="text-[10px] text-gray-400 mt-0.5">Vos bouchers à vos côtés, où que vous soyez.</p>
         </div>
 
@@ -42,7 +42,7 @@ export default function LegalFooter() {
 
         {/* Copyright */}
         <p className="text-[10px] text-gray-300 text-center">
-          © {new Date().getFullYear()} Vincent Baudrant (Côte à côte) — Tous droits réservés
+          © {new Date().getFullYear()} Vincent Baudrant (Côtes à Côte) — Tous droits réservés
         </p>
       </div>
     </footer>

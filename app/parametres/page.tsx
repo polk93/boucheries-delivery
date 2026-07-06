@@ -107,7 +107,7 @@ export default function ParametresPage() {
       ],
     }] : []),
     {
-      titre: 'Rejoindre Côte à Côte',
+      titre: 'Rejoindre Côtes à Côte',
       items: [
         { ico: '🛵', label: 'Devenir livreur', sub: 'Livrez à votre rythme, revenus flexibles', action: () => setSection('livreur') },
         { ico: '🔪', label: 'Devenir partenaire boucher', sub: 'Rejoignez le réseau artisan', action: () => setSection('partenaire') },
@@ -184,7 +184,7 @@ export default function ParametresPage() {
             </div>
           </div>
         )}
-        <p className="text-center text-xs text-gray-300 pb-2">Côte à Côte v1.0.0</p>
+        <p className="text-center text-xs text-gray-300 pb-2">Côtes à Côte v1.0.0</p>
       </div>
       <BottomNavClient currentPage="settings" />
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
@@ -787,7 +787,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
   const [open, setOpen] = useState<number | null>(null)
   const faqs = [
     { q: "Comment passer ma première commande ?", a: "Ouvrez l'app, sélectionnez une boucherie, choisissez vos produits et personnalisez votre découpe. Ajoutez au panier et procédez au paiement sécurisé." },
-    { q: "Quelle est la zone de livraison ?", a: "Côte à Côte livre dans un rayon de 10 km autour des boucheries partenaires." },
+    { q: "Quelle est la zone de livraison ?", a: "Côtes à Côte livre dans un rayon de 10 km autour des boucheries partenaires." },
     { q: "La chaîne du froid est-elle garantie ?", a: "Oui. Tous nos livreurs utilisent des sacs isothermes réfrigérés. Livraison en moins de 45 minutes." },
     { q: "Que faire si je ne suis pas satisfait ?", a: "Contactez-nous dans les 2h suivant la livraison. Remboursement ou remplacement garanti." },
     { q: "Comment annuler une commande ?", a: "Annulation possible dans les 5 minutes. Remboursement intégral sous 3-5 jours ouvrés." },
@@ -799,7 +799,7 @@ function SupportSection({ onBack }: { onBack: () => void }) {
           <p className="text-white font-bold text-sm mb-1">Besoin d'aide immédiate ?</p>
           <p className="text-white/60 text-xs mb-3">Réponse sous 2h en jours ouvrés</p>
           <div className="flex gap-2 justify-center">
-            <a href="mailto:contact@coteacote.fr" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
+            <a href="mailto:support.cotesacote@gmail.com" className="bg-or text-brun text-xs font-bold px-4 py-2 rounded-xl no-underline">✉️ Email</a>
             <a href="tel:+33650290212" className="bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-xl no-underline">📞 Appel</a>
           </div>
         </div>
@@ -871,9 +871,9 @@ function ConfidentialiteSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">Dernière mise à jour : 13 mai 2026 · Conforme RGPD</p></div>
         {[
-          { t: "1. Responsable du traitement", c: "Vincent Baudrant (Côte à côte) — SIRET 106 140 742 00011. Contact : contact@coteacote.fr" },
+          { t: "1. Responsable du traitement", c: "Vincent Baudrant (Côtes à Côte) — SIRET 106 140 742 00011. Contact : support.cotesacote@gmail.com" },
           { t: "2. Données collectées", c: "Identité, adresses, historique commandes, géolocalisation (avec consentement). Données bancaires gérées par Stripe." },
-          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : contact@coteacote.fr. Réclamation CNIL : www.cnil.fr" },
+          { t: "3. Vos droits", c: "Accès, rectification, effacement, portabilité. Contact : support.cotesacote@gmail.com. Réclamation CNIL : www.cnil.fr" },
           { t: "4. Durée de conservation", c: "Données de compte : 3 ans après suppression. Commandes : 5 ans (obligation légale)." },
           { t: "5. Base légale du traitement", c: "Exécution du contrat (commandes, livraisons) · Consentement (géolocalisation, cookies analytiques) · Obligation légale (conservation des factures 5 ans — art. L123-22 C. commerce) · Intérêt légitime (prévention fraude, support client)." },
           { t: "6. Transferts hors UE", c: "Stripe Inc. (USA) traite les données de paiement via des Clauses Contractuelles Types approuvées par la Commission européenne (décision 2021/914). Vercel héberge les données en région EU (Amsterdam). Aucun autre transfert hors UE." },
@@ -894,11 +894,11 @@ function CguSection({ onBack }: { onBack: () => void }) {
       <div className="space-y-3">
         <div className="bg-or-pale border border-or/20 rounded-xl p-3"><p className="text-xs text-brun-clair font-semibold">En vigueur depuis le 13 mai 2026 — Exploité par Vincent Baudrant (SIRET 106 140 742 00011)</p></div>
         {[
-          { t: "1. Objet", c: "Les présentes CGU régissent l'utilisation de la plateforme Côte à côte, exploitée par Vincent Baudrant, entrepreneur individuel, dont le siège est 47 rue Vivienne, 75002 Paris." },
-          { t: "2. Description du service", c: "Côte à côte est une marketplace mettant en relation des consommateurs et des boucheries artisanales partenaires. Vincent Baudrant agit en qualité d'intermédiaire technique." },
+          { t: "1. Objet", c: "Les présentes CGU régissent l'utilisation de la plateforme Côtes à Côte, exploitée par Vincent Baudrant, entrepreneur individuel, dont le siège est 47 rue Vivienne, 75002 Paris." },
+          { t: "2. Description du service", c: "Côtes à Côte est une marketplace mettant en relation des consommateurs et des boucheries artisanales partenaires. Vincent Baudrant agit en qualité d'intermédiaire technique." },
           { t: "3. Paiement", c: "Prix en euros TTC. Paiement dû à la validation via Stripe (PCI-DSS Level 1). Vincent Baudrant ne conserve aucune donnée bancaire." },
           { t: "4. Livraison", c: "Délais indicatifs 25-55 min selon le boucher partenaire. Chaîne du froid garantie tout au long du transport." },
-          { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contact sous 2h à contact@coteacote.fr." },
+          { t: "5. Droit de rétractation", c: "Non applicable aux denrées périssables (art. L.221-28 Code consommation). En cas de non-conformité, contact sous 2h à support.cotesacote@gmail.com." },
           { t: "6. Droit applicable", c: "Droit français. En cas de litige, le Tribunal de Commerce de Paris est compétent. Médiation consommateurs : MEDICYS — medicys.fr, 73 bd de Clichy 75009 Paris (art. L.616-1 C. conso., service gratuit pour le consommateur)." },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
@@ -1012,7 +1012,7 @@ function LivreurSection({ onBack }: { onBack: () => void }) {
               <span className="text-4xl block">🛵</span>
               <h2 className="font-serif text-lg font-black text-or">Inscription via Stuart</h2>
               <p className="text-white/70 text-sm leading-relaxed">
-                Côte à Côte utilise Stuart pour gérer ses livraisons. Inscrivez-vous directement sur leur plateforme.
+                Côtes à Côte utilise Stuart pour gérer ses livraisons. Inscrivez-vous directement sur leur plateforme.
               </p>
             </div>
             <div className="bg-white rounded-2xl p-4 shadow-sm space-y-2">
@@ -1212,23 +1212,23 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
           {contractOpen && (
             <div className="px-4 pb-4 space-y-3 border-t border-gris-bd pt-3">
               <div className="bg-or-pale border border-or/20 rounded-xl px-3 py-2">
-                <p className="text-[11px] text-brun-clair font-semibold">Contrat partenaire Côte à côte (Vincent Baudrant — SIRET 106 140 742 00011) · En vigueur depuis le 23 juin 2026</p>
+                <p className="text-[11px] text-brun-clair font-semibold">Contrat partenaire Côtes à Côte (Vincent Baudrant — SIRET 106 140 742 00011) · En vigueur depuis le 23 juin 2026</p>
               </div>
               {[
-                { t: '1. Commission et rémunération', c: 'Côte à Côte retient 15 % TTC sur chaque commande encaissée. Le boucher partenaire perçoit 85 % du montant hors frais de livraison, versé chaque lundi par virement bancaire via Stripe Connect.' },
+                { t: '1. Commission et rémunération', c: 'Côtes à Côte retient 15 % TTC sur chaque commande encaissée. Le boucher partenaire perçoit 85 % du montant hors frais de livraison, versé chaque lundi par virement bancaire via Stripe Connect.' },
                 { t: '2. Durée et résiliation', c: 'Le présent contrat est conclu sans engagement de durée. Le partenaire peut résilier à tout moment depuis ses paramètres. La résiliation prend effet sous 30 jours calendaires, les commandes en cours étant honorées.' },
                 { t: '3. Responsabilité sanitaire et qualité', c: 'Le boucher partenaire est seul responsable de la qualité, de la fraîcheur, de la conformité sanitaire et de la traçabilité de ses produits, conformément au Paquet Hygiène UE (Règlements 852/2004 et 853/2004), aux arrêtés ministériels en vigueur et au Plan de Maîtrise Sanitaire (PMS) de l\'établissement.' },
-                { t: '4. Agrément sanitaire', c: 'Pour les produits d\'origine animale soumis à agrément, le boucher doit communiquer son numéro d\'agrément sanitaire (délivré par la DDPP) lors de l\'inscription et le maintenir à jour. Côte à Côte se réserve le droit de suspendre le compte en cas de non-conformité.' },
+                { t: '4. Agrément sanitaire', c: 'Pour les produits d\'origine animale soumis à agrément, le boucher doit communiquer son numéro d\'agrément sanitaire (délivré par la DDPP) lors de l\'inscription et le maintenir à jour. Côtes à Côte se réserve le droit de suspendre le compte en cas de non-conformité.' },
                 { t: '5. Allergènes obligatoires (INCO)', c: 'Le boucher doit renseigner les 14 allergènes à déclaration obligatoire sur chaque fiche produit (Règlement UE n°1169/2011). Toute omission engage sa responsabilité pénale et civile en cas d\'accident.' },
                 { t: '6. Origine des viandes', c: 'L\'origine géographique des viandes bovines est obligatoire (Règlement UE 1337/2013). Pour les autres espèces (porcine, ovine, volaille), l\'affichage de l\'origine est fortement recommandé et peut devenir obligatoire sur décision européenne. Le boucher s\'engage à fournir ces informations sur chaque produit.' },
                 { t: '7. Prix et affichage', c: 'Les prix doivent être affichés TTC et au kilogramme pour les viandes (Arrêté du 3 décembre 1987). Aucun frais caché ne peut être ajouté après validation du panier par le client.' },
-                { t: '8. Délais et disponibilité', c: 'Le boucher s\'engage à préparer les commandes dans les délais indiqués sur la plateforme. En cas d\'impossibilité (rupture de stock, fermeture exceptionnelle), il doit mettre à jour sa disponibilité immédiatement et contacter le support Côte à Côte.' },
-                { t: '9. Propriété intellectuelle', c: 'Les photos, descriptions et contenus publiés doivent appartenir au boucher ou être libres de droits. Tout contenu portant atteinte aux droits de tiers sera supprimé sans préavis. Le boucher accorde à Côte à côte une licence d\'utilisation non exclusive pour l\'affichage sur la plateforme.' },
-                { t: '10. Paiements et données bancaires', c: 'Les paiements sont traités exclusivement par Stripe Connect (PCI-DSS Level 1). Côte à côte ne stocke aucune donnée bancaire. Le boucher s\'engage à compléter et maintenir à jour son profil Stripe Connect pour recevoir ses virements.' },
-                { t: '11. Protection des données (RGPD)', c: 'Le boucher reçoit les données personnelles des clients (nom, adresse, téléphone) uniquement pour l\'exécution des commandes. Ces données ne peuvent être utilisées à d\'autres fins ni transmises à des tiers. Toute violation doit être signalée à Côte à côte sous 72h (obligation RGPD art. 33).' },
-                { t: '12. Suspension et résiliation par Côte à Côte', c: 'Côte à côte se réserve le droit de suspendre ou résilier le compte partenaire sans préavis en cas de : violation des règles sanitaires, plaintes clients répétées non résolues, fraude, défaut de paiement ou non-respect des présentes obligations.' },
-                { t: '13. Avis clients et signalement', c: 'Le boucher partenaire peut signaler tout avis qu\'il estime abusif, diffamatoire ou frauduleux à contact@coteacote.fr. Côte à côte examinera la demande dans un délai de 7 jours ouvrés et pourra supprimer tout avis ne respectant pas les conditions d\'utilisation (faux avis, conflit d\'intérêt, propos injurieux). En cas de fausse commande ou d\'escroquerie avérée, Côte à côte accompagnera le partenaire dans ses démarches et pourra suspendre le compte client concerné.' },
-                { t: '14. Erreurs de préparation et remboursements', c: 'Le boucher partenaire est seul responsable de la conformité de la préparation à la commande transmise (bon produit, bonne quantité, bonne découpe, bon conditionnement). En cas d\'erreur de préparation constatée par le client et vérifiée par Côte à côte, le montant remboursé au client sera intégralement déduit du prochain virement Stripe Connect du boucher concerné, sans possibilité de contestation au-delà de 48h suivant la notification. Le boucher reconnaît que la commande lui est transmise numériquement de manière exacte et que toute divergence entre la commande reçue et le produit livré lui est imputable.' },
+                { t: '8. Délais et disponibilité', c: 'Le boucher s\'engage à préparer les commandes dans les délais indiqués sur la plateforme. En cas d\'impossibilité (rupture de stock, fermeture exceptionnelle), il doit mettre à jour sa disponibilité immédiatement et contacter le support Côtes à Côte.' },
+                { t: '9. Propriété intellectuelle', c: 'Les photos, descriptions et contenus publiés doivent appartenir au boucher ou être libres de droits. Tout contenu portant atteinte aux droits de tiers sera supprimé sans préavis. Le boucher accorde à Côtes à Côte une licence d\'utilisation non exclusive pour l\'affichage sur la plateforme.' },
+                { t: '10. Paiements et données bancaires', c: 'Les paiements sont traités exclusivement par Stripe Connect (PCI-DSS Level 1). Côtes à Côte ne stocke aucune donnée bancaire. Le boucher s\'engage à compléter et maintenir à jour son profil Stripe Connect pour recevoir ses virements.' },
+                { t: '11. Protection des données (RGPD)', c: 'Le boucher reçoit les données personnelles des clients (nom, adresse, téléphone) uniquement pour l\'exécution des commandes. Ces données ne peuvent être utilisées à d\'autres fins ni transmises à des tiers. Toute violation doit être signalée à Côtes à Côte sous 72h (obligation RGPD art. 33).' },
+                { t: '12. Suspension et résiliation par Côtes à Côte', c: 'Côtes à Côte se réserve le droit de suspendre ou résilier le compte partenaire sans préavis en cas de : violation des règles sanitaires, plaintes clients répétées non résolues, fraude, défaut de paiement ou non-respect des présentes obligations.' },
+                { t: '13. Avis clients et signalement', c: 'Le boucher partenaire peut signaler tout avis qu\'il estime abusif, diffamatoire ou frauduleux à support.cotesacote@gmail.com. Côtes à Côte examinera la demande dans un délai de 7 jours ouvrés et pourra supprimer tout avis ne respectant pas les conditions d\'utilisation (faux avis, conflit d\'intérêt, propos injurieux). En cas de fausse commande ou d\'escroquerie avérée, Côtes à Côte accompagnera le partenaire dans ses démarches et pourra suspendre le compte client concerné.' },
+                { t: '14. Erreurs de préparation et remboursements', c: 'Le boucher partenaire est seul responsable de la conformité de la préparation à la commande transmise (bon produit, bonne quantité, bonne découpe, bon conditionnement). En cas d\'erreur de préparation constatée par le client et vérifiée par Côtes à Côte, le montant remboursé au client sera intégralement déduit du prochain virement Stripe Connect du boucher concerné, sans possibilité de contestation au-delà de 48h suivant la notification. Le boucher reconnaît que la commande lui est transmise numériquement de manière exacte et que toute divergence entre la commande reçue et le produit livré lui est imputable.' },
                 { t: '15. Droit applicable', c: 'Le présent contrat est soumis au droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux de Paris sont seuls compétents.' },
               ].map((s, i) => (
                 <div key={i} className="bg-creme rounded-xl p-3">
@@ -1251,7 +1251,7 @@ function PartenaireSection({ onBack }: { onBack: () => void }) {
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
               J'ai lu et j'accepte intégralement le <button type="button" className="text-brun font-semibold underline" onClick={() => setContractOpen(true)}>Contrat de partenariat boucher</button> ainsi que les{' '}
-              <span className="text-brun font-semibold">Conditions Générales de Vente</span> de Côte à côte. Je certifie que mon établissement est en conformité avec la réglementation sanitaire en vigueur. *
+              <span className="text-brun font-semibold">Conditions Générales de Vente</span> de Côtes à Côte. Je certifie que mon établissement est en conformité avec la réglementation sanitaire en vigueur. *
             </p>
           </label>
         </div>

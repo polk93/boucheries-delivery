@@ -392,7 +392,7 @@ export default function CommandesPage() {
               la livraison. Nous traiterons votre réclamation en priorité.
             </p>
             <p className="text-[10px] text-gray-400">
-              Ord. n°2026-51 du 5 janv. 2026 · Médiation : mediateur@coteacote.fr
+              Ord. n°2026-51 du 5 janv. 2026 · Médiation : support.cotesacote@gmail.com
             </p>
             <button className="w-full bg-brun text-white font-bold py-3 rounded-xl text-sm font-sans" onClick={() => setRetractOpen(false)}>Fermer</button>
           </div>

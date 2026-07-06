@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
           fraisLivraison: String(fraisLivraison),
           pourboire: String(pourboire),
         },
-        description: `Commande Côte à Côte — ${boucherieNom}`,
+        description: `Commande Côtes à Côte — ${boucherieNom}`,
       })
       return NextResponse.json({ clientSecret: paymentIntent.client_secret, mode: 'direct' })
     }
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         transferAuBoucher: String(transferAuBoucher),
         items: JSON.stringify(items),
       },
-      description: `Commande Côte à Côte — ${boucherieNom}`,
+      description: `Commande Côtes à Côte — ${boucherieNom}`,
       statement_descriptor_suffix: 'COTEACOTE',
     })
 

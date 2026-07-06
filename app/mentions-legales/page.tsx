@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Mentions légales — Côte à Côte',
-  description: 'Mentions légales du site côteàcôte.com conformément à la loi LCEN du 21 juin 2004.',
+  title: 'Mentions légales — Côtes à Côte',
+  description: 'Mentions légales du site cotesacote.com conformément à la loi LCEN du 21 juin 2004.',
 }
 
 const sections = [
@@ -10,7 +10,7 @@ const sections = [
     title: '1. Éditeur du site',
     content: [
       { label: 'Nom',                         value: 'Vincent Baudrant' },
-      { label: 'Nom commercial / Enseigne',    value: 'Côte à côte' },
+      { label: 'Nom commercial / Enseigne',    value: 'Côtes à Côte' },
       { label: 'Forme juridique',              value: 'Entrepreneur individuel — Micro-entreprise' },
       { label: 'Siège social',                 value: '47 rue Vivienne, 75002 Paris 2e arrondissement' },
       { label: 'SIRET',                        value: '106 140 742 00011' },
@@ -19,7 +19,7 @@ const sections = [
       { label: 'TVA',                          value: 'Non assujetti — Franchise en base (art. 293 B CGI)' },
       { label: 'Directeur de la publication',  value: 'Vincent Baudrant' },
       { label: 'Téléphone',                    value: '+33 6 50 29 02 12' },
-      { label: 'Contact',                      value: 'contact@coteacote.fr' },
+      { label: 'Contact',                      value: 'support.cotesacote@gmail.com' },
     ],
   },
   {
@@ -32,11 +32,11 @@ const sections = [
   },
   {
     title: '3. Propriété intellectuelle',
-    text: `Le site côteàcôte.com et l'ensemble de son contenu (textes, images, logos, icônes, structure) sont la propriété exclusive de Vincent Baudrant (Côte à côte) et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation préalable et écrite de Vincent Baudrant.`,
+    text: `Le site cotesacote.com et l'ensemble de son contenu (textes, images, logos, icônes, structure) sont la propriété exclusive de Vincent Baudrant (Côtes à Côte) et sont protégés par les lois françaises et internationales relatives à la propriété intellectuelle. Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation préalable et écrite de Vincent Baudrant.`,
   },
   {
     title: '4. Données personnelles',
-    text: `Le traitement des données personnelles collectées sur ce site est régi par notre Politique de confidentialité, conformément au Règlement Général sur la Protection des Données (RGPD — Règlement UE 2016/679) et à la loi Informatique et Libertés modifiée. Vous pouvez exercer vos droits (accès, rectification, effacement, portabilité, opposition) en contactant : contact@coteacote.fr. Pour toute réclamation, vous pouvez saisir la CNIL (www.cnil.fr).`,
+    text: `Le traitement des données personnelles collectées sur ce site est régi par notre Politique de confidentialité, conformément au Règlement Général sur la Protection des Données (RGPD — Règlement UE 2016/679) et à la loi Informatique et Libertés modifiée. Vous pouvez exercer vos droits (accès, rectification, effacement, portabilité, opposition) en contactant : support.cotesacote@gmail.com. Pour toute réclamation, vous pouvez saisir la CNIL (www.cnil.fr).`,
   },
   {
     title: '5. Cookies',
@@ -44,11 +44,11 @@ const sections = [
   },
   {
     title: '6. Responsabilité',
-    text: `Vincent Baudrant (Côte à côte) s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, il ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition. En conséquence, Vincent Baudrant décline toute responsabilité pour toute imprécision, inexactitude ou omission portant sur des informations disponibles sur ce site.`,
+    text: `Vincent Baudrant (Côtes à Côte) s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, il ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition. En conséquence, Vincent Baudrant décline toute responsabilité pour toute imprécision, inexactitude ou omission portant sur des informations disponibles sur ce site.`,
   },
   {
     title: '7. Liens hypertextes',
-    text: `Le site peut contenir des liens vers des sites tiers. Ces liens sont fournis à titre d'information uniquement. Vincent Baudrant (Côte à côte) n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.`,
+    text: `Le site peut contenir des liens vers des sites tiers. Ces liens sont fournis à titre d'information uniquement. Vincent Baudrant (Côtes à Côte) n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.`,
   },
   {
     title: '8. Droit applicable',
